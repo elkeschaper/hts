@@ -1,0 +1,4 @@
+include README.markdown
+#include hts/test/*
+
+global-exclude *.pyc *.pyo *.pyd
