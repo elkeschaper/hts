@@ -15,13 +15,13 @@ def path():
     return os.path.join(os.path.abspath('.'), '../', 'test_data')
 
 
-#@notfixed
+@notfixed
 @pytest.mark.no_external_software_required
 def test_create_heatmap(path):
     # 1. Read a plate_map.
     # 2. Read some random data.
     # 3. Create a QC instance.
     test_qc = 1
-    assert type(test_data) == list
-    assert len(test_data[0].plate_read) == 2
-    assert test_data[0].parameters == TEST_FOLDER_LUMINESCENCE_CSV_FIRST_FILE_PARAMETERS
+    assert type(test_qc) == list
+    assert len(test_qc[0].plate_read) == 2
+    assert test_qc[0].parameters == TEST_FOLDER_LUMINESCENCE_CSV_FIRST_FILE_PARAMETERS

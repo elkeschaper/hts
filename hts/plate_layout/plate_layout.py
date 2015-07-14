@@ -11,7 +11,7 @@ import os
 import pickle
 import re
 
-from plate_layout import plate_layout_io
+from hts.plate_layout import plate_layout_io
 
 LOG = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class PlateLayout:
         if format == 'csv':
             layout = plate_layout_io.read_csv(path)
             path, file = os.path.split(path)
-            return PlateLayout(name = file, layout)
+            return PlateLayout(name=file, layout=layout)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)

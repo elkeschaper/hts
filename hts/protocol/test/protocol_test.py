@@ -4,11 +4,14 @@ import pytest
 from hts.protocol import protocol
 
 # Test file names
-TEST_PROTOCOL_CONFIG = 'protocol_1_config.txt'
+TEST_PROTOCOL_CONFIG = "protocol_config_generic.txt"
+TEST_PROTOCOL_CONFIG_dPIA = "protocol_config_dPIA_1.txt"
+TEST_PROTOCOL_CONFIG_insulin = "protocol_config_insulin_1.txt"
+TEST_PROTOCOL_CONFIG_muscle_miRNA = "protocol_config_muscle_miRNA_1.txt"
+TEST_PROTOCOL_CONFIG_siRNA = "protocol_config_siRNA_1.txt"
 
 TEST_PREPROCESSING = ["calculate_net"]
 TEST_QC = ["heat_map", "ssmd", "zz"]
-
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,13 +22,20 @@ notfixed = pytest.mark.notfixed
 def path():
     """Return the path to the test data files.
     """
-    return os.path.join(os.path.abspath('.'), '../', 'test_data')
+    return os.path.join(os.path.abspath('.'), '../', 'test_data', 'Protocols')
 
 @pytest.mark.no_external_software_required
-def test_read_envision_csv(path):
-    test_protocol = protocol.protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG))
-    assert test_protocol.type = "siRNA_FRET"
-    assert test_protocol.name = TEST_PROTOCOL_CONFIG
-    assert test_protocol.preprocessing = {"plate": TEST_PREPROCESSING}
-    assert test_protocol.QC = {"methods": TEST_QC}
+def test_protocol_insuling(path):
+    test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
+    assert test_protocol.name == TEST_PROTOCOL_CONFIG_insulin
+    assert test_protocol.type == "Insulin"
+    assert test_protocol.QC == {"methods": TEST_QC}
+
+@pytest.mark.no_external_software_required
+def test_protocol(path):
+    test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG), format="config")
+    assert test_protocol.name == TEST_PROTOCOL_CONFIG
+    assert test_protocol.type == "siRNA_FRET"
+    assert test_protocol.preprocessing == {"plate": TEST_PREPROCESSING}
+    assert test_protocol.QC == {"methods": TEST_QC}
 

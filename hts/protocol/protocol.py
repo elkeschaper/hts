@@ -35,8 +35,9 @@ class Protocol:
         self.name = name
         # Save config simply as attributes.
         for key, value in config.items():
-            setattr(self, value, key)
-
+            if not hasattr(self, key):
+                setattr(self, key, value)
+        #import pdb; pdb.set_trace()
 
     def create(path, format=None):
         """ Create ``Protocol`` instance.
@@ -54,7 +55,7 @@ class Protocol:
         if format == 'config':
             config = configobj.ConfigObj(path, stringify=True)
             path, file = os.path.split(path)
-            return Protocol(name = file, config)
+            return Protocol(name=file, config=config)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)

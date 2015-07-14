@@ -40,7 +40,7 @@ class QualityControl:
 
     ################ Plate wise methods ####################
 
-    def heat_map_plate(self, plate, *args, *kwargs):
+    def heat_map_plate(self, plate, *args, **kwargs):
         """ Create a heat_map for the plate with plate_tag ``plate``
 
         Create a heat_map for the plate with plate_tag ``plate``
@@ -53,7 +53,7 @@ class QualityControl:
 
     ################ Run wise methods ####################
 
-    def heat_map_run(self, *args, *kwargs):
+    def heat_map_run(self, *args, **kwargs):
         """ Create a heat_map for all plates in the run
 
         Create a heat_map for all plates in the run

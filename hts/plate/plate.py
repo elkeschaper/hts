@@ -33,12 +33,15 @@ class Plate:
 
     def __init__(self, name, raw_read_outs, **kwargs):
 
+        LOG.debug(name)
+        LOG.debug(raw_read_outs)
+
         self.name = name
         self.raw_read_outs = raw_read_outs
 
         # Make sure all readouts are equal in height and width.
-        plate_heights = [len(i) for i in all_plates]
-        plate_widths = [len(i[0]) for i in all_plates]
+        plate_heights = [len(i) for i in self.raw_read_outs.values()]
+        plate_widths = [len(i[0]) for i in self.raw_read_outs.values()]
         if len(set(plate_heights)) != 1 or len(set(plate_widths)) != 1:
             raise Exception("Plate widths and lengths in the parsed output "
                 "files are not all equal: plate_heights: {}, plate_widths: {} "
@@ -47,11 +50,11 @@ class Plate:
         self.width = plate_widths[0]
 
         for key, value in kwargs.items():
-            if not self.haskey(key):
-                setattr(self, value, key)
+            if not hasattr(self, key):
+                setattr(self, key, value)
 
 
-    def create(path, source=None, format=None):
+    def create(path, format=None):
         """ Create ``Plate`` instance.
 
         Create ``Plate`` instance.
@@ -67,11 +70,15 @@ class Plate:
         if format == 'csv':
             plate = plate_io.read_csv(path)
             path, file = os.path.split(path)
-            return Plate(name = file, plate)
-        if format == 'envision_csv':
+            return Plate(name=file, raw_read_outs=plate)
+        elif format == 'envision_csv':
             plate_info, channel_wise_reads, channel_wise_info = plate_io.read_envision_csv(path)
             path, file = os.path.split(path)
-            return Plate(name=file, raw_read_out=channel_wise_reads, plate_info=plate_info, channel_wise_info = channel_wise_info)
+            return Plate(name=file, raw_read_outs=channel_wise_reads, plate_info=plate_info, channel_wise_info=channel_wise_info)
+        elif format == 'insulin_csv':
+            plate_info, channel_wise_reads, channel_wise_info = plate_io.read_insulin_csv(path)
+            path, file = os.path.split(path)
+            return Plate(name=file, raw_read_outs=channel_wise_reads, plate_info=plate_info, channel_wise_info=channel_wise_info)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)

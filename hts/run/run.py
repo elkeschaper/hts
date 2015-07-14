@@ -14,6 +14,7 @@ import re
 
 from hts.run import run_io
 from hts.plate import plate
+from hts.plate_layout import plate_layout
 from hts.protocol import protocol
 
 
@@ -46,14 +47,22 @@ class Run:
         self.width = self.plates[0].width
         self.height = self.plates[0].height
         if "protocol" in kwargs:
-            self.protocol(path = kwargs.pop('protocol'))
+            param = kwargs.pop('protocol')
+            if not type(param) == configobj.Section:
+                raise Exception("param for protocol is not of type "
+                    "configobj.Section: {}, {}".format(param, type(param)))
+            self.protocol(path = param['path'], format = param['format'])
         if "plate_layout" in kwargs:
-            self.plate_layout(path = kwargs.pop('plate_layout'))
+            param = kwargs.pop('plate_layout')
+            if not type(param) == configobj.Section:
+                raise Exception("param for plate_layout is not of type "
+                    "configobj.Section: {}, {}".format(param, type(param)))
+            self.plate_layout(path = param['path'], format = param['format'])
 
         # Save all other kwargs simply as attributes.
         for key, value in kwargs.items():
-            setattr(self, value, key)
-
+            if not hasattr(self, key):
+                setattr(self, key, value)
 
         # Extract plate numbering for multiple plates and set index for each plate.
         plate_tags = [i.name for i in self.plates]
@@ -72,11 +81,10 @@ class Run:
             i_plate.index = plate_index
 
 
-
-    def create(origin, path, format = None, dir=False):
+    def create(origin, path, format = None, dir = False):
         """ Create ``Run`` instance.
 
-        Create ``Run`` instance
+        Create ``Run`` instance.
 
         Args:
             origin (str):  At current only "config" or "plates"
@@ -89,12 +97,14 @@ class Run:
         """
 
         if dir == True:
-            files = os.listdir(path)
+            file = os.listdir(path)
         else:
             path, file = os.path.split(path)
 
         if origin == 'config':
             return Run.create_from_config(path, file)
+        if origin == 'envision':
+            return Run.create_from_envision(path, file)
         elif origin == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
@@ -104,7 +114,7 @@ class Run:
                             "Run.create()".format(origin, format))
 
 
-    def create_from_config(self, path, file):
+    def create_from_config(path, file):
         """ Read config and use data to create `Run` instance.
 
         Read config and use data to create `Run` instance.
@@ -117,9 +127,31 @@ class Run:
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
-        if "plate" in config:
-            plates = [plate.Plate.create(os.path.join(config["plate"]["path"], i)) for i in config["plate"]["filenames"]]
+        if "plate_source" in config:
+            config_ps = config["plate_source"]
+            plates = [plate.Plate.create(path=os.path.join(config_ps["path"], i), format=config_ps['format']) for i in config_ps["filenames"]]
+        else:
+            raise Exception("plate_source is not defined in config file: {}"
+                            "".format(os.path.join(path, file)))
         return Run(plates = plates, **config)
+
+
+    def create_from_envision(path, file):
+        """ Read envision data and create `Run` instance.
+
+        Read envision data and create `Run` instance.
+
+        Args:
+            path (str): Path to input configobj file
+            file (str): Filename of configobj file
+
+        .. todo:: Write checks if path and file exists when necessary.
+        """
+
+        if type(file) != list:
+            file = [file]
+        plates = [plate.Plate.create(os.path.join(path, i), format="envision_csv") for i in file]
+        return Run(plates = plates)
 
 
     def create_qc_report(self, path):
@@ -150,18 +182,18 @@ class Run:
         .. todo:: Write checks if path and format exists when necessary.
         """
 
-        if not hasattr(self, 'plate_layout'):
+        if not hasattr(self, '_plate_layout'):
             if format == "csv":
-                self.plate_layout = plate_layout.plate_layout.PlateLayout.create(path, format)
-                if len(self.plate_layout.layout) != self.height or len(self.plate_layout.layout[0]) != self.width:
+                self._plate_layout = plate_layout.PlateLayout.create(path, format)
+                if len(self._plate_layout.layout) != self.height or len(self._plate_layout.layout[0]) != self.width:
                     raise Exception("Plate width and length of the plate layout "
                             "({}, {}) are not the same as for the plate data ({}, {})"
-                            "".format(len(self.plate_layout.layout), len(self.plate_layout.layout[0]), self.height, self.width))
+                            "".format(len(self._plate_layout.layout), len(self._plate_layout.layout[0]), self.height, self.width))
             else:
                 raise Exception("Format: {} is not implemented in "
                             "ScreenData.set_plate_layout()".format(format))
 
-        return self.plate_layout
+        return self._plate_layout
 
 
     def protocol(self, path = None, format = None):
@@ -176,9 +208,9 @@ class Run:
         .. todo:: Write checks if path and format exists when necessary.
         """
 
-        if not hasattr(self, 'protocol'):
-            self.protocol = protocol.protocol.Protocol.create(path, format)
-        return self.protocol
+        if not hasattr(self, '_protocol'):
+            self._protocol = protocol.Protocol.create(path, format)
+        return self._protocol
 
 
     def write(self, format, path=None, return_string=None, *args):
