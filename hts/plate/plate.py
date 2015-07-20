@@ -11,7 +11,7 @@ import os
 import pickle
 import re
 
-from plate import plate_io
+from hts.plate import plate_io
 
 LOG = logging.getLogger(__name__)
 
@@ -30,6 +30,21 @@ class Plate:
 
 
     """
+
+    def __str__(self):
+        """
+            Create string for Plate instance.
+        """
+        try:
+            plate = ("<Plate instance>\nname: {}\nNumber of raw_read_outs: {}"
+                    "\nwidth: {}\nheight: {}".format(self.name,
+                    len(self.raw_read_outs), self.width, self.height))
+        except:
+            plate = "<Plate instance>"
+            LOG.warning("Could not create string of Plate instance.")
+
+        return plate
+
 
     def __init__(self, name, raw_read_outs, **kwargs):
 

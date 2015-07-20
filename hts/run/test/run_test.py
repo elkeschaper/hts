@@ -41,6 +41,14 @@ def test_read_run_from_config_insulin(path_run):
     test_plate_layout = test_run.plate_layout()
     assert type(test_plate_layout) == PlateLayout
 
+
+@pytest.mark.no_external_software_required
+def test_do_qc_insulin(path_run):
+    test_run = Run.create(origin="config",
+                        path=os.path.join(path_run, TEST_RUN_CONFIG))
+    test_run.qc(type="plate", tag=0)
+    test_run.qc(type="run", tag=(0,0))
+
 #@notfixed
 @pytest.mark.no_external_software_required
 def test_read_run_from_readouts(path_raw_data):

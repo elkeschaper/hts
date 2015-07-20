@@ -29,7 +29,7 @@ def test_protocol_insuling(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
     assert test_protocol.name == TEST_PROTOCOL_CONFIG_insulin
     assert test_protocol.type == "Insulin"
-    assert test_protocol.QC == {"methods": TEST_QC}
+    assert test_protocol.qc == {"methods": ["heat_map_run"]}
 
 @pytest.mark.no_external_software_required
 def test_protocol(path):
@@ -37,5 +37,5 @@ def test_protocol(path):
     assert test_protocol.name == TEST_PROTOCOL_CONFIG
     assert test_protocol.type == "siRNA_FRET"
     assert test_protocol.preprocessing == {"plate": TEST_PREPROCESSING}
-    assert test_protocol.QC == {"methods": TEST_QC}
+    assert test_protocol.qc == {"methods": TEST_QC}
 

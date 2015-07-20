@@ -12,6 +12,7 @@ import os
 import pickle
 import re
 
+from hts.qc import qc
 from hts.run import run_io
 from hts.plate import plate
 from hts.plate_layout import plate_layout
@@ -31,14 +32,31 @@ class Run:
         plates (list of ``Plate``): List of ``Plate`` instances
         width (int): Width of the plates
         height (int): Height of the plates
-        protocol (``Protocol``): ``Protocol`` instance
+        _protocol (``Protocol``): ``Protocol`` instance
+        _platelayout (``PlateLayout``): ``PlateLayout`` instance
+        _qc (dict of dict of ``QualityControl`` instance): A collection of ``QualityControl`` instance
+        raw_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?
+        net_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?
         experimenter (str): Name of the experimenter
         experimenter (str): Mail adress of the experimenter
-        raw_qc (``QualityControl``): ``QualityControl`` instance
-        net_qc (``QualityControl``): ``QualityControl`` instance
+
 
     ..todo:: Implement me :)
     """
+
+    def __str__(self):
+        """
+            Create string for Run instance.
+        """
+        try:
+            run = ("<Run instance>\nNumber of plates: {}\nwidth: {}\nheight: {}"
+                "".format(len(self.plates), self.width, self.height))
+        except:
+            run = "<Run instance>"
+            LOG.warning("Could not create string of Run instance.")
+
+        return run
+
 
     def __init__(self, plates, **kwargs):
 
@@ -168,6 +186,40 @@ class Run:
         self.run_qc()
         # Create pdf
 
+
+    def qc(self, type, tag):
+        """ Create ``QualityControl`` instance.
+
+        Create ``QualityControl`` instance.
+
+        Args:
+            type (str): either "run" or "plate"
+            tag (str): Defines either the channel (within the plate),
+                or the plate (within the run)
+
+        .. todo:: Create QC for different plate subsets (e.g. raw/net).
+        .. todo:: Use function to get to plate data instead of attributes?
+        """
+
+        if not hasattr(self, '_qc'):
+            self._qc = {"plate": {}, "run": {}}
+        if tag in self._qc[type]:
+            my_qc = self._qc[type]["tag"]
+        else:
+            if type == "plate":
+                run_data = {i:j for i,j in self.plates[tag].raw_read_outs.items()}
+                my_qc = qc.QualityControl(run_data=run_data, plate_layout=self.plate_layout(), methods=self.protocol().qc['methods'])
+                my_qc.perform_qc()
+            elif type == "run":
+                run_data = {iPlate.name:iPlate.raw_read_outs[tag] for iPlate in self.plates}
+                my_qc = qc.QualityControl(run_data=run_data, plate_layout=self.plate_layout(), methods=self.protocol().qc['methods'])
+                my_qc.perform_qc()
+            else:
+                raise Exception("tpe: {} is not implemented in "
+                            "Run.qc()".format(type))
+            self._qc[type][tag] = my_qc
+
+        return my_qc
 
 
     def plate_layout(self, path = None, format = None):
