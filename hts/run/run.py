@@ -294,6 +294,10 @@ class Run:
                 raise Exception("Format: {} is not implemented in "
                             "ScreenData.set_plate_layout()".format(format))
 
+        # Push PlateLayout to plates
+        for plate in self.plates.values():
+            plate.set_plate_layout(self._plate_layout)
+
         return self._plate_layout
 
 

@@ -124,6 +124,21 @@ class ReadoutDict:
                 raise KeyError('tag: {} is not in self.readouts: {}'
                                 ''.format(tag, self.read_outs.keys()))
 
+    def set_plate_layout(self, plate_layout):
+        """ Set `self.plate_layout`
+
+        Set `self.plate_layout`
+
+        Args:
+            plate_layout (PlateLayout): A ``PlateLayout`` instance
+        """
+
+        self.plate_layout = plate_layout
+        # Push PlateLayout to readouts
+        for read_out in self.read_outs.values():
+            read_out.plate_layout = self.plate_layout
+
+
 
     def write(self, format, path=None, return_string=None, *args):
         """ Serialize and write ``ReadoutDict`` instances.
