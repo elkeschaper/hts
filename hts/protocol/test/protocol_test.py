@@ -31,7 +31,7 @@ def test_protocol_insuling(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
     assert test_protocol.name == TEST_PROTOCOL_CONFIG_insulin
     assert test_protocol.type == "Insulin"
-    assert test_protocol.qc == {'1': {"methods": ["heat_map_multiple"], "filter": {"type": "run_wise", "tag": "(17,39)", "subset": ''}}, '2': {"methods": ["heat_map_multiple"], "filter": {"type": "plate_wise", "tag": "", "subset": "[(0,0), (17,39)]"}}}
+    assert test_protocol.qc == {'1': {"methods": {"heat_map_multiple": {"subset": ["s_1"]}}, "filter": {"type": "run_wise", "tag": "(17,39)", "subset": ''}}, '2': {"methods": {"heat_map_multiple": {}}, "filter": {"type": "plate_wise", "tag": "", "subset": "[(0,0), (17,39)]"}}}
 
 @pytest.mark.no_external_software_required
 def test_protocol(path):

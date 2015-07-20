@@ -32,14 +32,14 @@ PATH = '/Users/elkeschaper/Downloads/'
 
 
 def perform_qc(methods, data, *args, **kwargs):
-    local_methods = [getattr(sys.modules[__name__], method_name) for method_name in methods]
+    local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
     #import pdb; pdb.set_trace()
     if not (type(data) == readout.Readout or type(data) == readout_dict.ReadoutDict):
         if type(data) == dict:
             data = readout_dict.ReadoutDict(read_outs = data)
         else:
             data = readout.Readout(data)
-    results = [i(data, *args, **kwargs) for i in local_methods]
+    results = [i(data, **param) for i, param in local_methods.items()]
     ### ADD: combine results (e.g. for R add data printout)
     return results
 
@@ -88,6 +88,11 @@ def heat_map_multiple(data, plate_tags = None, file = "heat_map_run.pdf", nPlate
     Create a heat_map for multiple readouts
 
     """
+
+    if "subset" in kwargs:
+        subset = kwargs["subset"]
+    else:
+        subset = None
 
     plate_data = data.read_outs
     if not plate_tags:
