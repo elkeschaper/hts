@@ -13,6 +13,8 @@ TEST_PROTOCOL_CONFIG_siRNA = "protocol_config_siRNA_1.txt"
 TEST_PREPROCESSING = ["calculate_net"]
 TEST_QC = ["heat_map", "ssmd", "zz"]
 
+
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -29,7 +31,7 @@ def test_protocol_insuling(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
     assert test_protocol.name == TEST_PROTOCOL_CONFIG_insulin
     assert test_protocol.type == "Insulin"
-    assert test_protocol.qc == {"methods": ["heat_map_run"]}
+    assert test_protocol.qc == {'1': {"methods": ["heat_map_multiple"], "filter": {"type": "run_wise", "tag": "(17,39)", "subset": ''}}, '2': {"methods": ["heat_map_multiple"], "filter": {"type": "plate_wise", "tag": "", "subset": "[(0,0), (17,39)]"}}}
 
 @pytest.mark.no_external_software_required
 def test_protocol(path):
@@ -37,5 +39,4 @@ def test_protocol(path):
     assert test_protocol.name == TEST_PROTOCOL_CONFIG
     assert test_protocol.type == "siRNA_FRET"
     assert test_protocol.preprocessing == {"plate": TEST_PREPROCESSING}
-    assert test_protocol.qc == {"methods": TEST_QC}
-
+    assert test_protocol.qc == {'1': {"methods": TEST_QC, "filter": {"type": "run_wise", "tag": "tag", "subset": ''}}}

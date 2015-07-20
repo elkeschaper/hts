@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from hts.plate import plate_io
+from hts.readout import plate_io
 
 import logging
 logging.basicConfig(level=logging.INFO)

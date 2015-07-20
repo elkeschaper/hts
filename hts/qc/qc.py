@@ -1,7 +1,8 @@
 # (C) 2015 Elke Schaper
 
 """
-    :synopsis: The QualityControl Class.
+    :synopsis: ``quality_control`` implementes all methods connected to the
+    quality control of a high throughput screening experiment
 
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
@@ -17,172 +18,134 @@ import numpy as np
 import os
 import pickle
 import re
-from string import ascii_uppercase
 import sys
 
 
+from hts.readout import readout, readout_dict
+
 LOG = logging.getLogger(__name__)
 
-
-class QualityControl:
-
-    """ ``QualityControl`` describes all information connected to the quality
-        control of a high throughput screening experiment
-
-    Attributes:
-        run_data (dict of np.array of np.array): The data on which to perform QC.
-        plate_layout (list of list of str): Mapping the plates to positives
-                controls (pos_k), negative controls (neg_k) and so on.
+PATH = '/Users/elkeschaper/Downloads/'
 
 
-    ..todo:: Implement.
+#import pdb; pdb.set_trace()
+
+
+def perform_qc(methods, data, *args, **kwargs):
+    local_methods = [getattr(sys.modules[__name__], method_name) for method_name in methods]
+    #import pdb; pdb.set_trace()
+    if not (type(data) == readout.Readout or type(data) == readout_dict.ReadoutDict):
+        if type(data) == dict:
+            data = readout_dict.ReadoutDict(read_outs = data)
+        else:
+            data = readout.Readout(data)
+    results = [i(data, *args, **kwargs) for i in local_methods]
+    ### ADD: combine results (e.g. for R add data printout)
+    return results
+
+################ Readout wise methods ####################
+
+
+def heat_map_single(data, file = "heat_map_plate.pdf", *args, **kwargs):
+    """ Create a heat_map for a single readout
+
+    Create a heat_map for a single readout
+
+    ..todo:: Share code between heat_map_single and heat_map_multiple
     """
 
-    def __init__(self, run_data, plate_layout = None, methods = None, **kwargs):
+    np_data = data.data
+    pp = PdfPages(os.path.join(PATH, file))
 
-        # convert all data to floats.
-        if not type(run_data) == dict:
-            raise Exception("run_data is not of type dict: "
-                    " {}".format(run_data))
+    fig, ax = plt.subplots()
 
-        self.run_data = {plate_tag: np.array([np.array([float(read) for read in column]) for column in row]) for plate_tag, row in run_data.items()}
-        self.plate_layout = plate_layout
-        #import pdb; pdb.set_trace()
-        if methods:
-            self.methods = [getattr(sys.modules[__name__].QualityControl, method_name) for method_name in methods]
-        self.width = len(list(run_data.values())[0][0])
-        self.height = len(list(run_data.values())[0])
-        self.path = '/Users/elkeschaper/Downloads/'
-        if self.height <= len(ascii_uppercase):
-            self.axes = {"x": list(range(1, self.width + 1)), "y": ascii_uppercase[:self.height]}
-        else:
-            raise Exception("Add plate letters for large plates. Plate height:"
-                    " {}".format(self.height))
+    im = ax.pcolormesh(np_data, vmin=np_data.min(), vmax=np_data.max()) # cmap='RdBu'
+    fig.colorbar(im)
 
+    # put the major ticks at the middle of each cell
+    ax.set_xticks(np.arange(np_data.shape[1]) + 0.5, minor=False)
+    ax.set_yticks(np.arange(np_data.shape[0]) + 0.5, minor=False)
 
-    def perform_qc(self, *args, **kwargs):
-        for method in self.methods:
-            method(self, *args, **kwargs)
+    # Invert the y-axis such that the data is displayed as it appears on the plate.
+    ax.invert_yaxis()
+    ax.xaxis.tick_top()
 
-    ################ Plate wise methods ####################
+    ax.set_xticklabels(data.axes['x'], minor=False)
+    ax.set_yticklabels(data.axes['y'], minor=False)
 
-    def get_subset(self, tag):
-        """ Return subset of run_data with plate_layout "type" only
+    pp.savefig(fig)
+    pp.close()
+    fig.clear()
 
-        Return subset of run_data with plate_layout "type" only
-
-        ..todo:: Implement
-        """
-
-        type = []
-        for i,j in itertools.product(self.width, self.height):
-            if self.plate_layout[i][j] == tag:
-                type.append((i,j))
-
-        run_data = {plate_tag: [data[c[0]][c[1]] for c in type] for plate_tag, data in self.run_data.items()}
-        return run_data
+    return ax
 
 
-    def heat_map_plate(self, plate_tag, file = "heat_map_plate.pdf", *args, **kwargs):
-        """ Create a heat_map for the plate with plate_tag ``plate``
+################ Readout_dict wise methods ####################
 
-        Create a heat_map for the plate with plate_tag ``plate``
+def heat_map_multiple(data, plate_tags = None, file = "heat_map_run.pdf", nPlates_max = 10, *args, **kwargs):
+    """ Create a heat_map for multiple readouts
 
-        ..todo:: Share code between heat_map_run and heat_map_plate
-        """
+    Create a heat_map for multiple readouts
 
-        pp = PdfPages(os.path.join(self.path, file))
+    """
 
-        plate_data = self.run_data[plate_tag]
+    plate_data = data.read_outs
+    if not plate_tags:
+        plate_tags = sorted(plate_data.keys())
 
-        fig, ax = plt.subplots()
+    if len(plate_tags) > nPlates_max:
+        plate_tags = plate_tags[::round(len(plate_tags)/nPlates_max)]
 
-        im = ax.pcolormesh(plate_data, vmin=plate_data.min(), vmax=plate_data.max()) # cmap='RdBu'
-        fig.colorbar(im)
+    a = math.ceil(len(plate_tags)/2)
+    b = 2
+
+    pp = PdfPages(os.path.join(PATH, file))
+
+    data_min = min(plate_data[plate_tag].min() for plate_tag in plate_tags)
+    data_max = max(plate_data[plate_tag].max() for plate_tag in plate_tags)
+
+    #import pdb; pdb.set_trace()
+    #plt.ioff()
+    # Use axes.ravel() instead ????
+    fig, axes = plt.subplots(a, b, sharex='col', sharey='row')
+    if a > 1 and b > 1:
+        laxes = [item for sublist in axes for item in sublist]
+    else:
+        laxes = axes
+    #ax1.set_title('Sharing x per column, y per row')
+
+    for plate_tag, ax in zip(plate_tags, laxes):
+        idata = plate_data[plate_tag]
+        im = ax.pcolormesh(idata.data, vmin=data_min, vmax=data_max) # cmap='RdBu'
 
         # put the major ticks at the middle of each cell
-        ax.set_xticks(np.arange(plate_data.shape[1]) + 0.5, minor=False)
-        ax.set_yticks(np.arange(plate_data.shape[0]) + 0.5, minor=False)
+        ax.set_xticks(np.arange(idata.data.shape[1]) + 0.5, minor=False)
+        ax.set_yticks(np.arange(idata.data.shape[0]) + 0.5, minor=False)
 
         # Invert the y-axis such that the data is displayed as it appears on the plate.
         ax.invert_yaxis()
         ax.xaxis.tick_top()
 
-        ax.set_xticklabels(self.axes['x'], minor=False)
-        ax.set_yticklabels(self.axes['y'], minor=False)
+        ax.set_xticklabels(idata.axes['x'], minor=False)
+        ax.set_yticklabels(idata.axes['y'], minor=False)
 
-        pp.savefig(fig)
-        pp.close()
-        fig.clear()
+    # Fine-tune figure; hide x ticks for top plots and y ticks for right plots. Source: http://matplotlib.org/examples/pylab_examples/subplots_demo.html
+    if a > 1 and b > 1:
+        #plt.setp([ax.get_xticklabels() for ax in laxes], visible=False)
+        plt.setp([ax.get_xticklabels() for ax in axes[0, :]], visible=True)
+        plt.setp([ax.get_yticklabels() for ax in axes[:, 1]], visible=False)
+    else:
+        plt.setp(laxes[1].get_xticklabels(), visible=False)
 
-        return ax
+    matplotlib.rcParams.update({'font.size': 2.5})
+    plt.subplots_adjust(left=0.1, right=0.5, top=0.9, bottom=0.1)
+    cbar = fig.colorbar(im, ax=axes.ravel().tolist())
+    #import pdb; pdb.set_trace()
+    cbar.ax.set_position((0.45, 0.4, 0.2, 0.2))
 
+    pp.savefig(fig, dpi=20, bbox_inches='tight')
+    #plt.show()
+    pp.close()
+    fig.clear()
 
-    ################ Run wise methods ####################
-
-    def heat_map_run(self, plate_tags = None, file = "heat_map_run.pdf", nPlates_max = 10, *args, **kwargs):
-        """ Create a heat_map for all plates in the run
-
-        Create a heat_map for all plates in the run
-
-        """
-
-        if not plate_tags:
-            plate_tags = sorted(self.run_data.keys())
-
-        if len(plate_tags) > nPlates_max:
-            plate_tags = plate_tags[::round(len(plate_tags)/nPlates_max)]
-
-        a = math.ceil(len(plate_tags)/2)
-        b = 2
-
-        pp = PdfPages(os.path.join(self.path, file))
-
-        data_min = min(self.run_data[plate_tag].min() for plate_tag in plate_tags)
-        data_max = max(self.run_data[plate_tag].max() for plate_tag in plate_tags)
-
-        #import pdb; pdb.set_trace()
-        #plt.ioff()
-        # Use axes.ravel() instead ????
-        fig, axes = plt.subplots(a, b, sharex='col', sharey='row')
-        if a > 1 and b > 1:
-            laxes = [item for sublist in axes for item in sublist]
-        else:
-            laxes = axes
-        #ax1.set_title('Sharing x per column, y per row')
-
-        for plate_tag, ax in zip(plate_tags, laxes):
-            plate_data = self.run_data[plate_tag]
-            im = ax.pcolormesh(plate_data, vmin=data_min, vmax=data_max) # cmap='RdBu'
-
-            # put the major ticks at the middle of each cell
-            ax.set_xticks(np.arange(plate_data.shape[1]) + 0.5, minor=False)
-            ax.set_yticks(np.arange(plate_data.shape[0]) + 0.5, minor=False)
-
-            # Invert the y-axis such that the data is displayed as it appears on the plate.
-            ax.invert_yaxis()
-            ax.xaxis.tick_top()
-
-            ax.set_xticklabels(self.axes['x'], minor=False)
-            ax.set_yticklabels(self.axes['y'], minor=False)
-
-        # Fine-tune figure; hide x ticks for top plots and y ticks for right plots. Source: http://matplotlib.org/examples/pylab_examples/subplots_demo.html
-        if a > 1 and b > 1:
-            #plt.setp([ax.get_xticklabels() for ax in laxes], visible=False)
-            plt.setp([ax.get_xticklabels() for ax in axes[0, :]], visible=True)
-            plt.setp([ax.get_yticklabels() for ax in axes[:, 1]], visible=False)
-        else:
-            plt.setp(laxes[1].get_xticklabels(), visible=False)
-
-        matplotlib.rcParams.update({'font.size': 2.5})
-        plt.subplots_adjust(left=0.1, right=0.5, top=0.9, bottom=0.1)
-        cbar = fig.colorbar(im, ax=axes.ravel().tolist())
-        #import pdb; pdb.set_trace()
-        cbar.ax.set_position((0.45, 0.4, 0.2, 0.2))
-
-        pp.savefig(fig, dpi=20, bbox_inches='tight')
-        #plt.show()
-        pp.close()
-        fig.clear()
-
-        return axes
+    return axes

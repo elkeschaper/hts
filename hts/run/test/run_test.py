@@ -30,12 +30,14 @@ def test_read_run_from_config_insulin(path_run):
                         path=os.path.join(path_run, TEST_RUN_CONFIG))
     assert type(test_run) == Run
     assert len(test_run.plates) == 5
-    assert test_run.plates[0].height == 16
-    assert test_run.height == test_run.plates[0].height
-    assert test_run.plates[0].width == 24
-    assert test_run.width == test_run.plates[0].width
-
-    assert len(test_run.plates[0].raw_read_outs) == 480
+    test_plate = test_run.plates["150622_AmAmAs384_SanofiBatches1.csv"]
+    test_height = 16
+    assert test_plate.height == test_height
+    assert test_run.height == test_height
+    test_width = 24
+    assert test_plate.width == test_width
+    assert test_run.width == test_width
+    assert len(test_plate.read_outs) == 480
     test_protocol = test_run.protocol()
     assert type(test_protocol) == Protocol
     test_plate_layout = test_run.plate_layout()
@@ -46,8 +48,7 @@ def test_read_run_from_config_insulin(path_run):
 def test_do_qc_insulin(path_run):
     test_run = Run.create(origin="config",
                         path=os.path.join(path_run, TEST_RUN_CONFIG))
-    test_run.qc(type="plate", tag=0)
-    test_run.qc(type="run", tag=(0,0))
+    test_qc = test_run.qc()
 
 #@notfixed
 @pytest.mark.no_external_software_required

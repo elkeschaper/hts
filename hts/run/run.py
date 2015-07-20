@@ -6,6 +6,7 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
+import ast
 import configobj
 import logging
 import os
@@ -14,7 +15,7 @@ import re
 
 from hts.qc import qc
 from hts.run import run_io
-from hts.plate import plate
+from hts.readout import readout_dict
 from hts.plate_layout import plate_layout
 from hts.protocol import protocol
 
@@ -29,7 +30,7 @@ class Run:
 
     Attributes:
         name (str): Name of the run
-        plates (list of ``Plate``): List of ``Plate`` instances
+        plates (list of ``ReadoutDict``): List of ``ReadoutDict`` instances
         width (int): Width of the plates
         height (int): Height of the plates
         _protocol (``Protocol``): ``Protocol`` instance
@@ -60,10 +61,11 @@ class Run:
 
     def __init__(self, plates, **kwargs):
 
-        self.plates = plates
+        self.plates = {plate.name: plate for plate in plates}
+        #Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
-        self.width = self.plates[0].width
-        self.height = self.plates[0].height
+        self.width = next(iter(self.plates.values())).width
+        self.height = next(iter(self.plates.values())).height
         if "protocol" in kwargs:
             param = kwargs.pop('protocol')
             if not type(param) == configobj.Section:
@@ -83,20 +85,19 @@ class Run:
                 setattr(self, key, value)
 
         # Extract plate numbering for multiple plates and set index for each plate.
-        plate_tags = [i.name for i in self.plates]
-        plate_tag_numbers = [re.findall("(\d+)", i) for i in plate_tags]
-        plate_tag_numbers_t = [list(i) for i in zip(*plate_tag_numbers)]
+        self.plate_tag_numbers = [re.findall("(\d+)", i) for i in self.plates.keys()]
+        plate_tag_numbers_t = [list(i) for i in zip(*self.plate_tag_numbers)]
         for i in plate_tag_numbers_t:
-            if len(set(i)) == len(plate_tags):
+            if len(set(i)) == len(self.plates):
                 plate_indices = i
                 break
         else:
             raise Exception("No plate numbering is informative: {}. {}."
-                    "".format(plate_tags, plate_tag_numbers_t))
+                    "".format(self.plates.keys(), plate_tag_numbers_t))
 
         # Set index for each plate.
-        for i_plate, plate_index in zip(self.plates, plate_indices):
-            i_plate.index = plate_index
+        for i_plate, plate_index in zip(list(self.plates.keys()), plate_indices):
+            self.plates[i_plate].index = plate_index
 
 
     def create(origin, path, format = None, dir = False):
@@ -147,7 +148,7 @@ class Run:
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
         if "plate_source" in config:
             config_ps = config["plate_source"]
-            plates = [plate.Plate.create(path=os.path.join(config_ps["path"], i), format=config_ps['format']) for i in config_ps["filenames"]]
+            plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), format=config_ps['format']) for i in config_ps["filenames"]]
         else:
             raise Exception("plate_source is not defined in config file: {}"
                             "".format(os.path.join(path, file)))
@@ -168,7 +169,7 @@ class Run:
 
         if type(file) != list:
             file = [file]
-        plates = [plate.Plate.create(os.path.join(path, i), format="envision_csv") for i in file]
+        plates = [readout_dict.ReadoutDict.create(os.path.join(path, i), format="envision_csv") for i in file]
         return Run(plates = plates)
 
 
@@ -187,39 +188,87 @@ class Run:
         # Create pdf
 
 
-    def qc(self, type, tag):
-        """ Create ``QualityControl`` instance.
+    def filter(self, type, tag, subset = None):
+        """ Filter run data according to type and tag.
 
-        Create ``QualityControl`` instance.
+        Filter run data according to type and tag.
 
         Args:
-            type (str): either "run" or "plate"
-            tag (str): Defines either the channel (within the plate),
-                or the plate (within the run)
+            type (str): Either per "run_wise" or per "plate_wise".
+            tags (str): Defines either the readout (within the plate),
+                or the plate (within the run).
+            subset (list of str): Defines which plates/plate_readouts shall be included.
+
+        Returns:
+            Readout or ReadoutDict (for multiple Readouts)
+        """
+        #import pdb; pdb.set_trace()
+        if subset:
+            subset = ast.literal_eval(subset)
+
+        if type == 'run_wise':
+            # Return plates across a run.
+            if tag != '':
+                if not subset:
+                    return {index:plate.get_readout(tag) for index, plate in self.plates.items()}
+                else:
+                    return {index:plate.get_readout(tag) for index, plate in self.plates.items() if index in subset}
+            else:
+                result = {}
+                for tag in list(self.plates.values)[0].read_outs.keys():
+                    if not subset:
+                        result[tag] =  {index:plate.get_readout(tag) for index, plate in self.plates.items()}
+                    else:
+                        result[tag] = {index:plate.get_readout(tag) for index, plate in self.plates.items() if index in subset}
+                return result
+        elif type == 'plate_wise':
+            # Return plates across a plate.
+            if tag != '':
+                if not subset:
+                    return self.plates[tag].read_outs
+                else:
+                    return {i:readout for i,readout in self.plates[tag].read_outs.items() if i in subset}
+            else:
+                result = {}
+                for tag in self.plates.keys():
+                    if not subset:
+                        result[tag] =  self.plates[tag].read_outs
+                    else:
+                        result[tag] =  {i:readout for i,readout in self.plates[tag].read_outs.items() if i in subset}
+                return result
+        else:
+            raise Exception("The type: {} is not implemented in "
+                            "Run.filter()".format(type))
+
+
+
+    def qc(self):
+        """ Perform quality control and save the results
+
+        Perform quality control and save the results
+
+        Args:
 
         .. todo:: Create QC for different plate subsets (e.g. raw/net).
         .. todo:: Use function to get to plate data instead of attributes?
         """
 
-        if not hasattr(self, '_qc'):
-            self._qc = {"plate": {}, "run": {}}
-        if tag in self._qc[type]:
-            my_qc = self._qc[type]["tag"]
+        if hasattr(self, '_qc'):
+            return self._qc
         else:
-            if type == "plate":
-                run_data = {i:j for i,j in self.plates[tag].raw_read_outs.items()}
-                my_qc = qc.QualityControl(run_data=run_data, plate_layout=self.plate_layout(), methods=self.protocol().qc['methods'])
-                my_qc.perform_qc()
-            elif type == "run":
-                run_data = {iPlate.name:iPlate.raw_read_outs[tag] for iPlate in self.plates}
-                my_qc = qc.QualityControl(run_data=run_data, plate_layout=self.plate_layout(), methods=self.protocol().qc['methods'])
-                my_qc.perform_qc()
-            else:
-                raise Exception("tpe: {} is not implemented in "
-                            "Run.qc()".format(type))
-            self._qc[type][tag] = my_qc
+            self._qc = {"plate_wise": {}, "run_wise": {}}
+            for iqc, qc_param in self.protocol().qc.items():
+                LOG.info(iqc)
+                LOG.info(qc_param)
+                subset = self.filter(**qc_param['filter'])
+                #import pdb; pdb.set_trace()
+                if qc_param['filter']['tag'] == '':
+                    qc_results = {i: qc.perform_qc(methods=qc_param['methods'], data=j, plate_layout=self.plate_layout()) for i,j in subset.items()}
+                else:
+                    qc_results = qc.perform_qc(methods=qc_param['methods'], data=subset, plate_layout=self.plate_layout())
+                self._qc[iqc] = qc_results
 
-        return my_qc
+        return self._qc
 
 
     def plate_layout(self, path = None, format = None):
@@ -238,7 +287,7 @@ class Run:
             if format == "csv":
                 self._plate_layout = plate_layout.PlateLayout.create(path, format)
                 if len(self._plate_layout.layout) != self.height or len(self._plate_layout.layout[0]) != self.width:
-                    raise Exception("Plate width and length of the plate layout "
+                    raise Exception("ReadoutDict width and length of the plate layout "
                             "({}, {}) are not the same as for the plate data ({}, {})"
                             "".format(len(self._plate_layout.layout), len(self._plate_layout.layout[0]), self.height, self.width))
             else:
