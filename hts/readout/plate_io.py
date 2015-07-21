@@ -413,7 +413,7 @@ def read_insulin_csv(file):
                         minute = int(minute.group(1))
                     else:
                         minute = 0
-                    plate_reads[(hour, minute)] = line[2:]
+                    plate_reads[60*hour + minute] = line[2:]
                     state = 4
     # Transform well_row and well_column elements
     # Give back tables instead of lists

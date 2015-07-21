@@ -64,8 +64,8 @@ class Run:
         self.plates = {plate.name: plate for plate in plates}
         #Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
-        self.width = next(iter(self.plates.values())).width
-        self.height = next(iter(self.plates.values())).height
+        self.width = plates[0].width
+        self.height = plates[0].height
         if "protocol" in kwargs:
             param = kwargs.pop('protocol')
             if not type(param) == configobj.Section:
@@ -86,6 +86,7 @@ class Run:
 
         # Extract plate numbering for multiple plates and set index for each plate.
         self.plate_tag_numbers = [re.findall("(\d+)", i) for i in self.plates.keys()]
+
         plate_tag_numbers_t = [list(i) for i in zip(*self.plate_tag_numbers)]
         for i in plate_tag_numbers_t:
             if len(set(i)) == len(self.plates):
@@ -98,6 +99,7 @@ class Run:
         # Set index for each plate.
         for i_plate, plate_index in zip(list(self.plates.keys()), plate_indices):
             self.plates[i_plate].index = plate_index
+        self.plates = {plate.index: plate for plate in plates}
 
 
     def create(origin, path, format = None, dir = False):

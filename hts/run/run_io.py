@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 ################################## WRITE RUN DATA  #########################
 
 
-def serialize_screen_data_for_r(screen_data, delimiter = ","):
+def serialize_run_for_r(run_data, delimiter = ","):
     ''' Serialize run data for easy read-in as a data.frame in R.
 
     Serialize run data for easy read-in as a data.frame in R, in e.g. csv or
@@ -28,17 +28,19 @@ def serialize_screen_data_for_r(screen_data, delimiter = ","):
             file (e.g. "," for csv or "\t" for tsv)
 
     Returns:
-        str: The serialized screen_data as a string.
+        str: The serialized run_data as a string.
 
     ..ToDo: Update to fit current Run class.
     '''
 
-    all_data = [["plate_tag", "channel_tag", "x1", "x2", "x3", "y", "type"]]
-    for iPlate, iPlate_data in screen_data.plate_reads.items():
-        for iChannel, iChannel_data in iPlate_data['channels'].items():
-            data = iChannel_data['data']
-            for i_row, i_data_row, i_layout_row in zip(range(1, len(data) + 1), data, screen_data.plate_layout):
-                for i_col, i_data, i_layout in zip(range(1, len(i_data_row) + 1), i_data_row, i_layout_row):
-                    all_data.append([iPlate, iChannel, i_col, i_row, iPlate_data['info']['x3'],i_data, i_layout])
+
+    plate_layout = run_data.plate_layout().layout
+    all_data = [["plate_tag", "readout_tag", "x1", "x2", "xp1", "xp2", "x3", "y", "type"]]
+    for iPlate_index, iPlate in run_data.plates.items():
+        for iReadout_index, iReadout in iPlate.read_outs.items():
+            data = iReadout.data
+            for i_row, i_row_plate, i_data_row, i_layout_row in zip(range(1, len(data) + 1), iReadout.axes['x'], data, plate_layout):
+                for i_col, i_col_plate, i_data, i_layout in zip(range(1, len(i_data_row) + 1), iReadout.axes['y'], i_data_row, i_layout_row):
+                    all_data.append([iPlate_index, iReadout_index, i_row_plate, i_col_plate, i_col, i_row ,i_data, i_layout])
 
     return "\n".join([delimiter.join([str(j) for j in i]) for i in all_data])
