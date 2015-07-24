@@ -7,7 +7,9 @@ from hts.protocol.protocol import Protocol
 
 # Test file names
 TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_QC"
-TEST_RUN_CONFIG = "run_config_insulin_1.txt"
+TEST_RUN_CONFIG_INSULIN = "run_config_insulin_1.txt"
+TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
+
 
 notfixed = pytest.mark.notfixed
 
@@ -27,7 +29,7 @@ def path_raw_data():
 @pytest.mark.no_external_software_required
 def test_read_run_from_config_insulin(path_run):
     test_run = Run.create(origin="config",
-                        path=os.path.join(path_run, TEST_RUN_CONFIG))
+                        path=os.path.join(path_run, TEST_RUN_CONFIG_INSULIN))
     assert type(test_run) == Run
     assert len(test_run.plates) == 5
     test_plate = test_run.plates["150622_AmAmAs384_SanofiBatches1.csv"]
@@ -47,8 +49,16 @@ def test_read_run_from_config_insulin(path_run):
 @pytest.mark.no_external_software_required
 def test_do_qc_insulin(path_run):
     test_run = Run.create(origin="config",
-                        path=os.path.join(path_run, TEST_RUN_CONFIG))
+                        path=os.path.join(path_run, TEST_RUN_CONFIG_INSULIN))
     test_qc = test_run.qc()
+
+
+@pytest.mark.no_external_software_required
+def test_do_qc_siRNA(path_run):
+    test_run = Run.create(origin="config",
+                        path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA))
+    test_qc = test_run.qc()
+
 
 #@notfixed
 @pytest.mark.no_external_software_required
