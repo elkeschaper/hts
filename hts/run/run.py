@@ -205,8 +205,8 @@ class Run:
             Readout or ReadoutDict (for multiple Readouts)
         """
         #import pdb; pdb.set_trace()
-        if subset:
-            subset = ast.literal_eval(subset)
+        #if subset:
+        #    subset = ast.literal_eval(subset)
 
         if type == 'run_wise':
             # Return plates across a run.
