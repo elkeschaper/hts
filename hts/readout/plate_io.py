@@ -280,14 +280,20 @@ def read_envision_csv(file):
 
             elif 2.3 == state:
                 if len(line) >= 25 and line[0] != "":
-                    data_plate = [[i for i in line if (i != "" and not i.isalpha())]]
+                    read = [i for i in line if not i.isalpha()]
+                    if read[-1] == "":
+                        read.pop()
+                    data_plate = [read]
                     line_length = len(data_plate[0])
                     LOG.debug(" * (2.3->2.4) Store first plate readout line.")
                     state = 2.4
 
             elif 2.4 == state:
                 if len(line) >= 25 and line[0] != "":
-                    data_plate.append([i for i in line if (i != "" and not i.isalpha())])
+                    read = [i for i in line if not i.isalpha()]
+                    if read[-1] == "":
+                        read.pop()
+                    data_plate.append(read)
                     if line_length != len(data_plate[-1]):
                         LOG.error(" The lines in the plate differ in length. line_length: {}. line: {}".format(line_length, data_plate[-1]))
                     LOG.debug(" * (2.4->2.4) Store another plate readout line.")
@@ -304,6 +310,9 @@ def read_envision_csv(file):
         channel_wise_info[data_plate_count] = data_background_info
         LOG.debug(" * (2.4->None) Overall plate readout complete.")
         state = None
+
+    # Currently: Replace all "" with 0
+    channel_wise_reads = {i:[["0" if l=="" else l for l in k] for k in j] for i,j in channel_wise_reads.items()}
 
     return plate_info, channel_wise_reads, channel_wise_info
 
