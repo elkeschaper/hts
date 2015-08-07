@@ -6,6 +6,7 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
+import itertools
 import logging
 import numpy as np
 import os
@@ -19,9 +20,7 @@ LOG = logging.getLogger(__name__)
 
 class Readout:
 
-    """ ``Readout`` describes all information connected to the data
-    of a high throughput screen. This could be either several readouts of a
-    plate, or the same readout across several plates.
+    """ ``Readout`` describes one readout matrix
 
     Attributes:
         width (int): Width of the plate
@@ -68,28 +67,19 @@ class Readout:
                     " {}".format(self.height))
 
 
-    def filter_wells(self, tag = "neg"):
+    def filter_wells(self, starting_tag = "neg"):
         """
-            Return all values of wells that correspond to a ``tag`` in the
+            Return all values of wells that start with ``starting_tag`` in the
             plate_layout as a np.array
         """
         if not hasattr(self, "plate_layout"):
             raise Exception('Readout does not have a plate_layout attribute')
-
         else:
-            return self.data[0][0]
-
-#         type = []
-#         for i,j in itertools.product(self.width, self.height):
-#             if self.plate_layout[i][j] == tag:
-#                 type.append((i,j))
-#
-#         run_data = {plate_tag: [data[c[0]][c[1]] for c in type] for plate_tag, data in self.run_data.items()}
-#         return run_data
-
-
-    def set_plate_layout(plate_layout):
-        self.plate_layout = plate_layout
+            filter_result = []
+            for i_height,i_width in itertools.product(range(self.height), range(self.width)):
+                if self.plate_layout.layout[i_height][i_width].startswith(starting_tag):
+                    filter_result.append(self.data[i_height][i_width])
+        return filter_result
 
 
     def min(self):
@@ -133,3 +123,4 @@ class Readout:
                 fh.write(output)
         if return_string:
             return output
+
