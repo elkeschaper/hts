@@ -8,9 +8,11 @@
 
 import ast
 import logging
+import numpy as np
 import os
 import pickle
 import re
+import sys
 
 from hts.readout import plate_io, readout
 
@@ -163,3 +165,76 @@ class ReadoutDict:
                 fh.write(output)
         if return_string:
             return output
+
+    #### Preprocessing functions
+
+    def preprocess(self, methodname, **kwargs):
+
+            method = getattr(self, methodname)
+            method(**kwargs)
+
+
+    def calculate_net_fret(self, donor_channel, acceptor_channel,
+                            fluorophore_donor = "fluorophore_donor",
+                            fluorophore_acceptor = "fluorophore_acceptor",
+                            buffer = "buffer", net_fret_key = "net_fret"):
+        """ Calculate the net FRET signal for a donor acceptor FRET setup.
+
+        Calculate the net FRET signal for a donor acceptor FRET setup.
+        Typical donor->aceptor pairs include
+
+        * 414nm CFP -> 475nm -> YFP 525nm
+        * EU -> 615nm -> APC 665nm
+
+        The following wells are needed, for both channels
+
+        * `donor` Donor_fluorophor blank
+        * `acceptor` Acceptor_fluorophor blank
+        * `buffer` Buffer blank
+
+        The proportionality factor for donor compensation is then calculation as
+        .. math::
+
+        p = \frac{\hat{donor_{acceptor_channel}} - \hat{buffer_{acceptor_channel}}}{\hat{donor_{donor_channel}} - \hat{buffer_{donor_channel}}}
+
+        Further, the net FRET signal `f` for all wells `x` may be calculated as:
+        .. math::
+
+        netfret = x_{acceptor_channel} - \hat{acceptor_{acceptor_channel}} - p \cdot (x_{donor_channel} - \hat{buffer_{donor_channel}})
+
+        Args:
+            donor_channel (str):  The key for self.read_outs where the donor_channel ``Readout`` instance is stored.
+            acceptor_channel (str):  The key for self.read_outs where the acceptor_channel ``Readout`` instance is stored.
+            fluorophore_donor (str):  The name of the donor fluorophore in self.plate_layout.
+            fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_layout.
+            buffer (str):  The name of the buffer in self.plate_layout.
+            net_fret_key (str):  The key for self.read_outs where the resulting net fret ``Readout`` instance will be stored.
+
+        """
+
+        if net_fret_key in self.read_outs:
+            raise ValueError("The net_fret_key {} is already in self.read_outs.".format(net_fret_key))
+
+        #import pdb; pdb.set_trace()
+        donor_readout = self.read_outs[donor_channel]
+        acceptor_readout = self.read_outs[acceptor_channel]
+
+        # Calculate p
+        mean_donor_donor_channel = np.mean(donor_readout.filter_wells(fluorophore_donor))
+        mean_acceptor_donor_channel = np.mean(donor_readout.filter_wells(fluorophore_acceptor))
+        mean_buffer_donor_channel = np.mean(donor_readout.filter_wells(buffer))
+        mean_donor_acceptor_channel = np.mean(acceptor_readout.filter_wells(fluorophore_donor))
+        mean_acceptor_acceptor_channel = np.mean(acceptor_readout.filter_wells(fluorophore_acceptor))
+        mean_buffer_acceptor_channel = np.mean(acceptor_readout.filter_wells(buffer))
+
+        #import pdb; pdb.set_trace()
+        for i in [mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel, mean_donor_acceptor_channel, mean_acceptor_acceptor_channel, mean_buffer_acceptor_channel]:
+            if np.isnan(i):
+                raise ValueError("Calculation of {} resulted in {}. Check whether the plate layout is correctly assigned.".format(varname(i), i))
+
+        p = (mean_donor_acceptor_channel - mean_buffer_acceptor_channel) / (mean_donor_donor_channel - mean_buffer_donor_channel)
+
+
+        # Calculate the net FRET signal for the entire plate
+        netfret = acceptor_readout.data - mean_acceptor_acceptor_channel - p*(donor_readout.data - mean_buffer_donor_channel)
+        self.read_outs[net_fret_key] = readout.Readout(netfret)
