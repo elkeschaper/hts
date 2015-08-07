@@ -101,6 +101,9 @@ class Run:
             self.plates[i_plate].index = plate_index
         self.plates = {plate.index: plate for plate in plates}
 
+        if self.protocol():
+            self.preprocess()
+
 
     def create(origin, path, format = None, dir = False):
         """ Create ``Run`` instance.
@@ -243,6 +246,16 @@ class Run:
                             "Run.filter()".format(type))
 
 
+    def preprocess(self):
+        """ Perform data preprocessing.
+
+        Perform data preprocessing.
+
+        """
+        for i_method_name, kwargs in self.protocol().preprocessing.items():
+            for i_plate in self.plates.values():
+                i_plate.preprocess(i_method_name, **kwargs)
+
 
     def qc(self):
         """ Perform quality control and save the results
@@ -316,7 +329,10 @@ class Run:
         """
 
         if not hasattr(self, '_protocol'):
-            self._protocol = protocol.Protocol.create(path, format)
+            if path and format:
+                self._protocol = protocol.Protocol.create(path, format)
+            else:
+                return None
         return self._protocol
 
 
