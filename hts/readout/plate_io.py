@@ -312,7 +312,8 @@ def read_envision_csv(file):
         state = None
 
     # Currently: Replace all "" with 0
-    channel_wise_reads = {i:[["0" if l=="" else l for l in k] for k in j] for i,j in channel_wise_reads.items()}
+    channel_wise_reads = {str(i):[["0" if l=="" else l for l in k] for k in j] for i,j in channel_wise_reads.items()}
+    channel_wise_info = {str(i):j for i,j in channel_wise_info.items()}
 
     return plate_info, channel_wise_reads, channel_wise_info
 
