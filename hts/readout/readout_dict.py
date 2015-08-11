@@ -118,7 +118,7 @@ class ReadoutDict:
         """
 
         try:
-            return self.read_outs[key]
+            return self.read_outs[tag]
         except:
             try:
                 return self.read_outs[ast.literal_eval(tag)]
