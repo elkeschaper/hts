@@ -12,7 +12,7 @@ import logging
 import os
 import pickle
 import re
-
+from hts.analysis import analysis
 from hts.qc import qc
 from hts.run import run_io
 from hts.readout import readout_dict
@@ -284,6 +284,33 @@ class Run:
                 self._qc[iqc] = qc_results
 
         return self._qc
+
+
+    def analysis(self):
+        """ Perform analysis and save the results
+
+        Perform analysis and save the results
+
+        Args:
+
+        """
+
+        if hasattr(self, '_analysis'):
+            return self._analysis
+        else:
+            self._analysis = {}
+            for i_ana, protocol_analysis_param in self.protocol().analysis.items():
+                LOG.info(i_ana)
+                LOG.info(protocol_analysis_param)
+                subset = self.filter(**protocol_analysis_param['filter'])
+                #import pdb; pdb.set_trace()
+                if protocol_analysis_param['filter']['tag'] == '':
+                    analysis_results = {i: analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=j, plate_layout=self.plate_layout(), **self.meta) for i,j in subset.items()}
+                else:
+                    analysis_results = analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=subset, plate_layout=self.plate_layout(), **self.meta)
+                self._analysis[i_ana] = analysis_results
+
+        return self._analysis
 
 
     def plate_layout(self, path = None, format = None):
