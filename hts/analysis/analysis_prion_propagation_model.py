@@ -133,8 +133,7 @@ def prions_fbelow_sat(t, n_propagons, d, a, nsat, mu, sig, n_sum=150):
 
 
 def fit_prion_model(times, data, all_parameters_temp, identifiers,
-                    parameter_names, model_function, basinhops=3,
-                    session=dict()):
+                    parameter_names, model_function, basinhops=3):
 
     """
     Calculate <define>.
@@ -234,7 +233,7 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
                 self.step = 0
         def __call__(self, x):
             self.step += 1
-            session['fit_progress'] = '%i of 20'%(self.step)
+            LOG.info('fit progress: {} of 20'.format(self.step))
             r = (self.stepsize*np.random.rand(*x.shape)+1.0)**(np.random.choice([-1,1], size=x.shape))
             a = r*x
             return a
@@ -243,7 +242,7 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
         ## actual fitting
         #fit=opt.fmin(M_diff_total,b_init,args=(data,times,all_parameters,pos),ftol=err_tol,xtol=err_tol,full_output=True,maxfun=n_iterations,maxiter=n_iterations)
         mytakestep = MyTakeStep()
-        session['fit_progress'] = '0 of 20'
+        LOG.info('fit progress: {} of 20'.format(0))
         fit=opt.basinhopping(M_diff_total, np.ones_like(b_init), take_step=mytakestep, minimizer_kwargs={'method':'Nelder-Mead', 'args':(data,times,all_parameters,pos)}, niter=basinhops, disp=True, interval=10)
         b_fit=abs(fit['x'])*b_init
 
