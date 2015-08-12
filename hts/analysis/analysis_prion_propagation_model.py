@@ -140,15 +140,14 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     Calculate <define>.
 
     Args:
+        times (N_timepoints by N_runs arrays): <define>
+        data (N_timepoints by N_runs arrays): <define>
+        identifiers (list of str): A list of all identifiers.
+        all_parameters_temp (list of ?): A list of all temporary parameters
 
     Returns:
-
+        <define>
     """
-
-    #all_parameters= array of all parameters
-    #identifiers= array of all identifiers
-    #time and data are both N_timepoints by N_runs arrays
-
 
     N_parameters=len(parameter_names)                             #number of parameters in function, known ones and fitting ones.
     N_runs=len(all_parameters_temp[:,0])                        #number of experiments run
