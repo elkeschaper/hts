@@ -139,8 +139,8 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     Calculate <define>.
 
     Args:
-        times (N_timepoints by N_runs arrays): <define>
-        data (N_timepoints by N_runs arrays): <define>
+        times (N_timepoints by n_runs arrays): <define>
+        data (N_timepoints by n_runs arrays): <define>
         identifiers (list of str): A list of all identifiers.
         all_parameters_temp (list of ?): A list of all temporary parameters
 
@@ -149,10 +149,10 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     """
 
     N_parameters=len(parameter_names)                             #number of parameters in function, known ones and fitting ones.
-    N_runs=len(all_parameters_temp[:,0])                        #number of experiments run
+    n_runs=len(all_parameters_temp[:,0])                        #number of experiments run
     N_timepoints=len(times[:,0])                                #number of timepoints
     all_parameters=all_parameters_temp
-    for i in range(N_runs):
+    for i in range(n_runs):
         for k in range(N_parameters):
             if all_parameters_temp[i,k]==0 and not identifiers[i,k]==0: all_parameters[i,k]=1e-20 #an initial guess of zero is pointless and also won't be fitted as parameters are varied multiplicatively in the fitting algorithm
 
@@ -165,13 +165,13 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
 
     for k in range(N_parameters):
         numbers_temp=list()
-        for i in range(N_runs):
+        for i in range(n_runs):
             if identifiers[i,k]==0 and numbers_temp==list():
                 known_names.append(parameter_names[k])
             if identifiers[i,k]==0:
                 numbers_temp.append(i+1)
         if not numbers_temp==list():
-            if numbers_temp==list(range(1,N_runs+1)): known_numbers.append('all')
+            if numbers_temp==list(range(1,n_runs+1)): known_numbers.append('all')
             else: known_numbers.append(np.array(numbers_temp))
     known_string='\nThe known parameters are:'
     for i in range(len(known_names)):
@@ -185,10 +185,10 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     b_init_list=list()
     pos=list()
     for k in range(N_parameters):                                                        #go through each parameter
-        for i in range(1,N_runs+1):                                                                               #go through all possible numbers of groups
+        for i in range(1,n_runs+1):                                                                               #go through all possible numbers of groups
             first_in_group=-1
             temp_pos=list()
-            for l in range(N_runs):                                                    #check if identifier corresponds to current group number for each run
+            for l in range(n_runs):                                                    #check if identifier corresponds to current group number for each run
                 if identifiers[l,k]==i and first_in_group==-1:                                           #if first parameter in a new group
                     b_init_list.append(all_parameters[l,k])                                    #append value of this parameter
                     fitting_names.append(parameter_names[k])
@@ -202,103 +202,106 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     #### FORMATTING PARAMETERS ###
     #<<<<<<<END<<<<<<<<<<
 
-    #>>>>>>>>START>>>>>>>>
-    ### FUNCTION DEFINITIONS ###
-
-    def parameter_builder(b_tot,all_parameters,pos):
-        #b_tot are the fitting parameters only. This reconstructs a vetor of all parameters for each of the runs for input into M_diff_single from b_tot.
-        all_parameters_new=all_parameters
-        for i in range(len(pos)):
-            for k in pos[i]:
-                all_parameters_new[(k[0],k[1])]=b_tot[i]
-        return all_parameters_new
-
-    def M_diff_single(para_scale,para,data_run,t):
-        scaled_para=list(para_scale*abs(para))
-        return model_function(t,*scaled_para) - data_run
-
-
-    def M_diff_total(b_tot,datain,times,all_parameters,pos):
-        #Calculates the difference between the calculated values for the aggregate concentration and the measured data for all runs to produce a global fit.
-        #b_tot are the fitting parameters only. It needs to be done this way due to the way opt works.
-        all_parameters_new=parameter_builder(b_tot,np.ones_like(all_parameters),pos)   #due to the rescaling with the initial guess we want ones in the positions which are constants
-        Mdiff=0
-        for i in range(N_runs):
-            Mdiff=Mdiff+np.sum(M_diff_single(all_parameters[i],all_parameters_new[i],datain[:,i],times[:,i])**2)
-        return Mdiff
-
-    class MyTakeStep(object):
-        def __init__(self, stepsize=1.0):
-                self.stepsize = stepsize
-                self.step = 0
-        def __call__(self, x):
-            self.step += 1
-            LOG.info('fit progress: {} of 20'.format(self.step))
-            r = (self.stepsize*np.random.rand(*x.shape)+1.0)**(np.random.choice([-1,1], size=x.shape))
-            a = r*x
-            return a
-
-    def fitting(b_init,data,times,all_parameters,pos,n_iterations,err_tol):
-        ## actual fitting
-        #fit=opt.fmin(M_diff_total,b_init,args=(data,times,all_parameters,pos),ftol=err_tol,xtol=err_tol,full_output=True,maxfun=n_iterations,maxiter=n_iterations)
-        mytakestep = MyTakeStep()
-        LOG.info('fit progress: {} of 20'.format(0))
-        fit=opt.basinhopping(M_diff_total, np.ones_like(b_init), take_step=mytakestep, minimizer_kwargs={'method':'Nelder-Mead', 'args':(data,times,all_parameters,pos)}, niter=basinhops, disp=True, interval=10)
-        b_fit=abs(fit['x'])*b_init
-
-        ## Now rebuild the correct format for the parameters; same as in M_diff_total
-        all_parameters_fit=parameter_builder(b_fit,all_parameters,pos)
-        return all_parameters_fit, b_fit,fit
-
-    def create_single_var_fct(para_for_err, para_ind, b_fit, data, times,parameters, pos, required_accuracy): #for error estimation
-    #returns the input function with the para_ind-th parameter replaced by para_for_err, i.e. this is a function which takes as the first argument any one of the parameters in Mdiff_total
-    #required accuracy determines how much Mdiff can increase, i.e. how likely it is that a measurement falls into the given bounds. E.g. 1/2 would correspond to 1 stdev around the mean.
-        b_fit_single_changed=np.ones_like(b_fit)
-        b_fit_single_changed[para_ind]=para_for_err
-        LOG.debug('b_fitsinglech: {}'.format(b_fit_single_changed))
-        return M_diff_total(b_fit_single_changed,data,times,parameters,pos)-M_diff_total(np.ones_like(b_fit),data,times,parameters,pos)-required_accuracy
-
-    def error_estimator(b_fit, data, times,parameters, pos,required_accuracy=0.5):
-        """
-        returns an array of errors, same layout as the corresponding parameters
-        sort this out to make sure it only varies fitting parameters!!!
-        """
-        errors_temp_up=np.ones_like(b_fit)
-        errors_temp_low=np.ones_like(b_fit)
-        for i in range(len(b_fit)):
-            for bound_up in (1.01,1.02,1.05,1.1,1.2,1.5,2.0,10):
-                funval=create_single_var_fct(bound_up,i,b_fit,data,times,parameters,pos,required_accuracy)
-                if funval>0:         #i.e. the function values at the 2 bound differ, which is needed for brentq
-                    errors_temp_up[i]=opt.brentq(create_single_var_fct,1.0,bound_up ,args=( i, b_fit, data, times,parameters, pos,required_accuracy)) #finds where the difference in errors equals required_accuracy; the initial guess is 1 due to rescaling
-                    break
-                elif bound_up==10: #if twice the value still gives no sign change, the error is larger than double, just return 2
-                    errors_temp_up[i]= 10
-            for bound_low in (0.99,0.98,0.95,0.9,0.8,0.7,0.6,0.5,0.1): #same as obove with upper bounds only this time the limit is 1/2
-                funval=create_single_var_fct(bound_low,i,b_fit,data,times,parameters,pos,required_accuracy)
-                if funval>0:
-                    errors_temp_low[i]=opt.brentq(create_single_var_fct,1.0,bound_low ,args=( i, b_fit, data, times,parameters, pos,required_accuracy)) #finds where the difference in errors equals required_accuracy; the initial guess is 1 due to rescaling
-                    break
-                elif bound_low==0.1:
-                    errors_temp_low[i]= 0.1
-        errors_b_up=(errors_temp_up-np.ones_like(b_fit))*b_fit
-        errors_b_low=(errors_temp_low-np.ones_like(b_fit))*b_fit
-        errors_low=parameter_builder(errors_b_low,0*all_parameters,pos) #input a zero array so all constants will have 0 error
-        errors_up=parameter_builder(errors_b_up,0*all_parameters,pos) #input a zero array so all constants will have 0 error
-        return np.abs(errors_low), errors_up
-
-
-    ### FUNCTION DEFINITIONS ###
-    #<<<<<<<END<<<<<<<<<<
 
 
 
     #### FITTING ####
     b_init=np.array(b_init_list)            #construct a vector that has all fitting parameters (global, indiv_run1, indiv_run2, ...)
-    all_parameters_fit,b_fit,fit=fitting(b_init,data,times,all_parameters,pos,10000,1e-14)
-    errors_low,errors_up=error_estimator(b_fit, data, times,all_parameters_fit, pos)
+    all_parameters_fit,b_fit,fit=fitting(b_init,data,times,all_parameters,pos,10000,1e-14,basinhops,n_runs,model_function)
+    #import pdb; pdb.set_trace()
+    errors_low,errors_up=error_estimator(b_fit, data, times,all_parameters_fit, pos, n_runs, model_function, all_parameters)
     LOG.info('\n\nFITTING RESULTS:\n{}{}\n'.format(fit, all_parameters_fit))
     return all_parameters_fit,fit,errors_low,errors_up
 ###############################
+
+
+#>>>>>>>>START>>>>>>>>
+### FUNCTION DEFINITIONS ###
+
+def parameter_builder(b_tot,all_parameters,pos):
+    #b_tot are the fitting parameters only. This reconstructs a vetor of all parameters for each of the runs for input into M_diff_single from b_tot.
+    all_parameters_new=all_parameters
+    for i in range(len(pos)):
+        for k in pos[i]:
+            all_parameters_new[(k[0],k[1])]=b_tot[i]
+    return all_parameters_new
+
+def M_diff_single(para_scale,para,data_run,t,model_function):
+    scaled_para=list(para_scale*abs(para))
+    return model_function(t,*scaled_para) - data_run
+
+
+def M_diff_total(b_tot,datain,times,all_parameters,pos, n_runs, model_function):
+    #Calculates the difference between the calculated values for the aggregate concentration and the measured data for all runs to produce a global fit.
+    #b_tot are the fitting parameters only. It needs to be done this way due to the way opt works.
+    all_parameters_new=parameter_builder(b_tot,np.ones_like(all_parameters),pos)   #due to the rescaling with the initial guess we want ones in the positions which are constants
+    Mdiff=0
+    for i in range(n_runs):
+        Mdiff=Mdiff+np.sum(M_diff_single(all_parameters[i],all_parameters_new[i],datain[:,i],times[:,i],model_function)**2)
+    return Mdiff
+
+class MyTakeStep(object):
+    def __init__(self, stepsize=1.0):
+            self.stepsize = stepsize
+            self.step = 0
+    def __call__(self, x):
+        self.step += 1
+        LOG.info('fit progress: {} of 20'.format(self.step))
+        r = (self.stepsize*np.random.rand(*x.shape)+1.0)**(np.random.choice([-1,1], size=x.shape))
+        a = r*x
+        return a
+
+def fitting(b_init,data,times,all_parameters,pos,n_iterations,err_tol,basinhops,n_runs, model_function):
+    ## actual fitting
+    #fit=opt.fmin(M_diff_total,b_init,args=(data,times,all_parameters,pos),ftol=err_tol,xtol=err_tol,full_output=True,maxfun=n_iterations,maxiter=n_iterations)
+    mytakestep = MyTakeStep()
+    LOG.info('fit progress: {} of 20'.format(0))
+    fit=opt.basinhopping(M_diff_total, np.ones_like(b_init), take_step=mytakestep, minimizer_kwargs={'method':'Nelder-Mead', 'args':(data,times,all_parameters,pos, n_runs, model_function)}, niter=basinhops, disp=True, interval=10)
+    b_fit=abs(fit['x'])*b_init
+
+    ## Now rebuild the correct format for the parameters; same as in M_diff_total
+    all_parameters_fit=parameter_builder(b_fit,all_parameters,pos)
+    return all_parameters_fit, b_fit,fit
+
+def create_single_var_fct(para_for_err, para_ind, b_fit, data, times,parameters, pos, required_accuracy,n_runs, model_function): #for error estimation
+#returns the input function with the para_ind-th parameter replaced by para_for_err, i.e. this is a function which takes as the first argument any one of the parameters in Mdiff_total
+#required accuracy determines how much Mdiff can increase, i.e. how likely it is that a measurement falls into the given bounds. E.g. 1/2 would correspond to 1 stdev around the mean.
+    b_fit_single_changed=np.ones_like(b_fit)
+    b_fit_single_changed[para_ind]=para_for_err
+    LOG.debug('b_fitsinglech: {}'.format(b_fit_single_changed))
+    return M_diff_total(b_fit_single_changed,data,times,parameters,pos,n_runs,model_function)-M_diff_total(np.ones_like(b_fit),data,times,parameters,pos,n_runs,model_function)-required_accuracy
+
+def error_estimator(b_fit, data, times,parameters, pos, n_runs, model_function, all_parameters, required_accuracy=0.5):
+    """
+    returns an array of errors, same layout as the corresponding parameters
+    sort this out to make sure it only varies fitting parameters!!!
+    """
+    errors_temp_up=np.ones_like(b_fit)
+    errors_temp_low=np.ones_like(b_fit)
+    for i in range(len(b_fit)):
+        for bound_up in (1.01,1.02,1.05,1.1,1.2,1.5,2.0,10):
+            funval=create_single_var_fct(bound_up,i,b_fit,data,times,parameters,pos,required_accuracy,n_runs, model_function)
+            if funval>0:         #i.e. the function values at the 2 bound differ, which is needed for brentq
+                errors_temp_up[i]=opt.brentq(create_single_var_fct,1.0,bound_up ,args=( i, b_fit, data, times,parameters, pos,required_accuracy, n_runs, model_function)) #finds where the difference in errors equals required_accuracy; the initial guess is 1 due to rescaling
+                break
+            elif bound_up==10: #if twice the value still gives no sign change, the error is larger than double, just return 2
+                errors_temp_up[i]= 10
+        for bound_low in (0.99,0.98,0.95,0.9,0.8,0.7,0.6,0.5,0.1): #same as obove with upper bounds only this time the limit is 1/2
+            funval=create_single_var_fct(bound_low,i,b_fit,data,times,parameters,pos,required_accuracy,n_runs,model_function)
+            if funval>0:
+                errors_temp_low[i]=opt.brentq(create_single_var_fct,1.0,bound_low ,args=( i, b_fit, data, times,parameters, pos,required_accuracy, n_runs,model_function)) #finds where the difference in errors equals required_accuracy; the initial guess is 1 due to rescaling
+                break
+            elif bound_low==0.1:
+                errors_temp_low[i]= 0.1
+    errors_b_up=(errors_temp_up-np.ones_like(b_fit))*b_fit
+    errors_b_low=(errors_temp_low-np.ones_like(b_fit))*b_fit
+    errors_low=parameter_builder(errors_b_low,0*all_parameters,pos) #input a zero array so all constants will have 0 error
+    errors_up=parameter_builder(errors_b_up,0*all_parameters,pos) #input a zero array so all constants will have 0 error
+    return np.abs(errors_low), errors_up
+
+
+### FUNCTION DEFINITIONS ###
+#<<<<<<<END<<<<<<<<<<
 
 
 ###############################
