@@ -129,13 +129,14 @@ def prions_fbelow_sat(t, n_propagons, d, a, nsat, mu, sig, n_sum=150):
         float: <define>
 
     """
-    return np.sum((N_propagons/d)**i*np.exp(-N_propagons/d)/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(N_sum))
+    return np.sum((n_propagons/d)**i*np.exp(-n_propagons/d)/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(n_sum))
 
 
 def fit_prion_model(times, data, all_parameters_temp, identifiers,
                     parameter_names, model_function, basinhops=3,
                     session=dict()):
-            """
+
+    """
     Calculate <define>.
 
     Args:
@@ -201,7 +202,6 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
                 pos.append(np.array(temp_pos))                                            #append positions of group with number i in column k
     #### FORMATTING PARAMETERS ###
     #<<<<<<<END<<<<<<<<<<
-
 
     #>>>>>>>>START>>>>>>>>
     ### FUNCTION DEFINITIONS ###
@@ -286,6 +286,7 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
         errors_low=parameter_builder(errors_b_low,0*all_parameters,pos) #input a zero array so all constants will have 0 error
         errors_up=parameter_builder(errors_b_up,0*all_parameters,pos) #input a zero array so all constants will have 0 error
         return np.abs(errors_low), errors_up
+
 
     ### FUNCTION DEFINITIONS ###
     #<<<<<<<END<<<<<<<<<<
