@@ -139,22 +139,30 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     Calculate <define>.
 
     Args:
-        times (N_timepoints by n_runs arrays): <define>
-        data (N_timepoints by n_runs arrays): <define>
-        identifiers (list of str): A list of all identifiers.
+        times (n_timepoints by n_runs arrays): <define> # Normalised thresholds
+        data (n_timepoints by n_runs arrays): <define> # Fractions below the threshold
         all_parameters_temp (list of ?): A list of all temporary parameters
+        identifiers (np.array of np.array of float): A matrix of ones and zeros with two entries for each parameter
+        parameter_names (list of str): The name of all parameters: Those that need fitting, and those that are given.
+        model_function (func): <define>
+        basinhops (int): <define>
 
     Returns:
         <define>
-    """
 
-    N_parameters=len(parameter_names)                             #number of parameters in function, known ones and fitting ones.
-    n_runs=len(all_parameters_temp[:,0])                        #number of experiments run
-    N_timepoints=len(times[:,0])                                #number of timepoints
+    .. ToDo:
+        - Define what is meant by "timepoints"
+    """
+    import pdb; pdb.set_trace()
+
+    n_parameters=len(parameter_names) # Number of parameters (to be fit, and given)
+    n_runs=len(all_parameters_temp[:,0]) # Number of experiments run
+    n_timepoints=len(times[:,0]) # Number of "timepoints"
     all_parameters=all_parameters_temp
     for i in range(n_runs):
-        for k in range(N_parameters):
-            if all_parameters_temp[i,k]==0 and not identifiers[i,k]==0: all_parameters[i,k]=1e-20 #an initial guess of zero is pointless and also won't be fitted as parameters are varied multiplicatively in the fitting algorithm
+        for k in range(n_parameters):
+            if all_parameters_temp[i,k]==0 and not identifiers[i,k]==0:
+                all_parameters[i,k]=1e-20 #an initial guess of zero is pointless and also won't be fitted as parameters are varied multiplicatively in the fitting algorithm
 
 
     #>>>>>>>>START>>>>>>>>
@@ -163,7 +171,7 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     known_names=list()                                       #names of parameters that are known
     known_numbers=list()                                     #positions of parameters that are known
 
-    for k in range(N_parameters):
+    for k in range(n_parameters):
         numbers_temp=list()
         for i in range(n_runs):
             if identifiers[i,k]==0 and numbers_temp==list():
@@ -184,29 +192,26 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     fitting_names=list()
     b_init_list=list()
     pos=list()
-    for k in range(N_parameters):                                                        #go through each parameter
-        for i in range(1,n_runs+1):                                                                               #go through all possible numbers of groups
+    for k in range(n_parameters): #go through each parameter
+        for i in range(1,n_runs+1):  #go through all possible numbers of groups
             first_in_group=-1
             temp_pos=list()
-            for l in range(n_runs):                                                    #check if identifier corresponds to current group number for each run
-                if identifiers[l,k]==i and first_in_group==-1:                                           #if first parameter in a new group
-                    b_init_list.append(all_parameters[l,k])                                    #append value of this parameter
+            for l in range(n_runs):  #check if identifier corresponds to current group number for each run
+                if identifiers[l,k]==i and first_in_group==-1:  #if first parameter in a new group
+                    b_init_list.append(all_parameters[l,k]) #append value of this parameter
                     fitting_names.append(parameter_names[k])
-                    first_in_group=l                                            #remember position of first parameter in group
-                    temp_pos.append([l,k])                                            #append position of this parameter
+                    first_in_group=l  #remember position of first parameter in group
+                    temp_pos.append([l,k])  #append position of this parameter
                 elif identifiers[l,k]==i and not first_in_group==-1 and all_parameters[first_in_group,k]==all_parameters[l,k]:  #parameter in an already existing group
-                    temp_pos.append([l,k])                                            #append position of this parameter
+                    temp_pos.append([l,k])  #append position of this parameter
 
-            if not temp_pos==list():                                                #check if any groups with number i are present in kth column
-                pos.append(np.array(temp_pos))                                            #append positions of group with number i in column k
+            if not temp_pos==list():  #check if any groups with number i are present in kth column
+                pos.append(np.array(temp_pos))  #append positions of group with number i in column k
     #### FORMATTING PARAMETERS ###
     #<<<<<<<END<<<<<<<<<<
 
-
-
-
     #### FITTING ####
-    b_init=np.array(b_init_list)            #construct a vector that has all fitting parameters (global, indiv_run1, indiv_run2, ...)
+    b_init=np.array(b_init_list)  # construct a vector with all fitting parameters (global, indiv_run1, indiv_run2, ...)
     all_parameters_fit,b_fit,fit=fitting(b_init,data,times,all_parameters,pos,10000,1e-14,basinhops,n_runs,model_function)
     #import pdb; pdb.set_trace()
     errors_low,errors_up=error_estimator(b_fit, data, times,all_parameters_fit, pos, n_runs, model_function, all_parameters)
@@ -345,7 +350,7 @@ def pastel(colour, weight=2.4):
     return rgb
 
 
-def plot_prion_propagation_model_fit(model_function, parameters, data, times, title, label_names):
+def plot_prion_propagation_model_fit(model_function, parameters, data, times, title, label_names, path = "/Users/elkeschaper/Downloads", tag = "foo"):
     """
     Plot the Meisl curve of data, fit, and number of propagons.
 
@@ -376,5 +381,6 @@ def plot_prion_propagation_model_fit(model_function, parameters, data, times, ti
     plt.ylabel('Fraction of below the threshold',size='large')
     plt.legend(loc='best', shadow=True)
     #import pdb; pdb.set_trace()
-    plt.savefig('/Users/elkeschaper/Downloads/foo.png', bbox_inches='tight')
+    plt.savefig(os.path.join(path, tag + ".png"), bbox_inches='tight')
+    plt.close()
 

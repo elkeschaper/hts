@@ -90,7 +90,7 @@ def perform_prion_fitting(data, file = "tata", *args, **kwargs):
         n_propagons_per_well_undiluted_sample = parameters_fit[0,0]
         sum_squares_error = fitter_output['fun']
         plot_header = dpia_experiment_tag +'\nError(sum of squares) = %(err).1e, \nNumber of propagons per well in an undiluted sample = %(pri).1e' % {'err':sum_squares_error,'pri':n_propagons_per_well_undiluted_sample}
-        appm.plot_prion_propagation_model_fit(appm.prions_fbelow_sat, parameters_fit, all_frac_below, all_thresholds, plot_header, dilutions)
+        appm.plot_prion_propagation_model_fit(appm.prions_fbelow_sat, parameters_fit, all_frac_below, all_thresholds, plot_header, dilutions, tag = dpia_experiment_tag)
         results[dpia_experiment_tag] = {"sum_squares_error": sum_squares_error, "n_propagons_per_well_undiluted_sample": n_propagons_per_well_undiluted_sample}
 
     import pdb; pdb.set_trace()
