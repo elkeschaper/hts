@@ -118,11 +118,7 @@ def prions_fbelow_sat(t, N_propagons,d,a,nsat,mu,sig):
     # mu is the average value of the negative contraol, sig is its standard deviation
 
 
-def stdprint(s):
-    print(s)
-
-
-def fit_prion_model(times,data,all_parameters_temp,identifiers,parameter_names,model_function, basinhops=3, pr=stdprint, session=dict()):
+def fit_prion_model(times,data,all_parameters_temp,identifiers,parameter_names,model_function, basinhops=3, session=dict()):
     #all_parameters= array of all parameters
     #identifiers= array of all identifiers
     #time and data are both N_timepoints by N_runs arrays
