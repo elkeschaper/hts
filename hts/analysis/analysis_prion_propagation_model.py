@@ -129,8 +129,7 @@ def prions_fbelow_sat(t, n_propagons, d, a, nsat, mu, sig, n_sum=150):
         float: <define>
 
     """
-    return np.sum((old_div(n_propagons,d))**i*np.exp(old_div(-n_propagons,d))/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(n_sum))
-
+    return np.sum((N_propagons/d)**i*np.exp(-N_propagons/d)/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(N_sum))
 
 
 def fit_prion_model(times, data, all_parameters_temp, identifiers,
