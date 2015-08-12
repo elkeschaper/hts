@@ -110,15 +110,41 @@ def neg_control_normaliser(data_sample, data_nc):
 ##############################
 # EQUATIONS FOR FITTING
 ##############################
-def prions_fbelow_sat(t, N_propagons,d,a,nsat,mu,sig):
-    N_sum=150  # number of terms to be summed over. The more terms the more accurate, but the more time the fitting will take. roughly time taken for fitting is porportional to N_sum
-    return np.sum((old_div(N_propagons,d))**i*np.exp(old_div(-N_propagons,d))/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(N_sum))
-    #where d is dilution, t is the threshold, N_propagons is the initial number of propagons per well if the sample was not diluted,
-    #a is the increase in fluorescence per prion, nsat is the number of prions upon which the fluorescence increase saturates (i.e. adding more prions will not increase the fluorescence significantly),
-    # mu is the average value of the negative contraol, sig is its standard deviation
+def prions_fbelow_sat(t, n_propagons, d, a, nsat, mu, sig, n_sum=150):
+    """
+    Calculate <define>.
+
+    Args:
+        d (?): Dilution
+        t (float): Threshold
+        n_propagons (int): The initial number of propagons per well if the sample was not diluted
+        a (?): the increase in fluorescence per prion
+        data_nc (np.array): Negative control values.
+        n_sat (?): the number of prions upon which the fluorescence increase saturates (i.e. adding more prions will not increase the fluorescence significantly)
+        mu (?): average value of the negative control
+        sig (?): standard deviation of the negative control
+        n_sum (int): The number of terms to be summed over. The more terms the more accurate, but the more time the fitting will take. roughly time taken for fitting is porportional to N_sum
+
+    Returns:
+        float: <define>
+
+    """
+    return np.sum((old_div(n_propagons,d))**i*np.exp(old_div(-n_propagons,d))/misc.factorial(i)*special.erfc((nsat*a*i/(nsat+i)+mu-t)/np.sqrt(2)/sig)/2 for i in range(n_sum))
 
 
-def fit_prion_model(times,data,all_parameters_temp,identifiers,parameter_names,model_function, basinhops=3, session=dict()):
+
+def fit_prion_model(times, data, all_parameters_temp, identifiers,
+                    parameter_names, model_function, basinhops=3,
+                    session=dict()):
+            """
+    Calculate <define>.
+
+    Args:
+
+    Returns:
+
+    """
+
     #all_parameters= array of all parameters
     #identifiers= array of all identifiers
     #time and data are both N_timepoints by N_runs arrays
