@@ -74,7 +74,7 @@ class ReadoutDict:
                 setattr(self, key, value)
 
 
-    def create(path, format=None):
+    def create(path, format=None, **kwargs):
         """ Create ``ReadoutDict`` instance.
 
         Create ``ReadoutDict`` instance.
@@ -86,18 +86,19 @@ class ReadoutDict:
         .. todo:: Write checks for ``format`` and ``path``.
         .. todo:: Implement
         """
+        path_trunk, file = os.path.split(path)
 
         if format == 'csv':
             readout_dict = plate_io.read_csv(path)
-            path, file = os.path.split(path)
+            return ReadoutDict(name=file, read_outs=readout_dict)
+        elif format == 'excel':
+            readout_dict = plate_io.read_excel(path, **kwargs)
             return ReadoutDict(name=file, read_outs=readout_dict)
         elif format == 'envision_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_envision_csv(path)
-            path, file = os.path.split(path)
             return ReadoutDict(name=file, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'insulin_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_insulin_csv(path)
-            path, file = os.path.split(path)
             return ReadoutDict(name=file, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
@@ -181,7 +182,7 @@ class ReadoutDict:
         """ Calculate the net FRET signal for a donor acceptor FRET setup.
 
         Calculate the net FRET signal for a donor acceptor FRET setup.
-        Typical donor->aceptor pairs include
+        Typical donor -> aceptor pairs include
 
         * 414nm CFP -> 475nm -> YFP 525nm
         * EU -> 615nm -> APC 665nm

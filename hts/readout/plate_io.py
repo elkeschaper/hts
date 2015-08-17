@@ -10,6 +10,7 @@ import csv
 import logging
 import os
 import re
+import xlrd
 
 LOG = logging.getLogger(__name__)
 
@@ -431,3 +432,42 @@ def read_insulin_csv(file):
     width = well_row.count("A")
     plate_reads2 = {i: [j[i:i+width] for i in range(0, len(j), width)]  for i,j in plate_reads.items()}
     return plate_info, plate_reads2, {}
+
+
+
+def read_excel(file, tags = None):
+    """Read screen data file in excel format.
+
+
+    Read screen data file in excel format.
+
+
+    Args:
+        file (str): Path to the file with  data in the excel file format.
+        tag (list of str): Names of all spreadsheets for which the data shall be returned.
+
+
+    Returns:
+        reads (dict of list of lists): Read_out data
+
+    """
+
+    excel_workbook = xlrd.open_workbook(file)
+
+    if tags:
+        try:
+            excel_sheets = [excel_workbook.sheet_by_name(i) for i in tags]
+        except:
+            raise ValueError('Retrieving the excel sheets by name failed.'
+                'Probably, the tags {} were not included in the excel file {},'
+                '{}'.format(tags, path, xl_workbook.sheet_names()))
+    else:
+        excel_sheets = excel_workbook.sheets()
+
+    reads = {}
+    for i_sheet in excel_sheets:
+        if i_sheet.nrows > 0:
+            data = [i_sheet.row_values(0) for i in range(i_sheet.nrows)]
+            reads[i_sheet.name] = data
+
+    return reads
