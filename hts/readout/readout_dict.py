@@ -87,19 +87,24 @@ class ReadoutDict:
         .. todo:: Implement
         """
         path_trunk, file = os.path.split(path)
+        if "name" in kwargs:
+            name = kwargs.pop("name")
+        else:
+            name = file
+        LOG.debug("filename: {}".format(file))
 
         if format == 'csv':
             readout_dict = plate_io.read_csv(path)
-            return ReadoutDict(name=file, read_outs=readout_dict)
+            return ReadoutDict(name=name, read_outs=readout_dict)
         elif format == 'excel':
             readout_dict = plate_io.read_excel(path, **kwargs)
-            return ReadoutDict(name=file, read_outs=readout_dict)
+            return ReadoutDict(name=name, read_outs=readout_dict)
         elif format == 'envision_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_envision_csv(path)
-            return ReadoutDict(name=file, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return ReadoutDict(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'insulin_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_insulin_csv(path)
-            return ReadoutDict(name=file, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return ReadoutDict(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)

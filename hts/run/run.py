@@ -152,10 +152,16 @@ class Run:
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
         if "plate_source" in config:
+            # Plate data is located in multiple files.
             config_ps = config["plate_source"]
             local_config = {i:j for i,j in config_ps.items() if i not in ["filenames", "path"]}
             #plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), format=config_ps['format'], config = config_ps) for i in config_ps["filenames"]]
             plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), **local_config) for i in config_ps["filenames"]]
+        elif "run_source" in config:
+            # Plate data is located in one file.
+            config_rs = config["run_source"]
+            local_config = {i:j for i,j in config_rs.items() if i not in ["tags"]}
+            plates = [readout_dict.ReadoutDict.create(tags = [i], name = i, **local_config) for i in config_rs["tags"]]
         else:
             raise Exception("plate_source is not defined in config file: {}"
                             "".format(os.path.join(path, file)))

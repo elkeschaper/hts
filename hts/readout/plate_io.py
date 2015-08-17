@@ -470,4 +470,7 @@ def read_excel(file, tags = None):
             data = [i_sheet.row_values(0) for i in range(i_sheet.nrows)]
             reads[i_sheet.name] = data
 
+    if reads == {}:
+        raise ValueError('One of the requested excel sheets in {} with defined tags {} is empty.'.format(file, tags))
+
     return reads
