@@ -438,8 +438,9 @@ def read_insulin_csv(file):
 def read_excel(file, tags = None):
     """Read screen data file in excel format.
 
-
     Read screen data file in excel format.
+    The readout values must be the only data in the excel sheets. That is, no
+    check of the content of the sheet, nor of its size is currently performed.
 
 
     Args:
@@ -466,6 +467,7 @@ def read_excel(file, tags = None):
 
     reads = {}
     for i_sheet in excel_sheets:
+        # Only add sheets that contain data:
         if i_sheet.nrows > 0:
             data = [i_sheet.row_values(0) for i in range(i_sheet.nrows)]
             reads[i_sheet.name] = data
