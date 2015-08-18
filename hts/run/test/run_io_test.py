@@ -24,7 +24,7 @@ def test_write_run_csv_insulin(path_run):
                         path=os.path.join(path_run, TEST_RUN_CONFIG_INSULIN))
     test_serial = run_io.serialize_run_for_r(test_run)
     assert type(test_serial) == list
-    assert len(test_serial[0]) = len(test_serial[1])
+    assert len(test_serial[0]) == len(test_serial[1])
 
 
 @pytest.mark.no_external_software_required
@@ -33,7 +33,7 @@ def test_write_run_csv_insulin(path_run):
                         path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA))
     test_serial = run_io.serialize_run_for_r(test_run)
     assert type(test_serial) == list
-    assert len(test_serial[0]) = len(test_serial[1])
+    assert len(test_serial[0]) == len(test_serial[1])
 
 
 
