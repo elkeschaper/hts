@@ -13,7 +13,7 @@ import os
 import pickle
 import re
 from hts.analysis import analysis
-from hts.qc import qc
+from hts.qc import qc_knittr, qc_matplotlib
 from hts.run import run_io
 from hts.readout import readout_dict
 from hts.plate_layout import plate_layout
@@ -260,9 +260,12 @@ class Run:
         Perform data preprocessing.
 
         """
-        for i_method_name, kwargs in self.protocol().preprocessing.items():
-            for i_plate in self.plates.values():
-                i_plate.preprocess(i_method_name, **kwargs)
+        if hasattr(self.protocol(), 'preprocessing'):
+            for i_method_name, kwargs in self.protocol().preprocessing.items():
+                for i_plate in self.plates.values():
+                    i_plate.preprocess(i_method_name, **kwargs)
+        else:
+            LOG.info("preprocessing is not defined in protocol: {}".format(self.protocol().name))
 
 
     def qc(self):
@@ -280,15 +283,22 @@ class Run:
             return self._qc
         else:
             self._qc = {"plate_wise": {}, "run_wise": {}}
+            type = self.protocol().qc.pop("type", None)
+            if type == 'knittr':
+                qc_method = qc_knittr
+            elif type == "matplotlib":
+                qc_method = qc_matplotlib
+            else:
+                raise ValueError("The qc_type {} is currently not implemented.".format(type))
             for iqc, qc_param in self.protocol().qc.items():
                 LOG.info(iqc)
                 LOG.info(qc_param)
                 subset = self.filter(**qc_param['filter'])
                 #import pdb; pdb.set_trace()
                 if qc_param['filter']['tag'] == '':
-                    qc_results = {i: qc.perform_qc(methods=qc_param['methods'], data=j, plate_layout=self.plate_layout()) for i,j in subset.items()}
+                    qc_results = {i: qc_method.perform_qc(methods=qc_param['methods'], data=j, plate_layout=self.plate_layout()) for i,j in subset.items()}
                 else:
-                    qc_results = qc.perform_qc(methods=qc_param['methods'], data=subset, plate_layout=self.plate_layout())
+                    qc_results = qc_method.perform_qc(methods=qc_param['methods'], data=subset, plate_layout=self.plate_layout())
                 self._qc[iqc] = qc_results
 
         return self._qc
