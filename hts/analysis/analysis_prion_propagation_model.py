@@ -153,7 +153,6 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     .. ToDo:
         - Define what is meant by "timepoints"
     """
-    import pdb; pdb.set_trace()
 
     n_parameters=len(parameter_names) # Number of parameters (to be fit, and given)
     n_runs=len(all_parameters_temp[:,0]) # Number of experiments run
@@ -189,7 +188,6 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     ##find which parameters are fitting parameters and put them into vector b_init for input into fitting
     ##determine positions of fitting parameters and put them into list pos; i.e. pos will be a list of arrays of coordinates. All coordinates within an array will be fitted globally.
     # The value of the parameter for each list in pos is given in b_init at the same position as the list in pos.
-    fitting_names=list()
     b_init_list=list()
     pos=list()
     for k in range(n_parameters): #go through each parameter
@@ -199,7 +197,6 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
             for l in range(n_runs):  #check if identifier corresponds to current group number for each run
                 if identifiers[l,k]==i and first_in_group==-1:  #if first parameter in a new group
                     b_init_list.append(all_parameters[l,k]) #append value of this parameter
-                    fitting_names.append(parameter_names[k])
                     first_in_group=l  #remember position of first parameter in group
                     temp_pos.append([l,k])  #append position of this parameter
                 elif identifiers[l,k]==i and not first_in_group==-1 and all_parameters[first_in_group,k]==all_parameters[l,k]:  #parameter in an already existing group
@@ -210,13 +207,25 @@ def fit_prion_model(times, data, all_parameters_temp, identifiers,
     #### FORMATTING PARAMETERS ###
     #<<<<<<<END<<<<<<<<<<
 
+    #import pdb; pdb.set_trace()
+
+    # Needed is:
+    # b_init: [40000.0, 1.0, 15.0]
+    # data: 100*2
+    # times: 100*2
+    # all_parameters 2*6
+    # pos: 3*2*2 [array([[0, 0],[1, 0]]), array([[0, 2], [1, 2]]), array([[0, 3], [1, 3]])]
+    # basinhops: 1
+    # n_runs: 2
+    # model_function: model
+
     #### FITTING ####
     b_init=np.array(b_init_list)  # construct a vector with all fitting parameters (global, indiv_run1, indiv_run2, ...)
-    all_parameters_fit,b_fit,fit=fitting(b_init,data,times,all_parameters,pos,10000,1e-14,basinhops,n_runs,model_function)
+    all_parameters_fit, b_fit, fit = fitting(b_init, data, times, all_parameters, pos, 10000, 1e-14, basinhops, n_runs, model_function)
     #import pdb; pdb.set_trace()
-    errors_low,errors_up=error_estimator(b_fit, data, times,all_parameters_fit, pos, n_runs, model_function, all_parameters)
+    errors_low, errors_up = error_estimator(b_fit, data, times,all_parameters_fit, pos, n_runs, model_function, all_parameters)
     LOG.info('\n\nFITTING RESULTS:\n{}{}\n'.format(fit, all_parameters_fit))
-    return all_parameters_fit,fit,errors_low,errors_up
+    return all_parameters_fit, fit, errors_low, errors_up
 ###############################
 
 
@@ -268,9 +277,15 @@ def fitting(b_init,data,times,all_parameters,pos,n_iterations,err_tol,basinhops,
     all_parameters_fit=parameter_builder(b_fit,all_parameters,pos)
     return all_parameters_fit, b_fit,fit
 
-def create_single_var_fct(para_for_err, para_ind, b_fit, data, times,parameters, pos, required_accuracy,n_runs, model_function): #for error estimation
-#returns the input function with the para_ind-th parameter replaced by para_for_err, i.e. this is a function which takes as the first argument any one of the parameters in Mdiff_total
-#required accuracy determines how much Mdiff can increase, i.e. how likely it is that a measurement falls into the given bounds. E.g. 1/2 would correspond to 1 stdev around the mean.
+def create_single_var_fct(para_for_err, para_ind, b_fit, data, times,parameters, pos, required_accuracy,n_runs, model_function):
+    """
+    (Helper function for error estimation.)
+    Calculate input function with the para_ind-th parameter replaced by
+    para_for_err, i.e. this is a function which takes as the first argument any
+    one of the parameters in Mdiff_total required accuracy determines how much
+    Mdiff can increase, i.e. how likely it is that a measurement falls into the
+    given bounds. E.g. 1/2 would correspond to 1 stdev around the mean.
+    """
     b_fit_single_changed=np.ones_like(b_fit)
     b_fit_single_changed[para_ind]=para_for_err
     LOG.debug('b_fitsinglech: {}'.format(b_fit_single_changed))
