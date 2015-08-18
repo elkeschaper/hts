@@ -469,7 +469,7 @@ def read_excel(file, tags = None):
     for i_sheet in excel_sheets:
         # Only add sheets that contain data:
         if i_sheet.nrows > 0:
-            data = [i_sheet.row_values(0) for i in range(i_sheet.nrows)]
+            data = [i_sheet.row_values(i) for i in range(i_sheet.nrows)]
             reads[i_sheet.name] = data
 
     if reads == {}:

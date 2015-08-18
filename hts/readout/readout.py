@@ -51,7 +51,7 @@ class Readout:
         LOG.debug(data)
 
         # Convert all data to floats
-        self.data = np.array([np.array([float(read) for read in column]) for column in data])
+        self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
 
         self.height = len(self.data)
         self.width = len(self.data[0])
