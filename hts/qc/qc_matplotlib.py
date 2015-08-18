@@ -3,6 +3,7 @@
 """
     :synopsis: ``quality_control`` implementes all methods connected to the
     quality control of a high throughput screening experiment
+    qc_matplotlib implements matplotlib specific methods.
 
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
