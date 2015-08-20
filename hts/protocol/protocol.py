@@ -30,8 +30,9 @@ class Protocol:
     ..todo:: Implement me :)
     """
 
-    def __init__(self, name, config):
+    def __init__(self, path, name, config):
 
+        self.path = path
         self.name = name
         # Save config simply as attributes.
         for key, value in config.items():
@@ -54,8 +55,8 @@ class Protocol:
 
         if format == 'config':
             config = configobj.ConfigObj(path, stringify=True)
-            path, file = os.path.split(path)
-            return Protocol(name=file, config=config)
+            path_trunk, file = os.path.split(path)
+            return Protocol(path=path, name=file, config=config)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
