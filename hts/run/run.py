@@ -50,8 +50,9 @@ class Run:
             Create string for Run instance.
         """
         try:
-            run = ("<Run instance>\nNumber of plates: {}\nwidth: {}\nheight: {}"
-                "".format(len(self.plates), self.width, self.height))
+            run = ("<Run instance>\nPath to run config file: {}\n"
+                "Number of plates: {}\nwidth: {}\nheight: {}"
+                "".format(self.path, len(self.plates), self.width, self.height))
         except:
             run = "<Run instance>"
             LOG.warning("Could not create string of Run instance.")
@@ -59,8 +60,9 @@ class Run:
         return run
 
 
-    def __init__(self, plates, **kwargs):
+    def __init__(self, plates, path = None, **kwargs):
 
+        self.path = path
         self.plates = {plate.name: plate for plate in plates}
         #Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
@@ -80,9 +82,10 @@ class Run:
             self.plate_layout(path = param['path'], format = param['format'])
 
         # Save all other kwargs simply as attributes.
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                setattr(self, key, value)
+        #for key, value in kwargs.items():
+        #    if not hasattr(self, key):
+        #        setattr(self, key, value)
+        self.meta_data = kwargs
 
         # Extract plate numbering for multiple plates and set index for each plate.
         self.plate_tag_numbers = [re.findall("(\d+)", i) for i in self.plates.keys()]
@@ -165,7 +168,7 @@ class Run:
         else:
             raise Exception("plate_source is not defined in config file: {}"
                             "".format(os.path.join(path, file)))
-        return Run(plates = plates, **config)
+        return Run(path = os.path.join(path, file), plates = plates, **config)
 
 
     def create_from_envision(path, file):
@@ -183,7 +186,7 @@ class Run:
         if type(file) != list:
             file = [file]
         plates = [readout_dict.ReadoutDict.create(os.path.join(path, i), format="envision_csv") for i in file]
-        return Run(plates = plates)
+        return Run(path = os.path.join(path, file), plates = plates)
 
 
     def create_qc_report(self, path):
@@ -268,6 +271,59 @@ class Run:
             LOG.info("preprocessing is not defined in protocol: {}".format(self.protocol().name))
 
 
+    def get_qc_config(self):
+        """
+            Extract qc info from protocol and run.
+        """
+
+        if hasattr(self.protocol(), "qc"):
+            protocol_qc = self.protocol().qc
+        else:
+            protocol_qc = {}
+        if "qc" in self.meta_data:
+            run_qc = self.meta_data["qc"]
+        else:
+            run_qc = {}
+
+        if len(set(protocol_qc.keys()).intersection(run_qc.keys())) != 0:
+            LOG.warning("Some QC keys were defined both in the protocol config"
+                "[{}] and the run config [{}]".format(str(protocol_qc.keys()),
+                                                      str(run_qc.keys())))
+
+        # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
+        return dict(protocol_qc, **run_qc) # This only works if keys are strings.
+
+
+    def get_run_meta_data(self):
+        """
+            Extract relevant meta data for qc and analysis reports.
+            Returns list of tuples: [(key_str, value_str)]
+        """
+
+
+        # You could try to flatten the dict automagically to increase elegance:
+        # http://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
+        meta_data_order = ["protocol_name", "protocol_config", "experimenter", "experimenter_mail", "run_config"]
+        meta_data = {}
+        for i, j in self.meta_data.items():
+            if i in ["qc"]:
+                continue
+            elif type(j) == configobj.Section:
+                for k, l in j.items():
+                    meta_data["_".join([i,k])] = l
+            else:
+                meta_data[i] = j
+        meta_data["protocol_name"] = self.protocol().name
+        meta_data["protocol_config"] = self.protocol().path
+        meta_data["run_config"] = self.path
+        meta_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i,j in meta_data.items()}
+
+        meta_data_ordered = [(i_o,meta_data[i_o]) for i_o in meta_data_order]
+        meta_data_ordered += [(i_m, str(i_v)) for i_m, i_v in meta_data.items() if i_m not in meta_data_order]
+
+        return meta_data_ordered
+
+
     def qc(self):
         """ Perform quality control and save the results
 
@@ -282,7 +338,6 @@ class Run:
         if hasattr(self, '_qc'):
             return self._qc
         else:
-            self._qc = {"plate_wise": {}, "run_wise": {}}
             type = self.protocol().qc.pop("type", None)
             if type == 'knittr':
                 qc_method = qc_knittr
@@ -290,16 +345,11 @@ class Run:
                 qc_method = qc_matplotlib
             else:
                 raise ValueError("The qc_type {} is currently not implemented.".format(type))
-            for iqc, qc_param in self.protocol().qc.items():
-                LOG.info(iqc)
-                LOG.info(qc_param)
-                subset = self.filter(**qc_param['filter'])
-                #import pdb; pdb.set_trace()
-                if qc_param['filter']['tag'] == '':
-                    qc_results = {i: qc_method.perform_qc(methods=qc_param['methods'], data=j, plate_layout=self.plate_layout()) for i,j in subset.items()}
-                else:
-                    qc_results = qc_method.perform_qc(methods=qc_param['methods'], data=subset, plate_layout=self.plate_layout())
-                self._qc[iqc] = qc_results
+
+            #import pdb; pdb.set_trace()
+            # For all analysis needing data, add data... e.g.: the qc should write down the needed data for R automagically...
+            qc_results = qc_method.report_qc(run=self, meta_data=self.get_run_meta_data(), **self.get_qc_config())
+            self._qc = qc_results
 
         return self._qc
 
