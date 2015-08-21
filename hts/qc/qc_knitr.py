@@ -3,7 +3,7 @@
 """
     :synopsis: ``quality_control`` implementes all methods connected to the
     quality control of a high throughput screening experiment.
-    qc_knittr implements knittr specific methods.
+    qc_knitr implements knitr specific methods.
 
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
@@ -31,11 +31,11 @@ def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, *
         LOG.warning("Creating QC report result path: {}".format(qc_result_path))
         os.makedirs(qc_result_path)
 
-    path_knittr_data = os.path.join(qc_result_path, "data.csv")
-    path_knittr_file = os.path.join(qc_result_path, "qc_report.Rmd")
+    path_knitr_data = os.path.join(qc_result_path, "data.csv")
+    path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
-    header, environment, data_loader = knittr_header_setup(qc_helper_methods = qc_helper_methods, path_knittr_data = path_knittr_data, meta_data = meta_data)
+    header, environment, data_loader = knitr_header_setup(qc_helper_methods = qc_helper_methods, path_knitr_data = path_knitr_data, meta_data = meta_data)
 
 
     # Create QC snippets
@@ -48,9 +48,9 @@ def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, *
             LOG.warning("No key 'method' in i_qc_characteristics: {}".format(i_qc_characteristics))
         # 1. Create subset of data
         if "filter" in i_qc_characteristics:
-            qc_subset = knittr_subset(i_qc_characteristics['filter'])
+            qc_subset = knitr_subset(i_qc_characteristics['filter'])
         else:
-            qc_subset = knittr_subset(None)
+            qc_subset = knitr_subset(None)
             LOG.info("No key 'filter' in i_qc_characteristics: {}".format(i_qc_characteristics))
         # 2. Create QC code
         qc_description, qc_calculation = perform_qc(qc_method_name)
@@ -62,7 +62,7 @@ def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, *
             chunk = "\n".join([qc_subset, qc_calculation])
 
         # Later on, you can make this line more complicated.
-        wrapped_chunk = wrap_knittr_chunk(chunk=chunk, echo=True, eval=True)
+        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, echo=True, eval=True)
         qc_report_data[i_qc] = "\n".join(["### QC " + qc_method_name, qc_description, wrapped_chunk])
 
     #import pdb; pdb.set_trace()
@@ -72,14 +72,14 @@ def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, *
     # 2. Add each section
     # 3. Add end of RMarkdown file
     # 4. Save and return results.
-    with open(path_knittr_file, "w") as fh:
+    with open(path_knitr_file, "w") as fh:
         fh.write(header)
         fh.write(environment)
         fh.write(data_loader)
         fh.write("## QC\n")
-        for i_qc, i_qc_knittr in qc_report_data.items():
+        for i_qc, i_qc_knitr in qc_report_data.items():
             LOG.info("i_qc: {}".format(i_qc))
-            fh.write(i_qc_knittr + "\n\n")
+            fh.write(i_qc_knitr + "\n\n")
 
     return None
 
@@ -93,15 +93,15 @@ def perform_qc(method_name, *args, **kwargs):
     try:
         qc_method = getattr(sys.modules[__name__], method_name)
     except:
-        raise ValueError("method_name: {} not defined in qc_knittr.py".format(method_name))
+        raise ValueError("method_name: {} not defined in qc_knitr.py".format(method_name))
     return qc_method(*args, **kwargs)
 
 
 
-def knittr_header_setup(qc_helper_methods, path_knittr_data, meta_data = None, original_data_frame = "d_all", output= "html_document"):
-    """ Create knittr markdown file header and setup.
+def knitr_header_setup(qc_helper_methods, path_knitr_data, meta_data = None, original_data_frame = "d_all", output= "html_document"):
+    """ Create knitr markdown file header and setup.
 
-   Create knittr markdown file header and setup.
+   Create knitr markdown file header and setup.
 
     Args:
         path_qc_methods (str): Path to external R methods file
@@ -140,18 +140,18 @@ gc()
 source("{}")
 library(reshape2)
 require(gridExtra)""".format(qc_helper_methods)
-    environment="\n\nCreate environment:\n" + wrap_knittr_chunk(chunk=environment_commands, echo=False, eval=True)
+    environment="\n\nCreate environment:\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, eval=True)
 
     data_loader_commands="""
 path = "{}"
-{} = read.csv(path, sep=",", header = TRUE)""".format(path_knittr_data, original_data_frame)
-    data_loader="\nLoad data:\n" + wrap_knittr_chunk(chunk=data_loader_commands, echo=False, eval=True)
+{} = read.csv(path, sep=",", header = TRUE)""".format(path_knitr_data, original_data_frame)
+    data_loader="\nLoad data:\n" + wrap_knitr_chunk(chunk=data_loader_commands, echo=False, eval=True)
 
     return header, environment, data_loader
 
-################ wrap knittr chunk ###################
+################ wrap knitr chunk ###################
 
-def wrap_knittr_chunk(chunk, echo = True, eval=True):
+def wrap_knitr_chunk(chunk, echo = True, eval=True):
 
     if echo:
         echo_tag = "echo=TRUE"
@@ -168,10 +168,10 @@ def wrap_knittr_chunk(chunk, echo = True, eval=True):
 ################ Data subsetting #####################
 
 
-def knittr_subset(subset_requirements, original_data_frame = "d_all", new_data_frame = "d"):
-    """ Create knittr code to subset the data.
+def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_frame = "d"):
+    """ Create knitr code to subset the data.
 
-   Create knittr code to subset the data.
+   Create knitr code to subset the data.
 
     Args:
         subset_requirements (dict): For each requirement, key, values and negated need to be supplied.
@@ -187,22 +187,22 @@ def knittr_subset(subset_requirements, original_data_frame = "d_all", new_data_f
         LOG.info("subset_requirements is empty.")
         return ""
 
-    knittr_requirements = []
-    for knittr_key, i_s in subset_requirements.items():
+    knitr_requirements = []
+    for knitr_key, i_s in subset_requirements.items():
         if type(i_s["values"]) == list:
-            knittr_equal = "%in%"
-            knittr_value = "c('{}')".format("', '".join(i_s["values"]))
+            knitr_equal = "%in%"
+            knitr_value = "c('{}')".format("', '".join(i_s["values"]))
         else:
-            knittr_equal = "=="
-            knittr_value = "'{}'".format(i_s["values"])
+            knitr_equal = "=="
+            knitr_value = "'{}'".format(i_s["values"])
         if i_s["negated"] == True:
-            knittr_negator = "not"
+            knitr_negator = "not"
         else:
-            knittr_negator = ""
-        knittr_requirements.append(" ".join([knittr_negator, knittr_key, knittr_equal, knittr_value]))
+            knitr_negator = ""
+        knitr_requirements.append(" ".join([knitr_negator, knitr_key, knitr_equal, knitr_value]))
 
 
-    subset = "{} = subset({}, {})".format(new_data_frame, original_data_frame, " & ".join(knittr_requirements))
+    subset = "{} = subset({}, {})".format(new_data_frame, original_data_frame, " & ".join(knitr_requirements))
     return subset
 
 

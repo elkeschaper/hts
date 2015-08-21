@@ -13,7 +13,7 @@ import os
 import pickle
 import re
 from hts.analysis import analysis
-from hts.qc import qc_knittr, qc_matplotlib
+from hts.qc import qc_knitr, qc_matplotlib
 from hts.run import run_io
 from hts.readout import readout_dict
 from hts.plate_layout import plate_layout
@@ -339,8 +339,8 @@ class Run:
             return self._qc
         else:
             type = self.protocol().qc.pop("type", None)
-            if type == 'knittr':
-                qc_method = qc_knittr
+            if type == 'knitr':
+                qc_method = qc_knitr
             elif type == "matplotlib":
                 qc_method = qc_matplotlib
             else:
