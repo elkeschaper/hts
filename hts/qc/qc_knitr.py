@@ -409,7 +409,7 @@ def z_factor():
 
     description = '''
 The estimated z-factor is calculated as:
-$$ z_{\\rm{factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{s} + \sigma_\\rm{neg})}{|\mu_\\rm{s} - \mu_\\rm{neg}|} $$,
+$$ z_{\\rm{factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{s} + \sigma_\\rm{neg})}{|\mu_\\rm{s} - \mu_\\rm{neg}|}, $$
 where s is the sample, and neg the negative control."
 (Described e.g. on [wikipedia](https://en.wikipedia.org/wiki/Z-factor "Wikipedia: Z-factor") or in Birmingham et al, Nature, (2009) "Statistical methods for analysis of high throughput RNA interference screens"
 )'''
@@ -440,32 +440,32 @@ beautifier(p)'''
     return description, calculation
 
 
-def z_dash_factor():
+def z_prime_factor():
 
     description = '''
-$$ z_{\\rm{dash_factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{hc} + \sigma_\\rm{lc})}{|\mu_\\rm{hc} - \mu_\\rm{lc}|} $$,
+$$ z'_{\\rm{factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{hc} + \sigma_\\rm{lc})}{|\mu_\\rm{hc} - \mu_\\rm{lc}|}, $$
 where hc is the high value control, and lc the low value control. The order of controls is irrelevant in the equation.
 (Described e.g. in Birmingham et al, Nature, (2009) "Statistical methods for analysis of high throughput RNA interference screens": "A potential issue in using the Z' factor as a measure of assay resolution is that it is possible to generate a high Z' factor using a very strong positive control, which may not realistically represent more moderate screening positives. This issue is of special con- cern for RNAi screens, in which weak effects might be biologically meaningful and in which the signal-to-background ratio can be of lower magnitude than in small-molecule screens (Supplementary Table 1). Thus, researchers are advised whenever possible to use positive controls that are similar in strength to the hits they antici- pate finding. It may also be necessary to adjust Z'-factor quality guidelines for RNAi screens; we have found that assays with Z' fac- tors of zero or greater have been successful in identifying validated hits when we screened library plates in duplicate or triplicate.")'''
 
     calculation = '''
 d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 
-calculate_z_dash_factor <- function(neg, pos, x3_plate_name) {
+calculate_z_prime_factor <- function(neg, pos, x3_plate_name) {
  neg_mean = d_summary[d_summary$sample == neg & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
  neg_sd = d_summary[d_summary$sample ==neg & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
  pos_mean = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
  pos_sd = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
- z_dash_factor = 1 - 3*(neg_sd + pos_sd) / abs (neg_mean - pos_mean)
- return(z_dash_factor)
+ z_prime_factor = 1 - 3*(neg_sd + pos_sd) / abs (neg_mean - pos_mean)
+ return(z_prime_factor)
 }
 
 my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_z_dash_factor = adply(my_grid, 1, transform, z_dash_factor = calculate_z_dash_factor(neg, pos, x3_plate_name))
+d_z_prime_factor = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, x3_plate_name))
 
-p = ggplot(d_z_dash_factor, aes(x3_plate_name, z_dash_factor))
+p = ggplot(d_z_prime_factor, aes(x3_plate_name, z_prime_factor))
 p = p + geom_point(size = 2, aes(color = neg))
 p = p + geom_hline(yintercept=0) + geom_hline(yintercept=0.5)
-p = p + annotate("text", x = d_z_dash_factor$x3_plate_name[1], y=c(10, 0.25, -10), label = c("very good", "acceptable", "unacceptable"))
+p = p + annotate("text", x = d_z_prime_factor$x3_plate_name[1], y=c(10, 0.25, -10), label = c("very good", "acceptable", "unacceptable"))
 p = p + facet_wrap( ~pos, ncol=2) + scale_colour_brewer(palette="Set1")
 beautifier(p)
 '''
