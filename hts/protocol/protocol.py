@@ -40,6 +40,17 @@ class Protocol:
                 setattr(self, key, value)
         #import pdb; pdb.set_trace()
 
+        if "qc" in config:
+            qc_tmp = {}
+            for i,j in self.qc.items():
+                if type(j) != configobj.Section:
+                    qc_tmp[i] = self.qc.pop(i)
+            self.qc = {"qc_methods": self.qc}
+            self.qc.update(qc_tmp)
+            #for i,j in qc_tmp.items():
+            #    self.qc[i] = j
+
+
     def create(path, format=None):
         """ Create ``Protocol`` instance.
 

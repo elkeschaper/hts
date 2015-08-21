@@ -8,6 +8,7 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
+import collections
 import datetime
 import logging
 import os
@@ -21,7 +22,7 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, **kwargs):
+def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, *args, **kwargs):
     """
     Run QC tasks, and combine the result to a report.
 
@@ -35,12 +36,13 @@ def report_qc(run, qc_result_path, qc_helper_methods, meta_data = None, *args, *
     path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
-    header, environment, data_loader = knitr_header_setup(qc_helper_methods = qc_helper_methods, path_knitr_data = path_knitr_data, meta_data = meta_data)
+    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path = qc_helper_methods_path, path_knitr_data = path_knitr_data, meta_data = meta_data)
 
+    #import pdb; pdb.set_trace()
 
     # Create QC snippets
-    qc_report_data = {}
-    for i_qc, i_qc_characteristics in kwargs.items():
+    qc_report_data = collections.OrderedDict()
+    for i_qc, i_qc_characteristics in qc_methods.items():
         LOG.info("i_qc: {}".format(i_qc))
         try:
             qc_method_name = i_qc_characteristics['method']
@@ -98,7 +100,7 @@ def perform_qc(method_name, *args, **kwargs):
 
 
 
-def knitr_header_setup(qc_helper_methods, path_knitr_data, meta_data = None, original_data_frame = "d_all", output= "html_document"):
+def knitr_header_setup(qc_helper_methods_path, path_knitr_data, meta_data = None, original_data_frame = "d_all", output= "html_document"):
     """ Create knitr markdown file header and setup.
 
    Create knitr markdown file header and setup.
@@ -139,7 +141,7 @@ rm(list = ls(all = TRUE))
 gc()
 source("{}")
 library(reshape2)
-require(gridExtra)""".format(qc_helper_methods)
+require(gridExtra)""".format(qc_helper_methods_path)
     environment="\n\nCreate environment:\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, eval=True)
 
     data_loader_commands="""

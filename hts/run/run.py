@@ -346,7 +346,6 @@ class Run:
             else:
                 raise ValueError("The qc_type {} is currently not implemented.".format(type))
 
-            #import pdb; pdb.set_trace()
             # For all analysis needing data, add data... e.g.: the qc should write down the needed data for R automagically...
             qc_results = qc_method.report_qc(run=self, meta_data=self.get_run_meta_data(), **self.get_qc_config())
             self._qc = qc_results
