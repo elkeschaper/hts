@@ -156,10 +156,16 @@ class Run:
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
         if "plate_source" in config:
             # Plate data is located in multiple files.
-            config_ps = config["plate_source"]
-            local_config = {i:j for i,j in config_ps.items() if i not in ["filenames", "path"]}
+            config_local = config["plate_source"]
+            # Either, a filename template and filenumbers (indices) are supplied, or the filenames are supplied directly:
+            config_file = {i: config_local.pop(i) for i in ["filenames", "path", "filename", "filenumber"] if i in config_local}
+            if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
+                l_files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
+            elif all(i in config_file for i in ["path", "filename", "filenumber"]):
+                l_files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
+
             #plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), format=config_ps['format'], config = config_ps) for i in config_ps["filenames"]]
-            plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), **local_config) for i in config_ps["filenames"]]
+            plates = [readout_dict.ReadoutDict.create(path=i_file, **config_local) for i_file in l_files]
         elif "run_source" in config:
             # Plate data is located in one file.
             config_rs = config["run_source"]
@@ -350,6 +356,8 @@ class Run:
             qc_results = qc_method.report_qc(run=self, meta_data=self.get_run_meta_data(), **self.get_qc_config())
             self._qc = qc_results
 
+        if "send_mail_upon_qc" in self.meta_data and self.meta_data["send_mail_upon_qc"].lower() == "true":
+            send_mail(email_to = [self.meta_data['experimenter_mail']], body = "QC report for Run config '{}' is prepared.".format(self.path))
         return self._qc
 
 
@@ -455,3 +463,35 @@ class Run:
                 fh.write(output)
         if return_string:
             return output
+
+def send_mail(body,
+                email_to,
+                email_from = "adriano_conrad_aguzzi@gmail.com",
+                smtp_server = "smtp.gmail.com",
+                smtp_port = 587,
+                smtp_username = "elkewschaper@gmail.com",
+                email_subject = "QC_report finished"):
+
+    LOG.info("Sending email to {}".format(email_to))
+
+    from email.mime.text import MIMEText
+    from datetime import date
+    import smtplib
+
+    smtp_password = input('Enter password for {}:  '.format(smtp_username))
+    #email_from = smtp_username
+
+    DATE_FORMAT = "%d/%m/%Y"
+    EMAIL_SPACE = ", "
+
+    msg = MIMEText(body)
+    msg['Content-Type'] = 'text/html; charset=UTF8'
+    msg['Subject'] = email_subject + " %s" % (date.today().strftime(DATE_FORMAT))
+    msg['From'] = email_from
+    msg['To'] = EMAIL_SPACE.join(email_to)
+    mail = smtplib.SMTP(smtp_server, smtp_port)
+    mail.starttls()
+    mail.login(smtp_username, smtp_password)
+    mail.sendmail(email_from, email_to, msg.as_string())
+    mail.quit()
+
