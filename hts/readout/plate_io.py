@@ -219,7 +219,7 @@ def read_envision_csv(file):
     pat_info = ['Plate', 'Repeat', 'Barcode', 'Measured height']
     pat_background = ['Plate', 'Label', 'Result']
 
-
+    LOG.info("Now parsing file: {}".format(file))
 
     # Our possible parser states:
     #
@@ -243,7 +243,7 @@ def read_envision_csv(file):
     channel_wise_reads = {}
     channel_wise_info = {}
     plate_info = {}
-    with open(file) as csvfile:
+    with open(file, encoding = "ISO-8859-1") as csvfile:
         #dialect = csv.Sniffer().sniff(csvfile.read(1024))
         #sample_text = ''.join(csvfile.readline() for x in range(3))
         #dialect = csv.Sniffer().sniff(sample_text)
