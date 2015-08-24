@@ -33,6 +33,7 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
         os.makedirs(qc_result_path)
 
     path_knitr_data = os.path.join(qc_result_path, "data.csv")
+    run.write(format = 'csv', path = path_knitr_data)
     path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
@@ -43,7 +44,7 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
     # Create QC snippets
     qc_report_data = collections.OrderedDict()
     for i_qc, i_qc_characteristics in qc_methods.items():
-        LOG.info("i_qc: {}".format(i_qc))
+        LOG.debug("i_qc: {}".format(i_qc))
         try:
             qc_method_name = i_qc_characteristics['method']
         except:
@@ -52,7 +53,7 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
         if "filter" in i_qc_characteristics:
             qc_subset = knitr_subset(i_qc_characteristics['filter'])
         else:
-            qc_subset = knitr_subset(None)
+            qc_subset = ""
             LOG.info("No key 'filter' in i_qc_characteristics: {}".format(i_qc_characteristics))
         # 2. Create QC code
         qc_description, qc_calculation = perform_qc(qc_method_name)
@@ -80,7 +81,6 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
         fh.write(data_loader)
         fh.write("## QC\n")
         for i_qc, i_qc_knitr in qc_report_data.items():
-            LOG.info("i_qc: {}".format(i_qc))
             fh.write(i_qc_knitr + "\n\n")
 
     return None
@@ -206,6 +206,28 @@ def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_fr
 
     subset = "{} = subset({}, {})".format(new_data_frame, original_data_frame, " & ".join(knitr_requirements))
     return subset
+
+
+################# Plate layout ################
+
+def plate_layout():
+
+    description = '''
+The plate layout used for all plates of this run.'''
+
+    calculation = '''
+d = ddply(d_all, .(sample_type, x1, x2), summarize, y_mean = mean(y))
+
+d$x2 = factor(d$x2, levels = max(d$x2):min(d$x2))
+d$x1 = factor(d$x1, levels = min(d$x1):max(d$x1))
+p = ggplot(d, aes(x= x1, y= x2, fill=sample_type), environment = environment())
+p = p + geom_raster() + scale_fill_brewer(palette="Spectral")
+p = beautifier(p)
+p'''
+
+    return description, calculation
+
+
 
 
 ################ QC methods ####################
