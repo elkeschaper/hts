@@ -294,8 +294,7 @@ def heat_map():
 Heatmap of well wise values.'''
 
     calculation = '''
-tag = "remove_tags_from_this_function"
-tile_plot_x1x2x3(d, "y", tag, FALSE)'''
+tile_plot_x1x2x3(d, "y", FALSE)'''
 
     return description, calculation
 
@@ -415,13 +414,17 @@ calculate_ssmd <- function(neg, pos, x3_plate_name) {
 }
 
 my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_ssmd = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, x3_plate_name))
+d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, x3_plate_name))
 
-p = ggplot(d_ssmd, aes(x3_plate_name, ssmd))
-p = p + geom_point(size = 2, aes(color = neg))
-p = p + geom_hline(yintercept=-2) + geom_hline(yintercept=-1) + geom_hline(yintercept=-0.5)
-p = p + annotate("text", x = d_ssmd$x3_plate_name[1], y=c(-3, -1.5, -0.75, 0), label = c("excellent", "good", "inferior", "poor"))
-p = p + facet_wrap( ~pos, ncol=2) + scale_colour_brewer(palette="Set1")
+thresholds = c(-2, -1, -0.5)
+labels = c("excellent", "good", "inferior", "poor")
+label_positions = get_label_positions(d_qc_score$ssmd, thresholds)
+
+p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
+p = p + geom_point(size=2, aes(color=neg))
+p = p + geom_hline(yintercept=thresholds)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
+p = p + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
     return description, calculation
@@ -450,12 +453,16 @@ calculate_z_factor <- function(neg, x3_plate_name) {
 }
 
 my_grid = expand.grid(neg = unique(d[d$sample_type=="neg", "sample"]), x3_plate_name = unique(d$x3_plate_name))
-d_z_factor = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, x3_plate_name))
+d_qc_score = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, x3_plate_name))
 
-p = ggplot(d_z_factor, aes(x3_plate_name, z_factor))
-p = p + geom_point(size = 2, aes(color = neg))
-p = p + geom_hline(yintercept=0) + geom_hline(yintercept=0.5)
-p = p + annotate("text", x = d_z_factor$x3_plate_name[1], y=c(10, 0.25, -10), label = c("very good", "acceptable", "unacceptable"))
+thresholds = c(0, 0.5)
+labels = c("unacceptable", "acceptable", "very good")
+label_positions = get_label_positions(d_qc_score$z_factor, thresholds)
+
+p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
+p = p + geom_point(size=2, aes(color=neg))
+p = p + geom_hline(yintercept=thresholds)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
 p = p + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
@@ -482,15 +489,19 @@ calculate_z_prime_factor <- function(neg, pos, x3_plate_name) {
 }
 
 my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_z_prime_factor = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, x3_plate_name))
+d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, x3_plate_name))
 
-p = ggplot(d_z_prime_factor, aes(x3_plate_name, z_prime_factor))
-p = p + geom_point(size = 2, aes(color = neg))
-p = p + geom_hline(yintercept=0) + geom_hline(yintercept=0.5)
-p = p + annotate("text", x = d_z_prime_factor$x3_plate_name[1], y=c(10, 0.25, -10), label = c("very good", "acceptable", "unacceptable"))
-p = p + facet_wrap( ~pos, ncol=2) + scale_colour_brewer(palette="Set1")
-beautifier(p)
-'''
+thresholds = c(0, 0.5)
+labels = c("unacceptable", "acceptable", "very good")
+label_positions = get_label_positions(d_qc_score$z_prime_factor, thresholds)
+
+p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
+p = p + geom_point(size=2, aes(color=neg))
+p = p + geom_hline(yintercept=thresholds)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
+p = p + scale_colour_brewer(palette="Set1")
+beautifier(p)'''
+
 
     return description, calculation
 
