@@ -204,8 +204,8 @@ def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_fr
         else:
             knitr_equal = "=="
             knitr_value = "'{}'".format(i_s["values"])
-        if i_s["negated"] == True:
-            knitr_negator = "not"
+        if (i_s["is_negated"].lower() == "true") == True:
+            knitr_negator = "!"
         else:
             knitr_negator = ""
         knitr_requirements.append(" ".join([knitr_negator, knitr_key, knitr_equal, knitr_value]))
@@ -289,7 +289,17 @@ p = p + geom_smooth(method=lm,   # Add linear regression lines
 p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
 #plot.new()
 #legend('topleft', legend = lm_eqn(lm(y_replicate_1 ~ y_replicate_2, d_tmp_1)), bty = 'n') # Problem printing.
-beautifier(p)'''
+beautifier(p)
+
+myLm <- function( formula, df ){
+   mod <- lm(formula, data=df)
+   lmOut <- data.frame(t(mod$coefficients))
+   names(lmOut) <- c("intercept","slope")
+   lmOut$r2 = summary(mod)$r.squared
+   return(lmOut)
+}
+outDf <- ddply(d_tmp_1, "x3_plate_name", function(df)  myLm(y_replicate_1 ~ y_replicate_2, df))
+print(outDf)'''
 
     return description, calculation
 
@@ -433,8 +443,10 @@ p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + scale_colour_brewer(palette="Set1")
-beautifier(p)'''
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette="Set1")
+beautifier(p)
+
+print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
 
     return description, calculation
 
@@ -474,8 +486,11 @@ p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + scale_colour_brewer(palette="Set1")
-beautifier(p)'''
+p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(palette="Set1")
+beautifier(p)
+
+print(d_qc_score[with(d_qc_score, order(neg, x3_plate_name)), ])
+'''
 
     return description, calculation
 
@@ -511,8 +526,10 @@ p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + scale_colour_brewer(palette="Set1")
-beautifier(p)'''
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette="Set1")
+beautifier(p)
+
+print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
 
 
     return description, calculation

@@ -64,6 +64,9 @@ class Protocol:
         .. todo:: Write checks for ``format`` and ``path``.
         """
 
+        if not os.path.isfile(path):
+            LOG.warning("The supplied protocol file {} does not exist.".format(path))
+
         if format == 'config':
             config = configobj.ConfigObj(path, stringify=True)
             path_trunk, file = os.path.split(path)
