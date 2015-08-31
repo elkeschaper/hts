@@ -7,6 +7,7 @@
 """
 
 import ast
+import collections
 import configobj
 import logging
 import os
@@ -63,7 +64,7 @@ class Run:
     def __init__(self, plates, path = None, **kwargs):
 
         self.path = path
-        self.plates = {plate.name: plate for plate in plates}
+        self.plates = collections.OrderedDict((plate.name, plate) for plate in plates)
         #Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
         self.width = plates[0].width
@@ -102,7 +103,7 @@ class Run:
         # Set index for each plate.
         for i_plate, plate_index in zip(list(self.plates.keys()), plate_indices):
             self.plates[i_plate].index = plate_index
-        self.plates = {plate.index: plate for plate in plates}
+        self.plates = collections.OrderedDict((plate.index, plate) for plate in self.plates.values())
 
         if self.protocol():
             self.preprocess()
@@ -172,7 +173,7 @@ class Run:
             local_config = {i:j for i,j in config_rs.items() if i not in ["tags"]}
             plates = [readout_dict.ReadoutDict.create(tags = [i], name = i, **local_config) for i in config_rs["tags"]]
         else:
-            raise Exception("plate_source is not defined in config file: {}"
+            raise Exception("plate_source nor run_source are properly defined in config file: {}"
                             "".format(os.path.join(path, file)))
         return Run(path = os.path.join(path, file), plates = plates, **config)
 
