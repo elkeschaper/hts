@@ -37,7 +37,7 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
     path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
-    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path = qc_helper_methods_path, path_knitr_data = path_knitr_data, meta_data = meta_data)
+    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path = qc_helper_methods_path, path_knitr_data = path_knitr_data, meta_data = meta_data, x3_plate_names = [plate.name for plate in run.plates.values()])
 
     #import pdb; pdb.set_trace()
 
@@ -100,7 +100,7 @@ def perform_qc(method_name, *args, **kwargs):
 
 
 
-def knitr_header_setup(qc_helper_methods_path, path_knitr_data, meta_data = None, original_data_frame = "d_all", output= "html_document"):
+def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, meta_data = None, original_data_frame = "d_all", output= "html_document"):
     """ Create knitr markdown file header and setup.
 
    Create knitr markdown file header and setup.
@@ -145,8 +145,10 @@ require(gridExtra)""".format(qc_helper_methods_path)
     environment="\n\nCreate environment:\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, eval=True)
 
     data_loader_commands="""
-path = "{}"
-{} = read.csv(path, sep=",", header = TRUE)""".format(path_knitr_data, original_data_frame)
+path = "{0}"
+{1} = read.csv(path, sep=",", header = TRUE)
+{1}$x3_plate_name = factor({1}$x3_plate_name, levels = c("{2}"))
+""".format(path_knitr_data, original_data_frame, '","'.join(x3_plate_names))
     data_loader="\nLoad data:\n" + wrap_knitr_chunk(chunk=data_loader_commands, echo=False, eval=True)
 
     return header, environment, data_loader
@@ -419,11 +421,13 @@ d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, x3_pla
 thresholds = c(-2, -1, -0.5)
 labels = c("excellent", "good", "inferior", "poor")
 label_positions = get_label_positions(d_qc_score$ssmd, thresholds)
+label_position_x3 = round(length(d_qc_score$x3)/2)
+
 
 p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
 p = p + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
@@ -458,11 +462,13 @@ d_qc_score = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, x3_
 thresholds = c(0, 0.5)
 labels = c("unacceptable", "acceptable", "very good")
 label_positions = get_label_positions(d_qc_score$z_factor, thresholds)
+label_position_x3 = round(length(d_qc_score$x3)/2)
+
 
 p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
 p = p + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
@@ -494,11 +500,12 @@ d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_fac
 thresholds = c(0, 0.5)
 labels = c("unacceptable", "acceptable", "very good")
 label_positions = get_label_positions(d_qc_score$z_prime_factor, thresholds)
+label_position_x3 = round(length(d_qc_score$x3)/2)
 
 p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[1], y=label_positions, label=labels)
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
 p = p + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
