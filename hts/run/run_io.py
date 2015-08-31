@@ -17,7 +17,7 @@ LOG = logging.getLogger(__name__)
 ################################## WRITE RUN DATA  #########################
 
 
-def serialize_run_for_r(run_data, delimiter = ","):
+def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
     ''' Serialize run data for easy read-in as a data.frame in R.
 
     Serialize run data for easy read-in as a data.frame in R, in e.g. csv or
@@ -33,13 +33,16 @@ def serialize_run_for_r(run_data, delimiter = ","):
 
     ..ToDo: Update to fit current Run class.
     '''
+    if not column_name:
+        column_name = ["x3_plate_name", "xp1", "xp2", "x1", "x2", "x3", "y", "y_type", "sample", "sample_type", "sample_replicate"]
 
     plate_layout_container = run_data.plate_layout()
     plate_layout = plate_layout_container.layout
     layout_general_type = plate_layout_container.layout_general_type
     sample_replicate_count = plate_layout_container.sample_replicate_count
 
-    all_data = [["x3_plate_name", "xp1", "xp2", "x1", "x2", "x3", "y", "y_type", "sample", "sample_type", "sample_replicate"]]
+
+    all_data = [column_name]
     # Iterate over plates
     for iPlate_index, iPlate in run_data.plates.items():
         # Iterate over readouts in plates (raw and preprocessed)
