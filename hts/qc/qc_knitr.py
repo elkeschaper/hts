@@ -22,7 +22,7 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, *args, **kwargs):
+def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, knit_html = True, *args, **kwargs):
     """
     Run QC tasks, and combine the result to a report.
 
@@ -82,6 +82,11 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
         fh.write("## QC\n")
         for i_qc, i_qc_knitr in qc_report_data.items():
             fh.write(i_qc_knitr + "\n\n")
+
+    if knit_html:
+        command = """Rscript -e 'library(rmarkdown); rmarkdown::render("{}", "html_document")'"""
+        command = command.format(path_knitr_file)
+        os.system(command)
 
     return None
 
