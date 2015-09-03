@@ -8,7 +8,6 @@
 
 import csv
 import logging
-import os
 import re
 import xlrd
 
@@ -433,6 +432,34 @@ def read_insulin_csv(file):
     plate_reads2 = {i: [j[i:i+width] for i in range(0, len(j), width)]  for i,j in plate_reads.items()}
     return plate_info, plate_reads2, {}
 
+
+
+def read_csv(file, tag = '1'):
+    """Read screen data file in csv format.
+
+    Read screen data file in csv format.
+    The readout values must be the only data in the csv sheet. That is, no
+    check of the content of the sheet, nor of its size is currently performed.
+
+
+    Args:
+        file (str): Path to the file with  data in the excel file format.
+        tag (str): Name of the sheet
+
+
+    Returns:
+        reads (dict of list of lists): Read_out data
+
+    """
+
+
+    with open(file, 'r') as f:
+        reader = csv.reader(f, delimiter=',')
+        data = [row for row in reader]
+
+    LOG.info("File: {}, height: {}, width: {}".format(file, len(data), len(data[0])))
+
+    return {tag: data}
 
 
 def read_excel(file, tags = None):
