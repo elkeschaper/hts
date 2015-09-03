@@ -12,10 +12,13 @@ import numpy as np
 import os
 import pickle
 import re
-from string import ascii_uppercase
+from string import ascii_lowercase, ascii_uppercase
 
 
 LOG = logging.getLogger(__name__)
+
+PLATE_LETTERS = ascii_uppercase + ascii_lowercase
+
 
 
 class Readout:
@@ -60,8 +63,8 @@ class Readout:
             if not hasattr(self, key):
                 setattr(self, key, value)
 
-        if self.height <= len(ascii_uppercase):
-            self.axes = {"x": list(range(1, self.width + 1)), "y": ascii_uppercase[:self.height]}
+        if self.height <= len(PLATE_LETTERS):
+            self.axes = {"x": list(range(1, self.width + 1)), "y": PLATE_LETTERS[:self.height]}
         else:
             raise Exception("Add plate letters for large plates. Plate height:"
                     " {}".format(self.height))
