@@ -452,7 +452,7 @@ class Run:
         """
 
         if format == 'pickle':
-            with open(file, 'wb') as fh:
+            with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
         elif format == 'csv':
             output = run_io.serialize_run_for_r(self)
