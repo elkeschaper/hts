@@ -125,9 +125,16 @@ class Run:
         """
 
         if dir == True:
-            file = os.listdir(path)
+            if os.path.isdir(path):
+                file = os.listdir(path)
+            else:
+                raise ValueError("Run create directory {} does not exist.".format(path))
         else:
-            path, file = os.path.split(path)
+            if os.path.isfile(path):
+                path, file = os.path.split(path)
+            else:
+                raise ValueError("Run create file {} does not exist.".format(path))
+
 
         if origin == 'config':
             return Run.create_from_config(path, file)
@@ -137,7 +144,7 @@ class Run:
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
         else:
-            raise Exception("The combination of origin: {} and format: {} is "
+            raise ValueError("The combination of origin: {} and format: {} is "
                             "not implemented in "
                             "Run.create()".format(origin, format))
 
@@ -381,9 +388,9 @@ class Run:
                 subset = self.filter(**protocol_analysis_param['filter'])
                 #import pdb; pdb.set_trace()
                 if protocol_analysis_param['filter']['tag'] == '':
-                    analysis_results = {i: analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=j, plate_layout=self.plate_layout(), **self.meta) for i,j in subset.items()}
+                    analysis_results = {i: analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=j, plate_layout=self.plate_layout(), **self.meta_data['meta']) for i,j in subset.items()}
                 else:
-                    analysis_results = analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=subset, plate_layout=self.plate_layout(), **self.meta)
+                    analysis_results = analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=subset, plate_layout=self.plate_layout(), **self.meta_data['meta'])
                 self._analysis[i_ana] = analysis_results
 
         return self._analysis
