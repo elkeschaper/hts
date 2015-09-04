@@ -18,6 +18,13 @@ from hts.readout import readout, readout_dict
 LOG = logging.getLogger(__name__)
 
 def perform_analysis(methods, data, *args, **kwargs):
+
+    try:
+        path = kwargs.pop("analysis_result_path")
+        LOG.warning("analysis_result_path is not defined.")
+    except:
+        path = ""
+
     local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
     #import pdb; pdb.set_trace()
     if not (type(data) == readout.Readout or type(data) == readout_dict.ReadoutDict):
@@ -25,22 +32,20 @@ def perform_analysis(methods, data, *args, **kwargs):
             data = readout_dict.ReadoutDict(read_outs = data)
         else:
             data = readout.Readout(data)
-    results = [i(data, *args, **kwargs) for i, param in local_methods.items()]
+    results = [i(data, path=path, *args, **kwargs) for i, param in local_methods.items()]
     ### ADD: combine results (e.g. for R add data printout)
     return results
 
 ################ Readout wise methods ####################
 
 
-def perform_prion_fitting(data, file = "tata", *args, **kwargs):
+def perform_prion_fitting(data, path, *args, **kwargs):
     """ Perform prion fitting
 
     Perform prion fitting
 
     ..todo:: Add methods
     """
-
-    import pdb; pdb.set_trace()
 
     if 'plate_layout' in kwargs:
         plate_layout = kwargs['plate_layout']
@@ -51,11 +56,8 @@ def perform_prion_fitting(data, file = "tata", *args, **kwargs):
     else:
         raise ValueError('dpia_dilution is not in kwargs. Check e.g. definitions in the run config file.')
 
-    try:
-        path = kwargs.pop("analysis_result_path")
-        LOG.warning("analysis_result_path is not defined. Results are saved to the default path defined in the Fit library.")
-    except:
-        path = ""
+    if not path:
+        LOG.info("path is not defined. The Fit library saves the plots to unknown location.")
 
     model_name = "dPIA"
 
