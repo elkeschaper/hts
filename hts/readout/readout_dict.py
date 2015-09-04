@@ -39,10 +39,15 @@ class ReadoutDict:
         """
             Create string for ReadoutDict instance.
         """
+        if hasattr(self, "name"):
+            name = self.name
+        else:
+            name = "<not named>"
         try:
-            readout_dict = ("<ReadoutDict instance>\nname: {}\nNumber of read_outs: {}"
-                    "\nwidth: {}\nheight: {}".format(self.name,
-                    len(self.read_outs), self.width, self.height))
+            readout_dict = ("<ReadoutDict instance>\nname: {}\nread_outs: {}"
+                    "\nNumber of read_outs: {}\nwidth: {}\nheight: {}".format(name,
+                    str(self.read_outs.keys()), len(self.read_outs),
+                    self.width, self.height))
         except:
             readout_dict = "<ReadoutDict instance>"
             LOG.warning("Could not create string of ReadoutDict instance.")
