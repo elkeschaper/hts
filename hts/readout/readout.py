@@ -39,9 +39,8 @@ class Readout:
             Create string for Readout instance.
         """
         try:
-            data = ("<Readout instance>\nNumber of data: {}"
-                    "\nwidth: {}\nheight: {}".format(
-                    len(self.data), self.width, self.height))
+            data = ("<Readout instance>\nContains a numpy array of arrays."
+                    "\nwidth: {}\nheight: {}".format(self.width, self.height))
         except:
             data = "<Readout instance>"
             LOG.warning("Could not create string of Readout instance.")
