@@ -2,7 +2,7 @@
 
 """
     :synopsis: ``analysis`` implements all methods connected to the
-    analysys of a high throughput screening experiment
+    analysis of a high throughput screening experiment
 
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
@@ -69,14 +69,14 @@ def perform_prion_fitting(data, path, *args, **kwargs):
         LOG.info("dpia_experiment_tag: {}, dpia_plates: {}".format(dpia_experiment_tag, dpia_plates))
 
         # Prepare the fit input
-        # 1) run_data
-        run_data = {plate_name: {"value": dilution} for plate_name, dilution in dpia_plates.items()}
-        model_parameters = {"d": {"type": "local", "runs": run_data}}
+        # 1) plate_data
+        plate_data = {plate_name: {"value": dilution} for plate_name, dilution in dpia_plates.items()}
+        model_parameters = {"d": {"type": "local", "plates": plate_data}}
         LOG.info(model_parameters)
 
         # 2) model_data. model_data needs to follows the following form:
-        # {"runA": {"neg": np.array([1,2,1]), "s": np.array([3,4,4,3])}, "runB": {"neg": np.array([3,2,3]), "s": np.array([4,5,6,2])}, ...}
-        model_data = {plate_name: {"neg": data.read_outs[plate_name].filter_wells("neg"), "s": data.read_outs[plate_name].filter_wells("s")} for plate_name in dpia_plates.keys()}
+        # {"plateA": {"neg": np.array([1,2,1]), "s": np.array([3,4,4,3])}, "plateB": {"neg": np.array([3,2,3]), "s": np.array([4,5,6,2])}, ...}
+        model_data = {plate_name: {"neg": data.read_outs[plate_name].filter_wells("neg"), "sample": data.read_outs[plate_name].filter_wells("s")} for plate_name in dpia_plates.keys()}
         LOG.info(model_data)
 
         my_model = Model.create(origin="dict", model_class=ModelDPIA, model_name=model_name, data=model_data, parameters=model_parameters)
@@ -86,10 +86,13 @@ def perform_prion_fitting(data, path, *args, **kwargs):
         sum_squares_error = fit['fun']
         plot_header = dpia_experiment_tag +'\nError(sum of squares) = %(err).1e, \nn_propagons per well (undiluted)  = %(pri).1e' % {'err':sum_squares_error,'pri':n_propagons_per_well_undiluted_sample}
 
+        if not os.path.exists(path):
+            LOG.warning("analysis: Create new directory: {}".format(path))
+            os.makedirs(path)
+
         my_model.plot_model_fit(parameters_fit, title=plot_header, path=path, file_trunk=dpia_experiment_tag)
 
         # Define the return values
         results[dpia_experiment_tag] = {"sum_squares_error": sum_squares_error, "n_propagons_per_well_undiluted_sample": n_propagons_per_well_undiluted_sample}
 
     return results
-
