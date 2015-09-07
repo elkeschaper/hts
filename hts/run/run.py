@@ -80,7 +80,7 @@ class Run:
             if not type(param) == configobj.Section:
                 raise Exception("param for plate_layout is not of type "
                     "configobj.Section: {}, {}".format(param, type(param)))
-            self.plate_layout(path = param['path'], format = param['format'])
+            self.plate_layout(path = param['path'], format = param['format'], **kwargs)
 
         # Save all other kwargs simply as attributes.
         #for key, value in kwargs.items():
@@ -182,6 +182,7 @@ class Run:
         else:
             raise Exception("plate_source nor run_source are properly defined in config file: {}"
                             "".format(os.path.join(path, file)))
+
         return Run(path = os.path.join(path, file), plates = plates, **config)
 
 
@@ -396,7 +397,7 @@ class Run:
         return self._analysis
 
 
-    def plate_layout(self, path = None, format = None):
+    def plate_layout(self, path = None, format = None, **kwargs):
         """ Read plate_layout and attach to `Run` instance.
 
         Read plate_layout and attach to `Run` instance.
@@ -419,9 +420,16 @@ class Run:
                 raise Exception("Format: {} is not implemented in "
                             "ScreenData.set_plate_layout()".format(format))
 
-        # Push PlateLayout to plates
-        for plate in self.plates.values():
-            plate.set_plate_layout(self._plate_layout)
+            # Push PlateLayout to plates the first time plate_layout is called.
+            inverted_plates = []
+            if 'plate_source' in kwargs and 'inverted_plates' in kwargs['plate_source']:
+                inverted_plates = kwargs['plate_source']['inverted_plates']
+
+            for plate in self.plates.values():
+                if plate.name in inverted_plates:
+                    plate.set_plate_layout(self._plate_layout.invert())
+                else:
+                    plate.set_plate_layout(self._plate_layout)
 
         return self._plate_layout
 
