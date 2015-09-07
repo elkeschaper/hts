@@ -51,6 +51,20 @@ class PlateLayout:
             counter[type] += 1
         self.sample_replicate_count = sample_replicate_count
 
+
+    def invert(self):
+        """ Create an inverted ``PlateLayout`` instance.
+
+        Create an inverted ``PlateLayout`` instance.
+        The misfortunate experimenter turned the plate by 180 degrees, such that the general plate layout needs
+        to be adjusted.
+        """
+
+        inverted_layout = [[j for j in i[::-1]] for i in self.layout[::-1]]
+        return PlateLayout(name="{}_inverted".format(self.name), layout=inverted_layout)
+
+
+
     def create(path, format=None):
         """ Create ``PlateLayout`` instance.
 
