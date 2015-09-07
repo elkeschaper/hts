@@ -223,7 +223,9 @@ def plate_layout():
 The plate layout used for all plates of this run.'''
 
     calculation = '''
-d = ddply(d_all, .(sample_type, x1, x2), summarize, y_mean = mean(y))
+x3_tail = tail(d_all$x3, n=1)
+d = subset(d_all, x3 == x3_tail)
+d = ddply(d, .(sample_type, x1, x2), summarize, y_mean = mean(y))
 
 d$x2 = factor(d$x2, levels = max(d$x2):min(d$x2))
 d$x1 = factor(d$x1, levels = min(d$x1):max(d$x1))
