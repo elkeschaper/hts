@@ -70,7 +70,7 @@ def perform_prion_fitting(data, path, *args, **kwargs):
 
         # Prepare the fit input
         # 1) plate_data
-        plate_data = {plate_name: {"value": dilution} for plate_name, dilution in dpia_plates.items()}
+        plate_data = {plate_name: {"value": float(dilution)} for plate_name, dilution in dpia_plates.items()}
         model_parameters = {"d": {"type": "local", "plates": plate_data}}
         LOG.info(model_parameters)
 
