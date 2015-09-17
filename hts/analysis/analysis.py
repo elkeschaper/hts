@@ -80,19 +80,17 @@ def perform_prion_fitting(data, path, *args, **kwargs):
         LOG.info(model_data)
 
         my_model = Model.create(origin="dict", model_class=ModelDPIA, model_name=model_name, data=model_data, parameters=model_parameters)
-        parameters_fit, fit = my_model.fit_model()
 
-        n_propagons_per_well_undiluted_sample = parameters_fit[0,0]
-        sum_squares_error = fit['fun']
-        plot_header = dpia_experiment_tag +'\nError(sum of squares) = %(err).1e, \nn_propagons per well (undiluted)  = %(pri).1e' % {'err':sum_squares_error,'pri':n_propagons_per_well_undiluted_sample}
+        # Delete the plates that did not go through qc and rerun...
+        fit_parameters, optimisation_parameters = my_model.fit_model()
 
         if not os.path.exists(path):
             LOG.warning("analysis: Create new directory: {}".format(path))
             os.makedirs(path)
 
-        my_model.plot_model_fit(parameters_fit, title=plot_header, path=path, file_trunk=dpia_experiment_tag)
+        my_model.result_report(result_file=os.path.join(path, dpia_experiment_tag))
 
         # Define the return values
-        results[dpia_experiment_tag] = {"sum_squares_error": sum_squares_error, "n_propagons_per_well_undiluted_sample": n_propagons_per_well_undiluted_sample}
+        results[dpia_experiment_tag] = {"fit_parameters": fit_parameters['dict'], "optimisation_parameters": optimisation_parameters["dict"]}
 
     return results
