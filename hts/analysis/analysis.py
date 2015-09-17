@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from fit.model import Model
-from fit.model_dpia import ModelDPIA
+from fit.model_dpia_ml import ModelDPIAML
 
 from hts.readout import readout, readout_dict
 
@@ -71,7 +71,7 @@ def perform_prion_fitting(data, path, *args, **kwargs):
         # Prepare the fit input
         # 1) plate_data
         plate_data = {plate_name: {"value": float(dilution)} for plate_name, dilution in dpia_plates.items()}
-        model_parameters = {"d": {"type": "local", "plates": plate_data}}
+        model_parameters = {"dilution": {"type": "local", "plates": plate_data}}
         LOG.info(model_parameters)
 
         # 2) model_data. model_data needs to follows the following form:
@@ -79,7 +79,7 @@ def perform_prion_fitting(data, path, *args, **kwargs):
         model_data = {plate_name: {"neg": data.read_outs[plate_name].filter_wells("neg"), "sample": data.read_outs[plate_name].filter_wells("s")} for plate_name in dpia_plates.keys()}
         LOG.info(model_data)
 
-        my_model = Model.create(origin="dict", model_class=ModelDPIA, model_name=model_name, data=model_data, parameters=model_parameters)
+        my_model = Model.create(origin="dict", model_class=ModelDPIAML, model_name=model_name, data=model_data, parameters=model_parameters)
 
         # Delete the plates that did not go through qc and rerun...
         fit_parameters, optimisation_parameters = my_model.fit_model()
@@ -88,7 +88,8 @@ def perform_prion_fitting(data, path, *args, **kwargs):
             LOG.warning("analysis: Create new directory: {}".format(path))
             os.makedirs(path)
 
-        my_model.result_report(result_file=os.path.join(path, dpia_experiment_tag))
+        my_model.result_report(result_file=os.path.join(path, dpia_experiment_tag + ".Rmd"),
+                               result_data_file=os.path.join(path, dpia_experiment_tag + ".csv"))
 
         # Define the return values
         results[dpia_experiment_tag] = {"fit_parameters": fit_parameters['dict'], "optimisation_parameters": optimisation_parameters["dict"]}
