@@ -21,8 +21,8 @@ def perform_analysis(methods, data, *args, **kwargs):
 
     try:
         path = kwargs.pop("analysis_result_path")
-        LOG.warning("analysis_result_path is not defined.")
     except:
+        LOG.warning("analysis_result_path is not defined.")
         path = ""
 
     local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
@@ -39,7 +39,7 @@ def perform_analysis(methods, data, *args, **kwargs):
 ################ Readout wise methods ####################
 
 
-def perform_prion_fitting(data, path, *args, **kwargs):
+def perform_prion_fitting(data, path, write_data=False, *args, **kwargs):
     """ Perform prion fitting
 
     Perform prion fitting
@@ -66,6 +66,12 @@ def perform_prion_fitting(data, path, *args, **kwargs):
     #For each run, several dPIA experiments are usually defined. Iterate through all dPIA experiments.
     for dpia_experiment_tag, dpia_plates in dpia_dilution.items():
         # For each dpia_experiment_tag, perform the dPIA fitting for all defined dilutions (which all contain "neg" and "s" data).
+
+        # You need to delete this line if you wish to recalculate anything :)
+        model_file_pickle = os.path.join(path, dpia_experiment_tag + ".fit.pickle")
+        #if os.path.isfile(model_file_pickle):
+        #    continue
+
         LOG.info("dpia_experiment_tag: {}, dpia_plates: {}".format(dpia_experiment_tag, dpia_plates))
 
         # Prepare the fit input
@@ -81,15 +87,22 @@ def perform_prion_fitting(data, path, *args, **kwargs):
 
         my_model = Model.create(origin="dict", model_class=ModelDPIAML, model_name=model_name, data=model_data, parameters=model_parameters)
 
-        # Delete the plates that did not go through qc and rerun...
-        fit_parameters, optimisation_parameters = my_model.fit_model()
-
         if not os.path.exists(path):
             LOG.warning("analysis: Create new directory: {}".format(path))
             os.makedirs(path)
 
+        if write_data:
+            model_datafile_pickle = os.path.join(path, dpia_experiment_tag + ".fit_data_only.pickle")
+            my_model.write(format="pickle", path=model_datafile_pickle)
+            continue
+
+        # Todo: Delete the plates that did not go through qc and rerun...
+        fit_parameters, optimisation_parameters = my_model.fit_model()
+
         my_model.result_report(result_file=os.path.join(path, dpia_experiment_tag + ".Rmd"),
                                result_data_file=os.path.join(path, dpia_experiment_tag + ".csv"))
+
+        my_model.write(format="pickle", path=model_file_pickle)
 
         # Define the return values
         results[dpia_experiment_tag] = {"fit_parameters": fit_parameters['dict'], "optimisation_parameters": optimisation_parameters["dict"]}
