@@ -12,7 +12,6 @@ import collections
 import datetime
 import logging
 import os
-import re
 import sys
 
 from hts.readout import readout, readout_dict
