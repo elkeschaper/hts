@@ -41,14 +41,390 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-run-run-module">
-<h2>hts.run.run module<a class="headerlink" href="#hts-run-run-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.run.run">
+<span id="hts-run-run-module"></span><h2>hts.run.run module<a class="headerlink" href="#module-hts.run.run" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Run Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.run.run.Run">
+<em class="property">class </em><code class="descclassname">hts.run.run.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>plates</em>, <em>path=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">Run</span></code> describes all information connected to one run of a high</dt>
+<dd>throughput screening experiment</dd>
+</dl>
+<dl class="attribute">
+<dt id="hts.run.run.Run.name">
+<code class="descname">name</code><a class="headerlink" href="#hts.run.run.Run.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+<p>Name of the run</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.plates">
+<code class="descname">plates</code><a class="headerlink" href="#hts.run.run.Run.plates" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of <code class="docutils literal"><span class="pre">ReadoutDict</span></code></p>
+<p>List of <code class="docutils literal"><span class="pre">ReadoutDict</span></code> instances</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.width">
+<code class="descname">width</code><a class="headerlink" href="#hts.run.run.Run.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>Width of the plates</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.height">
+<code class="descname">height</code><a class="headerlink" href="#hts.run.run.Run.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>Height of the plates</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run._protocol">
+<code class="descname">_protocol</code><a class="headerlink" href="#hts.run.run.Run._protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">Protocol</span></code></p>
+<p><code class="docutils literal"><span class="pre">Protocol</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run._platelayout">
+<code class="descname">_platelayout</code><a class="headerlink" href="#hts.run.run.Run._platelayout" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">PlateLayout</span></code></p>
+<p><code class="docutils literal"><span class="pre">PlateLayout</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run._qc">
+<code class="descname">_qc</code><a class="headerlink" href="#hts.run.run.Run._qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>dict of dict of <code class="docutils literal"><span class="pre">QualityControl</span></code> instance</p>
+<p>A collection of <code class="docutils literal"><span class="pre">QualityControl</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.raw_qc">
+<code class="descname">raw_qc</code><a class="headerlink" href="#hts.run.run.Run.raw_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">QualityControl</span></code></p>
+<p><code class="docutils literal"><span class="pre">QualityControl</span></code> instance - NEEDED?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.net_qc">
+<code class="descname">net_qc</code><a class="headerlink" href="#hts.run.run.Run.net_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">QualityControl</span></code></p>
+<p><code class="docutils literal"><span class="pre">QualityControl</span></code> instance - NEEDED?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run.Run.experimenter">
+<code class="descname">experimenter</code><a class="headerlink" href="#hts.run.run.Run.experimenter" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+<p>Name of the experimenter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">experimenter</code></dt>
+<dd><p><em>str</em></p>
+<p>Mail adress of the experimenter</p>
+</dd></dl>
+
+<p>..todo:: Implement me :)</p>
+<dl class="method">
+<dt id="hts.run.run.Run.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create string for Run instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.analysis">
+<code class="descname">analysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform analysis and save the results</p>
+<p>Perform analysis and save the results</p>
+<p>Args:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>origin</em>, <em>path</em>, <em>format=None</em>, <em>dir=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>origin</strong> (<em>str</em>) &#8211; At current only &#8220;config&#8221; or &#8220;plates&#8221;</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; Format of the origin, at current not specified</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file or directory</li>
+<li><strong>dir</strong> (<em>Bool</em>) &#8211; True if all files in directory shall be read, else false.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
 </div>
-<div class="section" id="hts-run-run-io-module">
-<h2>hts.run.run_io module<a class="headerlink" href="#hts-run-run-io-module" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.create_from_config">
+<code class="descname">create_from_config</code><span class="sig-paren">(</span><em>path</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read config and use data to create <cite>Run</cite> instance.</p>
+<p>Read config and use data to create <cite>Run</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input configobj file</li>
+<li><strong>file</strong> (<em>str</em>) &#8211; Filename of configobj file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks if path and file exists when necessary.</p>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.create_from_envision">
+<code class="descname">create_from_envision</code><span class="sig-paren">(</span><em>path</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_from_envision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_from_envision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read envision data and create <cite>Run</cite> instance.</p>
+<p>Read envision data and create <cite>Run</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input configobj file</li>
+<li><strong>file</strong> (<em>str</em>) &#8211; Filename of configobj file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks if path and file exists when necessary.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.create_qc_report">
+<code class="descname">create_qc_report</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_qc_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_qc_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create quality control report (.pdf) in path.</p>
+<p>Create quality control report (.pdf) in path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) &#8211; Path to result quality control report file</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-3">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks if the path exists.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>type</em>, <em>tag</em>, <em>subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter run data according to type and tag.</p>
+<p>Filter run data according to type and tag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<em>str</em>) &#8211; Either per &#8220;run_wise&#8221; or per &#8220;plate_wise&#8221;.</li>
+<li><strong>tags</strong> (<em>str</em>) &#8211; Defines either the readout (within the plate),
+or the plate (within the run).</li>
+<li><strong>subset</strong> (<em>list of str</em>) &#8211; Defines which plates/plate_readouts shall be included.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Readout or ReadoutDict (for multiple Readouts)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.get_qc_config">
+<code class="descname">get_qc_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.get_qc_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.get_qc_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract qc info from protocol and run.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.get_run_meta_data">
+<code class="descname">get_run_meta_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.get_run_meta_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.get_run_meta_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract relevant meta data for qc and analysis reports.
+Returns list of tuples: [(key_str, value_str)]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.plate_layout">
+<code class="descname">plate_layout</code><span class="sig-paren">(</span><em>path=None</em>, <em>format=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.plate_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.plate_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read plate_layout and attach to <cite>Run</cite> instance.</p>
+<p>Read plate_layout and attach to <cite>Run</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; At current only &#8220;csv&#8221;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-4">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks if path and format exists when necessary.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.preprocess">
+<code class="descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform data preprocessing.</p>
+<p>Perform data preprocessing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.protocol">
+<code class="descname">protocol</code><span class="sig-paren">(</span><em>path=None</em>, <em>format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read protocol and attach to <cite>Run</cite> instance.</p>
+<p>Read protocol and attach to <cite>Run</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; At current only &#8220;csv&#8221;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-5">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks if path and format exists when necessary.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.qc">
+<code class="descname">qc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform quality control and save the results</p>
+<p>Perform quality control and save the results</p>
+<p>Args:</p>
+<div class="admonition-todo admonition" id="index-6">
+<p class="first admonition-title">Todo</p>
+<p class="last">Create QC for different plate subsets (e.g. raw/net).</p>
+</div>
+<div class="admonition-todo admonition" id="index-7">
+<p class="first admonition-title">Todo</p>
+<p class="last">Use function to get to plate data instead of attributes?</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.run.run.Run.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Run</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">Run</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-8">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.run.run.send_mail">
+<code class="descclassname">hts.run.run.</code><code class="descname">send_mail</code><span class="sig-paren">(</span><em>body</em>, <em>email_to</em>, <em>email_from='adriano_conrad_aguzzi&#64;gmail.com'</em>, <em>smtp_server='smtp.gmail.com'</em>, <em>smtp_port=587</em>, <em>smtp_username='elkewschaper&#64;gmail.com'</em>, <em>email_subject='QC_report finished'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#send_mail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.send_mail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-hts.run.run_io">
+<span id="hts-run-run-io-module"></span><h2>hts.run.run_io module<a class="headerlink" href="#module-hts.run.run_io" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Input/output for runs.</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="hts.run.run_io.serialize_run_for_r">
+<code class="descclassname">hts.run.run_io.</code><code class="descname">serialize_run_for_r</code><span class="sig-paren">(</span><em>run_data</em>, <em>delimiter='</em>, <em>'</em>, <em>column_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run_io.html#serialize_run_for_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run_io.serialize_run_for_r" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize run data for easy read-in as a data.frame in R.</p>
+<p>Serialize run data for easy read-in as a data.frame in R, in e.g. csv or
+tsv format.</p>
+<dl class="attribute">
+<dt id="hts.run.run_io.run">
+<code class="descclassname">hts.run.run_io.</code><code class="descname">run</code><a class="headerlink" href="#hts.run.run_io.run" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Run</em></p>
+<p>A <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.run.run_io.delimiter">
+<code class="descclassname">hts.run.run_io.</code><code class="descname">delimiter</code><a class="headerlink" href="#hts.run.run_io.delimiter" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+<p>A String instance. Defines the delimiter in the output
+file (e.g. &#8221;,&#8221; for csv or &#8221; &#8221; for tsv)</p>
+</dd></dl>
+
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The serialized run_data as a string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p>..ToDo: Update to fit current Run class.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-hts.run">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.run" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -62,9 +438,9 @@
   <ul>
 <li><a class="reference internal" href="#">hts.run package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-run-run-module">hts.run.run module</a></li>
-<li><a class="reference internal" href="#hts-run-run-io-module">hts.run.run_io module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-hts.run.run">hts.run.run module</a></li>
+<li><a class="reference internal" href="#module-hts.run.run_io">hts.run.run_io module</a></li>
+<li><a class="reference internal" href="#module-hts.run">Module contents</a></li>
 </ul>
 </li>
 </ul>

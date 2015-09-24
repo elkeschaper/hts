@@ -41,11 +41,102 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-protocol-protocol-module">
-<h2>hts.protocol.protocol module<a class="headerlink" href="#hts-protocol-protocol-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.protocol.protocol">
+<span id="hts-protocol-protocol-module"></span><h2>hts.protocol.protocol module<a class="headerlink" href="#module-hts.protocol.protocol" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Protocol Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.protocol.protocol.Protocol">
+<em class="property">class </em><code class="descclassname">hts.protocol.protocol.</code><code class="descname">Protocol</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><code class="docutils literal"><span class="pre">Protocol</span></code> describes all information connected to the protocol of a
+high throughput screen.</p>
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.name">
+<code class="descname">name</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+<p>Name of the protocol</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.preprocessing">
+<code class="descname">preprocessing</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.preprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em></p>
+<p>List of preprocessing method names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.qc">
+<code class="descname">qc</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.qc" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em></p>
+<p>List of quality control method names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.analysis">
+<code class="descname">analysis</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em></p>
+<p>List of analysis method names</p>
+</dd></dl>
+
+<p>..todo:: Implement me :)</p>
+<dl class="method">
+<dt id="hts.protocol.protocol.Protocol.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>path</em>, <em>format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">Protocol</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">Protocol</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file or directory</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; Format of the input file, at current not specified</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.protocol.protocol.Protocol.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Protocol</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">Protocol</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-hts.protocol">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.protocol" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -59,8 +150,8 @@
   <ul>
 <li><a class="reference internal" href="#">hts.protocol package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-protocol-protocol-module">hts.protocol.protocol module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-hts.protocol.protocol">hts.protocol.protocol module</a></li>
+<li><a class="reference internal" href="#module-hts.protocol">Module contents</a></li>
 </ul>
 </li>
 </ul>

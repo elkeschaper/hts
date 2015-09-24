@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hts.run.run &mdash; HTS 0.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="HTS 0.0.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for hts.run.run</h1><div class="highlight"><pre>
+<span class="c"># (C) 2015 Elke Schaper</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :synopsis: The Run Class.</span>
+
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">configobj</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">hts.analysis</span> <span class="kn">import</span> <span class="n">analysis</span>
+<span class="kn">from</span> <span class="nn">hts.qc</span> <span class="kn">import</span> <span class="n">qc_knitr</span><span class="p">,</span> <span class="n">qc_matplotlib</span>
+<span class="kn">from</span> <span class="nn">hts.run</span> <span class="kn">import</span> <span class="n">run_io</span>
+<span class="kn">from</span> <span class="nn">hts.readout</span> <span class="kn">import</span> <span class="n">readout_dict</span>
+<span class="kn">from</span> <span class="nn">hts.plate_layout</span> <span class="kn">import</span> <span class="n">plate_layout</span>
+<span class="kn">from</span> <span class="nn">hts.protocol</span> <span class="kn">import</span> <span class="n">protocol</span>
+
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot; ``Run`` describes all information connected to one run of a high</span>
+<span class="sd">        throughput screening experiment</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): Name of the run</span>
+<span class="sd">        plates (list of ``ReadoutDict``): List of ``ReadoutDict`` instances</span>
+<span class="sd">        width (int): Width of the plates</span>
+<span class="sd">        height (int): Height of the plates</span>
+<span class="sd">        _protocol (``Protocol``): ``Protocol`` instance</span>
+<span class="sd">        _platelayout (``PlateLayout``): ``PlateLayout`` instance</span>
+<span class="sd">        _qc (dict of dict of ``QualityControl`` instance): A collection of ``QualityControl`` instance</span>
+<span class="sd">        raw_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?</span>
+<span class="sd">        net_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?</span>
+<span class="sd">        experimenter (str): Name of the experimenter</span>
+<span class="sd">        experimenter (str): Mail adress of the experimenter</span>
+
+
+<span class="sd">    ..todo:: Implement me :)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Run.__str__"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create string for Run instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;&lt;Run instance&gt;</span><span class="se">\n</span><span class="s">Path to run config file: {}</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;Number of plates: {}</span><span class="se">\n</span><span class="s">width: {}</span><span class="se">\n</span><span class="s">height: {}&quot;</span>
+                <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="s">&quot;&lt;Run instance&gt;&quot;</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Could not create string of Run instance.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">run</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plates</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plates</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">((</span><span class="n">plate</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span> <span class="k">for</span> <span class="n">plate</span> <span class="ow">in</span> <span class="n">plates</span><span class="p">)</span>
+        <span class="c">#Plates as list: self.plates = plates</span>
+        <span class="c"># Later: Check if all plates are of the same height and length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">plates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">plates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">height</span>
+        <span class="k">if</span> <span class="s">&quot;protocol&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;protocol&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">==</span> <span class="n">configobj</span><span class="o">.</span><span class="n">Section</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;param for protocol is not of type &quot;</span>
+                    <span class="s">&quot;configobj.Section: {}, {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">],</span> <span class="n">format</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;format&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s">&quot;plate_layout&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;plate_layout&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">==</span> <span class="n">configobj</span><span class="o">.</span><span class="n">Section</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;param for plate_layout is not of type &quot;</span>
+                    <span class="s">&quot;configobj.Section: {}, {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;path&#39;</span><span class="p">],</span> <span class="n">format</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;format&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># Save all other kwargs simply as attributes.</span>
+        <span class="c">#for key, value in kwargs.items():</span>
+        <span class="c">#    if not hasattr(self, key):</span>
+        <span class="c">#        setattr(self, key, value)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="c"># Extract plate numbering for multiple plates and set index for each plate.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plate_tag_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;(\d+)&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+        <span class="n">plate_tag_numbers_t</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">plate_tag_numbers</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">plate_tag_numbers_t</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">):</span>
+                <span class="n">plate_indices</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;No plate numbering is informative: {}. {}.&quot;</span>
+                    <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">plate_tag_numbers_t</span><span class="p">))</span>
+
+        <span class="c"># Set index for each plate.</span>
+        <span class="k">for</span> <span class="n">i_plate</span><span class="p">,</span> <span class="n">plate_index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">plate_indices</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">[</span><span class="n">i_plate</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">plate_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plates</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">((</span><span class="n">plate</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span> <span class="k">for</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Run.create"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="nb">dir</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create ``Run`` instance.</span>
+
+<span class="sd">        Create ``Run`` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            origin (str):  At current only &quot;config&quot; or &quot;plates&quot;</span>
+<span class="sd">            format (str):  Format of the origin, at current not specified</span>
+<span class="sd">            path (str): Path to input file or directory</span>
+
+<span class="sd">            dir (Bool): True if all files in directory shall be read, else false.</span>
+
+<span class="sd">        .. todo:: Write checks for ``format`` and ``path``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Run create directory {} does not exist.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">path</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Run create file {} does not exist.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+
+        <span class="k">if</span> <span class="n">origin</span> <span class="o">==</span> <span class="s">&#39;config&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Run</span><span class="o">.</span><span class="n">create_from_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">origin</span> <span class="o">==</span> <span class="s">&#39;envision&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Run</span><span class="o">.</span><span class="n">create_from_envision</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">origin</span> <span class="o">==</span> <span class="s">&#39;pickle&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The combination of origin: {} and format: {} is &quot;</span>
+                            <span class="s">&quot;not implemented in &quot;</span>
+                            <span class="s">&quot;Run.create()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">format</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Run.create_from_config"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.create_from_config">[docs]</a>    <span class="k">def</span> <span class="nf">create_from_config</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Read config and use data to create `Run` instance.</span>
+
+<span class="sd">        Read config and use data to create `Run` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to input configobj file</span>
+<span class="sd">            file (str): Filename of configobj file</span>
+
+<span class="sd">        .. todo:: Write checks if path and file exists when necessary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">configobj</span><span class="o">.</span><span class="n">ConfigObj</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">),</span> <span class="n">stringify</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;plate_source&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="c"># Plate data is located in multiple files.</span>
+            <span class="n">config_local</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&quot;plate_source&quot;</span><span class="p">]</span>
+            <span class="c"># Either, a filename template and filenumbers (indices) are supplied, or the filenames are supplied directly:</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">config_local</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;filenames&quot;</span><span class="p">,</span> <span class="s">&quot;path&quot;</span><span class="p">,</span> <span class="s">&quot;filename&quot;</span><span class="p">,</span> <span class="s">&quot;filenumber&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">config_local</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">config_file</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;path&quot;</span><span class="p">,</span> <span class="s">&quot;filenames&quot;</span><span class="p">]):</span> <span class="c">#&quot;filenames&quot; predominates &quot;filename&quot;, &quot;filenumber&quot;</span>
+                <span class="n">l_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config_file</span><span class="p">[</span><span class="s">&quot;path&quot;</span><span class="p">],</span> <span class="n">i_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">i_file</span> <span class="ow">in</span> <span class="n">config_file</span><span class="p">[</span><span class="s">&#39;filenames&#39;</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">config_file</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;path&quot;</span><span class="p">,</span> <span class="s">&quot;filename&quot;</span><span class="p">,</span> <span class="s">&quot;filenumber&quot;</span><span class="p">]):</span>
+                <span class="n">l_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config_file</span><span class="p">[</span><span class="s">&quot;path&quot;</span><span class="p">],</span> <span class="n">config_file</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_index</span><span class="p">))</span> <span class="k">for</span> <span class="n">i_index</span> <span class="ow">in</span> <span class="n">config_file</span><span class="p">[</span><span class="s">&#39;filenumber&#39;</span><span class="p">]]</span>
+
+            <span class="c">#plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps[&quot;path&quot;], i), format=config_ps[&#39;format&#39;], config = config_ps) for i in config_ps[&quot;filenames&quot;]]</span>
+            <span class="n">plates</span> <span class="o">=</span> <span class="p">[</span><span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">i_file</span><span class="p">,</span> <span class="o">**</span><span class="n">config_local</span><span class="p">)</span> <span class="k">for</span> <span class="n">i_file</span> <span class="ow">in</span> <span class="n">l_files</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s">&quot;run_source&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="c"># Plate data is located in one file.</span>
+            <span class="n">config_rs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&quot;run_source&quot;</span><span class="p">]</span>
+            <span class="n">local_config</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">config_rs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;tags&quot;</span><span class="p">]}</span>
+            <span class="n">plates</span> <span class="o">=</span> <span class="p">[</span><span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">name</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">local_config</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">config_rs</span><span class="p">[</span><span class="s">&quot;tags&quot;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;plate_source nor run_source are properly defined in config file: {}&quot;</span>
+                            <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">Run</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">),</span> <span class="n">plates</span> <span class="o">=</span> <span class="n">plates</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Run.create_from_envision"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.create_from_envision">[docs]</a>    <span class="k">def</span> <span class="nf">create_from_envision</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Read envision data and create `Run` instance.</span>
+
+<span class="sd">        Read envision data and create `Run` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to input configobj file</span>
+<span class="sd">            file (str): Filename of configobj file</span>
+
+<span class="sd">        .. todo:: Write checks if path and file exists when necessary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="nb">file</span> <span class="o">=</span> <span class="p">[</span><span class="nb">file</span><span class="p">]</span>
+        <span class="n">plates</span> <span class="o">=</span> <span class="p">[</span><span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;envision_csv&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">file</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Run</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">file</span><span class="p">),</span> <span class="n">plates</span> <span class="o">=</span> <span class="n">plates</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Run.create_qc_report"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.create_qc_report">[docs]</a>    <span class="k">def</span> <span class="nf">create_qc_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create quality control report (.pdf) in path.</span>
+
+<span class="sd">        Create quality control report (.pdf) in path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to result quality control report file</span>
+
+<span class="sd">        .. todo:: Write checks if the path exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_qc</span><span class="p">()</span>
+        <span class="c"># Create pdf</span>
+
+</div>
+<div class="viewcode-block" id="Run.filter"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">subset</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Filter run data according to type and tag.</span>
+
+<span class="sd">        Filter run data according to type and tag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            type (str): Either per &quot;run_wise&quot; or per &quot;plate_wise&quot;.</span>
+<span class="sd">            tags (str): Defines either the readout (within the plate),</span>
+<span class="sd">                or the plate (within the run).</span>
+<span class="sd">            subset (list of str): Defines which plates/plate_readouts shall be included.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Readout or ReadoutDict (for multiple Readouts)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#import pdb; pdb.set_trace()</span>
+        <span class="c">#if subset:</span>
+        <span class="c">#    subset = ast.literal_eval(subset)</span>
+
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;run_wise&#39;</span><span class="p">:</span>
+            <span class="c"># Return plates across a run.</span>
+            <span class="k">if</span> <span class="n">tag</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span><span class="n">plate</span><span class="o">.</span><span class="n">get_readout</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span><span class="n">plate</span><span class="o">.</span><span class="n">get_readout</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read_outs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span>  <span class="p">{</span><span class="n">index</span><span class="p">:</span><span class="n">plate</span><span class="o">.</span><span class="n">get_readout</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span><span class="n">plate</span><span class="o">.</span><span class="n">get_readout</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span>
+                <span class="k">return</span> <span class="n">result</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;plate_wise&#39;</span><span class="p">:</span>
+            <span class="c"># Return plates across a plate.</span>
+            <span class="k">if</span> <span class="n">tag</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">read_outs</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">readout</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">readout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">read_outs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">read_outs</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span>  <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">readout</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">readout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">read_outs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span>
+                <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;The type: {} is not implemented in &quot;</span>
+                            <span class="s">&quot;Run.filter()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Run.preprocess"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform data preprocessing.</span>
+
+<span class="sd">        Perform data preprocessing.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">(),</span> <span class="s">&#39;preprocessing&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i_method_name</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">i_plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">i_plate</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">i_method_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;preprocessing is not defined in protocol: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Run.get_qc_config"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.get_qc_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_qc_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Extract qc info from protocol and run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">(),</span> <span class="s">&quot;qc&quot;</span><span class="p">):</span>
+            <span class="n">protocol_qc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">qc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">protocol_qc</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s">&quot;qc&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">:</span>
+            <span class="n">run_qc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;qc&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_qc</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">protocol_qc</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">run_qc</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Some QC keys were defined both in the protocol config&quot;</span>
+                <span class="s">&quot;[{}] and the run config [{}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">protocol_qc</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                                      <span class="nb">str</span><span class="p">(</span><span class="n">run_qc</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+        <span class="c"># This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">protocol_qc</span><span class="p">,</span> <span class="o">**</span><span class="n">run_qc</span><span class="p">)</span> <span class="c"># This only works if keys are strings.</span>
+
+</div>
+<div class="viewcode-block" id="Run.get_run_meta_data"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.get_run_meta_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_meta_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Extract relevant meta data for qc and analysis reports.</span>
+<span class="sd">            Returns list of tuples: [(key_str, value_str)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c"># You could try to flatten the dict automagically to increase elegance:</span>
+        <span class="c"># http://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys</span>
+        <span class="n">meta_data_order</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;protocol_name&quot;</span><span class="p">,</span> <span class="s">&quot;protocol_config&quot;</span><span class="p">,</span> <span class="s">&quot;experimenter&quot;</span><span class="p">,</span> <span class="s">&quot;experimenter_mail&quot;</span><span class="p">,</span> <span class="s">&quot;run_config&quot;</span><span class="p">]</span>
+        <span class="n">meta_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;qc&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">==</span> <span class="n">configobj</span><span class="o">.</span><span class="n">Section</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">])]</span> <span class="o">=</span> <span class="n">l</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">meta_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+        <span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;protocol_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;protocol_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;run_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">meta_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="k">else</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">meta_data_ordered</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_o</span><span class="p">,</span><span class="n">meta_data</span><span class="p">[</span><span class="n">i_o</span><span class="p">])</span> <span class="k">for</span> <span class="n">i_o</span> <span class="ow">in</span> <span class="n">meta_data_order</span><span class="p">]</span>
+        <span class="n">meta_data_ordered</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">i_m</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i_v</span><span class="p">))</span> <span class="k">for</span> <span class="n">i_m</span><span class="p">,</span> <span class="n">i_v</span> <span class="ow">in</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i_m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta_data_order</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">meta_data_ordered</span>
+
+</div>
+<div class="viewcode-block" id="Run.qc"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.qc">[docs]</a>    <span class="k">def</span> <span class="nf">qc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform quality control and save the results</span>
+
+<span class="sd">        Perform quality control and save the results</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        .. todo:: Create QC for different plate subsets (e.g. raw/net).</span>
+<span class="sd">        .. todo:: Use function to get to plate data instead of attributes?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_qc&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">qc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&#39;knitr&#39;</span><span class="p">:</span>
+                <span class="n">qc_method</span> <span class="o">=</span> <span class="n">qc_knitr</span>
+            <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s">&quot;matplotlib&quot;</span><span class="p">:</span>
+                <span class="n">qc_method</span> <span class="o">=</span> <span class="n">qc_matplotlib</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The qc_type {} is currently not implemented.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">))</span>
+
+            <span class="c"># For all analysis needing data, add data... e.g.: the qc should write down the needed data for R automagically...</span>
+            <span class="n">qc_results</span> <span class="o">=</span> <span class="n">qc_method</span><span class="o">.</span><span class="n">report_qc</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_run_meta_data</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_qc_config</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qc</span> <span class="o">=</span> <span class="n">qc_results</span>
+
+        <span class="k">if</span> <span class="s">&quot;send_mail_upon_qc&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&quot;send_mail_upon_qc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">send_mail</span><span class="p">(</span><span class="n">email_to</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&#39;experimenter_mail&#39;</span><span class="p">]],</span> <span class="n">body</span> <span class="o">=</span> <span class="s">&quot;QC report for Run config &#39;{}&#39; is prepared.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qc</span>
+
+</div>
+<div class="viewcode-block" id="Run.analysis"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.analysis">[docs]</a>    <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform analysis and save the results</span>
+
+<span class="sd">        Perform analysis and save the results</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_analysis&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">i_ana</span><span class="p">,</span> <span class="n">protocol_analysis_param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">i_ana</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">protocol_analysis_param</span><span class="p">)</span>
+                <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">protocol_analysis_param</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">])</span>
+                <span class="c">#import pdb; pdb.set_trace()</span>
+                <span class="k">if</span> <span class="n">protocol_analysis_param</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">][</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">perform_analysis</span><span class="p">(</span><span class="n">methods</span><span class="o">=</span><span class="n">protocol_analysis_param</span><span class="p">[</span><span class="s">&#39;methods&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">j</span><span class="p">,</span> <span class="n">plate_layout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&#39;meta&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">subset</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">analysis_results</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">perform_analysis</span><span class="p">(</span><span class="n">methods</span><span class="o">=</span><span class="n">protocol_analysis_param</span><span class="p">[</span><span class="s">&#39;methods&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">plate_layout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&#39;meta&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span><span class="p">[</span><span class="n">i_ana</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis_results</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span>
+
+</div>
+<div class="viewcode-block" id="Run.plate_layout"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.plate_layout">[docs]</a>    <span class="k">def</span> <span class="nf">plate_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Read plate_layout and attach to `Run` instance.</span>
+
+<span class="sd">        Read plate_layout and attach to `Run` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to input file</span>
+<span class="sd">            format (str):  At current only &quot;csv&quot;</span>
+
+<span class="sd">        .. todo:: Write checks if path and format exists when necessary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_plate_layout&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span> <span class="o">=</span> <span class="n">plate_layout</span><span class="o">.</span><span class="n">PlateLayout</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="o">.</span><span class="n">layout</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;ReadoutDict width and length of the plate layout &quot;</span>
+                            <span class="s">&quot;({}, {}) are not the same as for the plate data ({}, {})&quot;</span>
+                            <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="o">.</span><span class="n">layout</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="o">.</span><span class="n">layout</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Format: {} is not implemented in &quot;</span>
+                            <span class="s">&quot;ScreenData.set_plate_layout()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">format</span><span class="p">))</span>
+
+            <span class="c"># Push PlateLayout to plates the first time plate_layout is called.</span>
+            <span class="n">inverted_plates</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s">&#39;plate_source&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s">&#39;inverted_plates&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;plate_source&#39;</span><span class="p">]:</span>
+                <span class="n">inverted_plates</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;plate_source&#39;</span><span class="p">][</span><span class="s">&#39;inverted_plates&#39;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">plate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">plate</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">inverted_plates</span><span class="p">:</span>
+                    <span class="n">plate</span><span class="o">.</span><span class="n">set_plate_layout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="o">.</span><span class="n">invert</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">plate</span><span class="o">.</span><span class="n">set_plate_layout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plate_layout</span>
+
+</div>
+<div class="viewcode-block" id="Run.protocol"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.protocol">[docs]</a>    <span class="k">def</span> <span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Read protocol and attach to `Run` instance.</span>
+
+<span class="sd">        Read protocol and attach to `Run` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to input file</span>
+<span class="sd">            format (str):  At current only &quot;csv&quot;</span>
+
+<span class="sd">        .. todo:: Write checks if path and format exists when necessary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_protocol&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">format</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">Protocol</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span>
+
+</div>
+<div class="viewcode-block" id="Run.write"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.Run.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_string</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Serialize and write ``Run`` instances.</span>
+
+<span class="sd">        Serialize ``Run`` instance using the stated ``format``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            format (str):  The output format: Currently only &quot;pickle&quot;.</span>
+<span class="sd">            path (str): Path to output file</span>
+
+<span class="sd">        .. todo:: Write checks for ``format`` and ``path``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&#39;pickle&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&#39;csv&#39;</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">run_io</span><span class="o">.</span><span class="n">serialize_run_for_r</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Format is unknown: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">format</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_string</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output</span>
+</div></div>
+<div class="viewcode-block" id="send_mail"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run.send_mail">[docs]</a><span class="k">def</span> <span class="nf">send_mail</span><span class="p">(</span><span class="n">body</span><span class="p">,</span>
+                <span class="n">email_to</span><span class="p">,</span>
+                <span class="n">email_from</span> <span class="o">=</span> <span class="s">&quot;adriano_conrad_aguzzi@gmail.com&quot;</span><span class="p">,</span>
+                <span class="n">smtp_server</span> <span class="o">=</span> <span class="s">&quot;smtp.gmail.com&quot;</span><span class="p">,</span>
+                <span class="n">smtp_port</span> <span class="o">=</span> <span class="mi">587</span><span class="p">,</span>
+                <span class="n">smtp_username</span> <span class="o">=</span> <span class="s">&quot;elkewschaper@gmail.com&quot;</span><span class="p">,</span>
+                <span class="n">email_subject</span> <span class="o">=</span> <span class="s">&quot;QC_report finished&quot;</span><span class="p">):</span>
+
+    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Sending email to {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">email_to</span><span class="p">))</span>
+
+    <span class="kn">from</span> <span class="nn">email.mime.text</span> <span class="kn">import</span> <span class="n">MIMEText</span>
+    <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+    <span class="kn">import</span> <span class="nn">smtplib</span>
+
+    <span class="n">smtp_password</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;Enter password for {}:  &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">smtp_username</span><span class="p">))</span>
+    <span class="c">#email_from = smtp_username</span>
+
+    <span class="n">DATE_FORMAT</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%d</span><span class="s">/%m/%Y&quot;</span>
+    <span class="n">EMAIL_SPACE</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">MIMEText</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+    <span class="n">msg</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;text/html; charset=UTF8&#39;</span>
+    <span class="n">msg</span><span class="p">[</span><span class="s">&#39;Subject&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">email_subject</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT</span><span class="p">))</span>
+    <span class="n">msg</span><span class="p">[</span><span class="s">&#39;From&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">email_from</span>
+    <span class="n">msg</span><span class="p">[</span><span class="s">&#39;To&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">EMAIL_SPACE</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">email_to</span><span class="p">)</span>
+    <span class="n">mail</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="n">smtp_server</span><span class="p">,</span> <span class="n">smtp_port</span><span class="p">)</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">smtp_username</span><span class="p">,</span> <span class="n">smtp_password</span><span class="p">)</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">email_from</span><span class="p">,</span> <span class="n">email_to</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">as_string</span><span class="p">())</span>
+    <span class="n">mail</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Elke Schaper.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

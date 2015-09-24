@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hts.qc.qc_knitr &mdash; HTS 0.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="HTS 0.0.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for hts.qc.qc_knitr</h1><div class="highlight"><pre>
+<span class="c"># (C) 2015 Elke Schaper</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :synopsis: ``quality_control`` implementes all methods connected to the</span>
+<span class="sd">    quality control of a high throughput screening experiment.</span>
+<span class="sd">    qc_knitr implements knitr specific methods.</span>
+
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">hts.readout</span> <span class="kn">import</span> <span class="n">readout</span><span class="p">,</span> <span class="n">readout_dict</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">PATH</span> <span class="o">=</span> <span class="s">&#39;/Users/elkeschaper/Downloads/&#39;</span>
+
+
+<div class="viewcode-block" id="report_qc"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.report_qc">[docs]</a><span class="k">def</span> <span class="nf">report_qc</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">qc_result_path</span><span class="p">,</span> <span class="n">qc_helper_methods_path</span><span class="p">,</span> <span class="n">qc_methods</span><span class="p">,</span> <span class="n">meta_data</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">knit_html</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run QC tasks, and combine the result to a report.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">):</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Creating QC report result path: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">)</span>
+
+    <span class="n">path_knitr_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">,</span> <span class="s">&quot;data.csv&quot;</span><span class="p">)</span>
+    <span class="n">run</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;csv&#39;</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">path_knitr_data</span><span class="p">)</span>
+    <span class="n">path_knitr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">,</span> <span class="s">&quot;qc_report.Rmd&quot;</span><span class="p">)</span>
+
+    <span class="c"># Create header info and environment snippets</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">data_loader</span> <span class="o">=</span> <span class="n">knitr_header_setup</span><span class="p">(</span><span class="n">qc_helper_methods_path</span> <span class="o">=</span> <span class="n">qc_helper_methods_path</span><span class="p">,</span> <span class="n">path_knitr_data</span> <span class="o">=</span> <span class="n">path_knitr_data</span><span class="p">,</span> <span class="n">meta_data</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">,</span> <span class="n">x3_plate_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">plate</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">plate</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="c">#import pdb; pdb.set_trace()</span>
+
+    <span class="c"># Create QC snippets</span>
+    <span class="n">qc_report_data</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i_qc</span><span class="p">,</span> <span class="n">i_qc_characteristics</span> <span class="ow">in</span> <span class="n">qc_methods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;i_qc: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_qc</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">qc_method_name</span> <span class="o">=</span> <span class="n">i_qc_characteristics</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;No key &#39;method&#39; in i_qc_characteristics: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_qc_characteristics</span><span class="p">))</span>
+        <span class="c"># 1. Create subset of data</span>
+        <span class="k">if</span> <span class="s">&quot;filter&quot;</span> <span class="ow">in</span> <span class="n">i_qc_characteristics</span><span class="p">:</span>
+            <span class="n">qc_subset</span> <span class="o">=</span> <span class="n">knitr_subset</span><span class="p">(</span><span class="n">i_qc_characteristics</span><span class="p">[</span><span class="s">&#39;filter&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qc_subset</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;No key &#39;filter&#39; in i_qc_characteristics: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_qc_characteristics</span><span class="p">))</span>
+        <span class="c"># 2. Create QC code</span>
+        <span class="n">qc_description</span><span class="p">,</span> <span class="n">qc_calculation</span> <span class="o">=</span> <span class="n">perform_qc</span><span class="p">(</span><span class="n">qc_method_name</span><span class="p">)</span>
+        <span class="c"># 3. Apply filter</span>
+        <span class="k">if</span> <span class="s">&quot;threshold&quot;</span> <span class="ow">in</span> <span class="n">i_qc_characteristics</span><span class="p">:</span>
+            <span class="n">qc_decision</span> <span class="o">=</span> <span class="n">evaluate_qc</span><span class="p">(</span><span class="n">qc_result</span><span class="p">,</span> <span class="n">i_qc_characteristics</span><span class="p">[</span><span class="s">&#39;threshold&#39;</span><span class="p">])</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">qc_subset</span><span class="p">,</span> <span class="n">qc_calculation</span><span class="p">,</span> <span class="n">qc_decision</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">qc_subset</span><span class="p">,</span> <span class="n">qc_calculation</span><span class="p">])</span>
+
+        <span class="c"># Later on, you can make this line more complicated.</span>
+        <span class="n">wrapped_chunk</span> <span class="o">=</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">qc_report_data</span><span class="p">[</span><span class="n">i_qc</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;### QC {} ({})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_qc</span><span class="p">,</span> <span class="n">qc_method_name</span><span class="p">),</span> <span class="n">qc_description</span><span class="p">,</span> <span class="n">wrapped_chunk</span><span class="p">])</span>
+
+    <span class="c">#import pdb; pdb.set_trace()</span>
+
+    <span class="c"># QC report</span>
+    <span class="c"># 1. Write the start of a RMarkdown file,</span>
+    <span class="c"># 2. Add each section</span>
+    <span class="c"># 3. Add end of RMarkdown file</span>
+    <span class="c"># 4. Save and return results.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_knitr_file</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;## QC</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i_qc</span><span class="p">,</span> <span class="n">i_qc_knitr</span> <span class="ow">in</span> <span class="n">qc_report_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i_qc_knitr</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">knit_html</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;Rscript -e &#39;library(rmarkdown); rmarkdown::render(&quot;{}&quot;, &quot;html_document&quot;)&#39;&quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_knitr_file</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="perform_qc"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.perform_qc">[docs]</a><span class="k">def</span> <span class="nf">perform_qc</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform QC `method_name` with parameter *args and **kwargs, and return result.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">qc_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">__name__</span><span class="p">],</span> <span class="n">method_name</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;method_name: {} not defined in qc_knitr.py&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">qc_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="knitr_header_setup"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.knitr_header_setup">[docs]</a><span class="k">def</span> <span class="nf">knitr_header_setup</span><span class="p">(</span><span class="n">qc_helper_methods_path</span><span class="p">,</span> <span class="n">path_knitr_data</span><span class="p">,</span> <span class="n">x3_plate_names</span><span class="p">,</span> <span class="n">meta_data</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">original_data_frame</span> <span class="o">=</span> <span class="s">&quot;d_all&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span> <span class="s">&quot;html_document&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create knitr markdown file header and setup.</span>
+
+<span class="sd">   Create knitr markdown file header and setup.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path_qc_methods (str): Path to external R methods file</span>
+<span class="sd">        path_data (str): Path to data file</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">        header (str): Knittr markdown file header</span>
+<span class="sd">        environment (str): Knittr markdown environment setter</span>
+<span class="sd">        data_loader (str): Knittr markdown data loader</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">header</span> <span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">---</span>
+<span class="s">title: &quot;QC report&quot;</span>
+<span class="s">author: &quot;Neuropathology USZ &amp; Vital-IT, Swiss Institute of Bioinformatics&quot;</span>
+<span class="s">date: &quot;{}&quot;</span>
+<span class="s">output: &quot;{}&quot;</span>
+<span class="s">---</span>
+<span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()),</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">meta_data</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">+=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">## HTS Run general info</span>
+
+<span class="s">| Overview |</span>
+<span class="s">|:-----------|:------------|</span><span class="se">\n</span><span class="s">&quot;&quot;&quot;</span>
+
+        <span class="n">header</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;| {} | {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>  <span class="n">meta_data</span><span class="p">])</span>
+
+
+    <span class="n">environment_commands</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">rm(list = ls(all = TRUE))</span>
+<span class="s">gc()</span>
+<span class="s">source(&quot;{}&quot;)</span>
+<span class="s">library(reshape2)</span>
+<span class="s">require(gridExtra)&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">qc_helper_methods_path</span><span class="p">)</span>
+    <span class="n">environment</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">Create environment:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">environment_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">data_loader_commands</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">path = &quot;{0}&quot;</span>
+<span class="s">{1} = read.csv(path, sep=&quot;,&quot;, header = TRUE)</span>
+<span class="s">{1}$x3_plate_name = factor({1}$x3_plate_name, levels = c(&quot;{2}&quot;))</span>
+<span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_knitr_data</span><span class="p">,</span> <span class="n">original_data_frame</span><span class="p">,</span> <span class="s">&#39;&quot;,&quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x3_plate_names</span><span class="p">))</span>
+    <span class="n">data_loader</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Load data:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">data_loader_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">header</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">data_loader</span>
+
+<span class="c">################ wrap knitr chunk ###################</span>
+</div>
+<div class="viewcode-block" id="wrap_knitr_chunk"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.wrap_knitr_chunk">[docs]</a><span class="k">def</span> <span class="nf">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">echo</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">echo</span><span class="p">:</span>
+        <span class="n">echo_tag</span> <span class="o">=</span> <span class="s">&quot;echo=TRUE&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">echo_tag</span> <span class="o">=</span> <span class="s">&quot;echo=FALSE&quot;</span>
+    <span class="k">if</span> <span class="nb">eval</span><span class="p">:</span>
+        <span class="n">eval_tag</span> <span class="o">=</span> <span class="s">&quot;eval=TRUE&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eval_tag</span> <span class="o">=</span> <span class="s">&quot;eval=FALSE&quot;</span>
+
+    <span class="k">return</span> <span class="s">&quot;```{{r, {}, {}}}</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">```</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">echo_tag</span><span class="p">,</span> <span class="n">eval_tag</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+
+
+<span class="c">################ Data subsetting #####################</span>
+
+</div>
+<div class="viewcode-block" id="knitr_subset"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.knitr_subset">[docs]</a><span class="k">def</span> <span class="nf">knitr_subset</span><span class="p">(</span><span class="n">subset_requirements</span><span class="p">,</span> <span class="n">original_data_frame</span> <span class="o">=</span> <span class="s">&quot;d_all&quot;</span><span class="p">,</span> <span class="n">new_data_frame</span> <span class="o">=</span> <span class="s">&quot;d&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create knitr code to subset the data.</span>
+
+<span class="sd">   Create knitr code to subset the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subset_requirements (dict): For each requirement, key, values and negated need to be supplied.</span>
+<span class="sd">        original_data_frame (str): Name of the original data frame.</span>
+<span class="sd">        new_data_frame (str): Name of the new data frame.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        subset (str): Knittr code subsetting</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">subset_requirements</span> <span class="o">==</span> <span class="p">{}:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;subset_requirements is empty.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;&quot;</span>
+
+    <span class="n">knitr_requirements</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">knitr_key</span><span class="p">,</span> <span class="n">i_s</span> <span class="ow">in</span> <span class="n">subset_requirements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i_s</span><span class="p">[</span><span class="s">&quot;values&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">knitr_equal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%i</span><span class="s">n%&quot;</span>
+            <span class="n">knitr_value</span> <span class="o">=</span> <span class="s">&quot;c(&#39;{}&#39;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i_s</span><span class="p">[</span><span class="s">&quot;values&quot;</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">knitr_equal</span> <span class="o">=</span> <span class="s">&quot;==&quot;</span>
+            <span class="n">knitr_value</span> <span class="o">=</span> <span class="s">&quot;&#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_s</span><span class="p">[</span><span class="s">&quot;values&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i_s</span><span class="p">[</span><span class="s">&quot;is_negated&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">knitr_negator</span> <span class="o">=</span> <span class="s">&quot;!&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">knitr_negator</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="n">knitr_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">knitr_negator</span><span class="p">,</span> <span class="n">knitr_key</span><span class="p">,</span> <span class="n">knitr_equal</span><span class="p">,</span> <span class="n">knitr_value</span><span class="p">]))</span>
+
+
+    <span class="n">subset</span> <span class="o">=</span> <span class="s">&quot;{} = subset({}, {})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_data_frame</span><span class="p">,</span> <span class="n">original_data_frame</span><span class="p">,</span> <span class="s">&quot; &amp; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">knitr_requirements</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">subset</span>
+
+
+<span class="c">################# Plate layout ################</span>
+</div>
+<div class="viewcode-block" id="plate_layout"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.plate_layout">[docs]</a><span class="k">def</span> <span class="nf">plate_layout</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">The plate layout used for all plates of this run.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">x3_tail = tail(d_all$x3, n=1)</span>
+<span class="s">d = subset(d_all, x3 == x3_tail)</span>
+<span class="s">d = ddply(d, .(sample_type, x1, x2), summarize, y_mean = mean(y))</span>
+
+<span class="s">d$x2 = factor(d$x2, levels = max(d$x2):min(d$x2))</span>
+<span class="s">d$x1 = factor(d$x1, levels = min(d$x1):max(d$x1))</span>
+<span class="s">p = ggplot(d, aes(x= x1, y= x2, fill=sample_type), environment = environment())</span>
+<span class="s">p = p + geom_raster() + scale_fill_brewer(palette=&quot;Spectral&quot;)</span>
+<span class="s">p = beautifier(p)</span>
+<span class="s">p&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+
+
+<span class="c">################ QC methods ####################</span>
+
+</div>
+<div class="viewcode-block" id="chessboard_pattern"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.chessboard_pattern">[docs]</a><span class="k">def</span> <span class="nf">chessboard_pattern</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Evolution of mean value over plates for odd and even row and columns.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d = ddply(d, 1, transform, row_type = c(&quot;even&quot;, &quot;odd&quot;)[(x2 </span><span class="si">%%</span><span class="s"> 2) + 1])</span>
+<span class="s">d = ddply(d, 1, transform, column_type = c(&quot;even&quot;, &quot;odd&quot;)[(x1 </span><span class="si">%%</span><span class="s"> 2) + 1])</span>
+
+
+<span class="s">d_summary = ddply(d, .(x3, x3_plate_name, row_type), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+<span class="s">p = ggplot(d_summary, aes(x3_plate_name, y_mean))</span>
+<span class="s">p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)</span>
+<span class="s">p = p + geom_point(size = 2, aes(color = row_type))</span>
+<span class="s">p = p + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">p = beautifier(p)</span>
+
+<span class="s">d_summary = ddply(d, .(x3, x3_plate_name, column_type), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+<span class="s">p2 = ggplot(d_summary, aes(x3_plate_name, y_mean))</span>
+<span class="s">p2 = p2 + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)</span>
+<span class="s">p2 = p2 + geom_point(size = 2, aes(color = column_type))</span>
+<span class="s">p2 = p2 + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">p2 = beautifier(p2)</span>
+
+<span class="s">grid.arrange(p, p2, ncol=2)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+</div>
+<div class="viewcode-block" id="compare_plate_replicates"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.compare_plate_replicates">[docs]</a><span class="k">def</span> <span class="nf">compare_plate_replicates</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Plot replicate values against each other.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d_tmp_1 = subset(d, sample_replicate == 1)</span>
+<span class="s">d_tmp_2 = subset(d, sample_replicate == 2)</span>
+<span class="s">d_tmp_1$y_replicate_1 = d_tmp_1$y</span>
+<span class="s">d_tmp_1$y_replicate_2 = d_tmp_2$y</span>
+
+<span class="s">p = ggplot(d_tmp_1, aes(y_replicate_1, y_replicate_2))</span>
+<span class="s">p = p + geom_point(size = 0.8, color = &quot;brown&quot;, alpha = 0.3)</span>
+<span class="s">p = p + geom_smooth(method=lm,   # Add linear regression lines</span>
+<span class="s">                se=FALSE,    # Don&#39;t add shaded confidence region</span>
+<span class="s">                fullrange=T, colour=&quot;grey&quot;)</span>
+<span class="s">p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">#plot.new()</span>
+<span class="s">#legend(&#39;topleft&#39;, legend = lm_eqn(lm(y_replicate_1 ~ y_replicate_2, d_tmp_1)), bty = &#39;n&#39;) # Problem printing.</span>
+<span class="s">beautifier(p)</span>
+
+<span class="s">myLm &lt;- function( formula, df ){</span>
+<span class="s">   mod &lt;- lm(formula, data=df)</span>
+<span class="s">   lmOut &lt;- data.frame(t(mod$coefficients))</span>
+<span class="s">   names(lmOut) &lt;- c(&quot;intercept&quot;,&quot;slope&quot;)</span>
+<span class="s">   lmOut$r2 = summary(mod)$r.squared</span>
+<span class="s">   return(lmOut)</span>
+<span class="s">}</span>
+<span class="s">outDf &lt;- ddply(d_tmp_1, &quot;x3_plate_name&quot;, function(df)  myLm(y_replicate_1 ~ y_replicate_2, df))</span>
+<span class="s">print(outDf)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+</div>
+<div class="viewcode-block" id="heat_map"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.heat_map">[docs]</a><span class="k">def</span> <span class="nf">heat_map</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Heatmap of well wise values.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">tile_plot_x1x2x3(d, &quot;y&quot;, FALSE)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+</div>
+<div class="viewcode-block" id="kolmogorov_smirnov"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.kolmogorov_smirnov">[docs]</a><span class="k">def</span> <span class="nf">kolmogorov_smirnov</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Kolmogorov–Smirnov test: Do sample and negative control stem from the same distribution (H0) or not (H1)?&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">calculate_ks &lt;- function(neg, x3_plate_name) {</span>
+<span class="s"> neg_y = d[d$sample == neg &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;]</span>
+<span class="s"> sample_y = d[d$sample_type == &#39;s&#39; &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;]</span>
+<span class="s"> my_ks = ks.test(neg_y, sample_y, alternative = c(&quot;two.sided&quot;), exact = TRUE)</span>
+<span class="s"> return(my_ks[[&#39;p.value&#39;]])</span>
+<span class="s">}</span>
+
+<span class="s">my_grid = expand.grid(neg = unique(d[d$sample_type==&#39;neg&#39;, &#39;sample&#39;]), x3_plate_name = unique(d$x3_plate_name))</span>
+<span class="s">d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks(neg, x3_plate_name))</span>
+<span class="s">d_ks$log10_pvalue_ks = log10(d_ks$pvalue_ks)</span>
+
+<span class="s">p = ggplot(d_ks, aes(x3_plate_name, log10_pvalue_ks))</span>
+<span class="s">p = p + geom_point()</span>
+<span class="s">p = p + geom_hline(yintercept=-2)</span>
+<span class="s">p = p + facet_wrap( ~neg, ncol=2)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+</div>
+<div class="viewcode-block" id="kolmogorov_smirnov_estimated"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.kolmogorov_smirnov_estimated">[docs]</a><span class="k">def</span> <span class="nf">kolmogorov_smirnov_estimated</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Kolmogorov–Smirnov test: Does the negative control stem from the same (estimated) distribution as the sample (H0) or not (H1)?&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">calculate_ks_estimate &lt;- function(neg, x3_plate_name) {</span>
+<span class="s"> neg_y = d[d$sample == neg &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;]</span>
+<span class="s"> # The maximum likelihood estimators for mu (sigma) of a Gaussian is the mean (the sample standard deviation = sd in R.)</span>
+<span class="s"> sample_y = d[d$sample_type == &#39;s&#39; &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;]</span>
+<span class="s"> my_ks = ks.test(neg_y, &#39;pnorm&#39;, mean(sample_y), sd(sample_y), exact = TRUE)</span>
+<span class="s"> return(my_ks[[&#39;p.value&#39;]])</span>
+<span class="s">}</span>
+
+<span class="s">my_grid = expand.grid(neg = unique(d[d$sample_type==&#39;neg&#39;, &#39;sample&#39;]), x3_plate_name = unique(d$x3_plate_name))</span>
+<span class="s">d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks_estimate(neg, x3_plate_name))</span>
+<span class="s">d_ks$log10_pvalue_ks = log10(d_ks$pvalue_ks)</span>
+
+<span class="s">p = ggplot(d_ks, aes(x3_plate_name, log10_pvalue_ks))</span>
+<span class="s">p = p + geom_point()</span>
+<span class="s">p = p + geom_hline(yintercept=-2)</span>
+<span class="s">p = p + facet_wrap( ~neg, ncol=2)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+</div>
+<div class="viewcode-block" id="mean_value_across_plates"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.mean_value_across_plates">[docs]</a><span class="k">def</span> <span class="nf">mean_value_across_plates</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Evolution of mean value across plates.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d_summary = ddply(d, .(sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+
+<span class="s">p = ggplot(d_summary, aes(x3_plate_name, y_mean))</span>
+<span class="s">p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.1)</span>
+<span class="s">p = p + geom_point(size = 2, aes(color = sample_type))</span>
+<span class="s">p = p + facet_wrap( ~sample_type, ncol=4) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+
+</div>
+<div class="viewcode-block" id="shapiro_wilk_normality_test"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.shapiro_wilk_normality_test">[docs]</a><span class="k">def</span> <span class="nf">shapiro_wilk_normality_test</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Shapiro-Wilk Normality Test: Does the negative control stem from a normal distribution? Does the sample stem from a normal distribution?&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">calculate_sw &lt;- function(data) {</span>
+<span class="s"> my_ks = shapiro.test(data)</span>
+<span class="s"> return(my_ks[[&#39;p.value&#39;]])</span>
+<span class="s">}</span>
+
+<span class="s">d_sw = ddply(d, .(x3_plate_name, x3, sample, sample_type), summarize, log10_pvalue_sw = log10(calculate_sw(y)))</span>
+
+<span class="s">p = ggplot(d_sw, aes(x3_plate_name, log10_pvalue_sw))</span>
+<span class="s">p = p + geom_point()</span>
+<span class="s">p = p + geom_hline(yintercept=-2)</span>
+<span class="s">p = p + facet_wrap( ~sample, ncol=2)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+</div>
+<div class="viewcode-block" id="ssmd"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.ssmd">[docs]</a><span class="k">def</span> <span class="nf">ssmd</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">SSMD (Definition according to [wikipedia](https://en.wikipedia.org/wiki/Strictly_standardized_mean_difference &quot;Wikipedia: SSMD&quot;))</span>
+<span class="s">$$ </span><span class="se">\\</span><span class="s">rm{ssmd} = </span><span class="se">\\</span><span class="s">frac{\mu_</span><span class="se">\\</span><span class="s">rm{pos} - \mu_</span><span class="se">\\</span><span class="s">rm{neg}}{</span><span class="se">\\</span><span class="s">sigma_</span><span class="se">\\</span><span class="s">rm{pos}^2 + </span><span class="se">\\</span><span class="s">sigma_</span><span class="se">\\</span><span class="s">rm{neg}^2}, $$</span>
+<span class="s">where pos is the positive control, and neg are positive is the negative control.</span>
+<span class="s">The displayed cut-off values assume a moderate control. Strong controls require smaller ssmd values.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+
+<span class="s">calculate_ssmd &lt;- function(neg, pos, x3_plate_name) {</span>
+<span class="s"> neg_mean = d_summary[d_summary$sample == neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_mean&quot;]</span>
+<span class="s"> neg_sd = d_summary[d_summary$sample ==neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_sd&quot;]</span>
+<span class="s"> pos_mean = d_summary[d_summary$sample == pos &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_mean&quot;]</span>
+<span class="s"> pos_sd = d_summary[d_summary$sample == pos &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_sd&quot;]</span>
+<span class="s"> ssmd = (pos_mean - neg_mean) / sqrt(pos_sd^2 + neg_sd^2)</span>
+<span class="s"> return(ssmd)</span>
+<span class="s">}</span>
+
+<span class="s">my_grid = expand.grid(neg = unique(d[d$sample_type==&#39;neg&#39;, &#39;sample&#39;]),  pos = unique(d[d$sample_type==&#39;pos&#39;, &#39;sample&#39;]), x3_plate_name = unique(d$x3_plate_name))</span>
+<span class="s">d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, x3_plate_name))</span>
+
+<span class="s">thresholds = c(-2, -1, -0.5)</span>
+<span class="s">labels = c(&quot;excellent&quot;, &quot;good&quot;, &quot;inferior&quot;, &quot;poor&quot;)</span>
+<span class="s">label_positions = get_label_positions(d_qc_score$ssmd, thresholds)</span>
+<span class="s">label_position_x3 = round(length(d_qc_score$x3)/2)</span>
+
+
+<span class="s">p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))</span>
+<span class="s">p = p + geom_point(size=2, aes(color=neg))</span>
+<span class="s">p = p + geom_hline(yintercept=thresholds)</span>
+<span class="s">p = p + annotate(&quot;text&quot;, x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour=&quot;grey40&quot;)</span>
+<span class="s">p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)</span>
+
+<span class="s">print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+</div>
+<div class="viewcode-block" id="z_factor"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.z_factor">[docs]</a><span class="k">def</span> <span class="nf">z_factor</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">The estimated z-factor is calculated as:</span>
+<span class="s">$$ z_{</span><span class="se">\\</span><span class="s">rm{factor}} = 1 - </span><span class="se">\\</span><span class="s">frac{3\cdot(\sigma_</span><span class="se">\\</span><span class="s">rm{s} + \sigma_</span><span class="se">\\</span><span class="s">rm{neg})}{|\mu_</span><span class="se">\\</span><span class="s">rm{s} - \mu_</span><span class="se">\\</span><span class="s">rm{neg}|}, $$</span>
+<span class="s">where s is the sample, and neg the negative control.&quot;</span>
+<span class="s">(Described e.g. on [wikipedia](https://en.wikipedia.org/wiki/Z-factor &quot;Wikipedia: Z-factor&quot;) or in Birmingham et al, Nature, (2009) &quot;Statistical methods for analysis of high throughput RNA interference screens&quot;</span>
+<span class="s">)&#39;&#39;&#39;</span>
+
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+
+<span class="s">calculate_z_factor &lt;- function(neg, x3_plate_name) {</span>
+<span class="s"> neg_mean = d_summary[d_summary$sample == neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_mean&quot;]</span>
+<span class="s"> neg_sd = d_summary[d_summary$sample ==neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_sd&quot;]</span>
+<span class="s"> s_mean = mean(d[d$sample_type == &quot;s&quot; &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;])</span>
+<span class="s"> s_sd = sd(d[d$sample_type == &quot;s&quot; &amp; d$x3_plate_name == x3_plate_name, &quot;y&quot;])</span>
+<span class="s"> z_factor = 1 - 3*(neg_sd + s_sd) / abs (neg_mean - s_mean)</span>
+<span class="s"> return(z_factor)</span>
+<span class="s">}</span>
+
+<span class="s">my_grid = expand.grid(neg = unique(d[d$sample_type==&quot;neg&quot;, &quot;sample&quot;]), x3_plate_name = unique(d$x3_plate_name))</span>
+<span class="s">d_qc_score = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, x3_plate_name))</span>
+
+<span class="s">thresholds = c(0, 0.5)</span>
+<span class="s">labels = c(&quot;unacceptable&quot;, &quot;acceptable&quot;, &quot;very good&quot;)</span>
+<span class="s">label_positions = get_label_positions(d_qc_score$z_factor, thresholds)</span>
+<span class="s">label_position_x3 = round(length(d_qc_score$x3)/2)</span>
+
+
+<span class="s">p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))</span>
+<span class="s">p = p + geom_point(size=2, aes(color=neg))</span>
+<span class="s">p = p + geom_hline(yintercept=thresholds)</span>
+<span class="s">p = p + annotate(&quot;text&quot;, x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour=&quot;grey40&quot;)</span>
+<span class="s">p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)</span>
+
+<span class="s">print(d_qc_score[with(d_qc_score, order(neg, x3_plate_name)), ])</span>
+<span class="s">&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+</div>
+<div class="viewcode-block" id="z_prime_factor"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.z_prime_factor">[docs]</a><span class="k">def</span> <span class="nf">z_prime_factor</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">$$ z&#39;_{</span><span class="se">\\</span><span class="s">rm{factor}} = 1 - </span><span class="se">\\</span><span class="s">frac{3\cdot(\sigma_</span><span class="se">\\</span><span class="s">rm{hc} + \sigma_</span><span class="se">\\</span><span class="s">rm{lc})}{|\mu_</span><span class="se">\\</span><span class="s">rm{hc} - \mu_</span><span class="se">\\</span><span class="s">rm{lc}|}, $$</span>
+<span class="s">where hc is the high value control, and lc the low value control. The order of controls is irrelevant in the equation.</span>
+<span class="s">(Described e.g. in Birmingham et al, Nature, (2009) &quot;Statistical methods for analysis of high throughput RNA interference screens&quot;: &quot;A potential issue in using the Z&#39; factor as a measure of assay resolution is that it is possible to generate a high Z&#39; factor using a very strong positive control, which may not realistically represent more moderate screening positives. This issue is of special con- cern for RNAi screens, in which weak effects might be biologically meaningful and in which the signal-to-background ratio can be of lower magnitude than in small-molecule screens (Supplementary Table 1). Thus, researchers are advised whenever possible to use positive controls that are similar in strength to the hits they antici- pate finding. It may also be necessary to adjust Z&#39;-factor quality guidelines for RNAi screens; we have found that assays with Z&#39; fac- tors of zero or greater have been successful in identifying validated hits when we screened library plates in duplicate or triplicate.&quot;)&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+
+<span class="s">calculate_z_prime_factor &lt;- function(neg, pos, x3_plate_name) {</span>
+<span class="s"> neg_mean = d_summary[d_summary$sample == neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_mean&quot;]</span>
+<span class="s"> neg_sd = d_summary[d_summary$sample ==neg &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_sd&quot;]</span>
+<span class="s"> pos_mean = d_summary[d_summary$sample == pos &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_mean&quot;]</span>
+<span class="s"> pos_sd = d_summary[d_summary$sample == pos &amp; d_summary$x3_plate_name == x3_plate_name, &quot;y_sd&quot;]</span>
+<span class="s"> z_prime_factor = 1 - 3*(neg_sd + pos_sd) / abs (neg_mean - pos_mean)</span>
+<span class="s"> return(z_prime_factor)</span>
+<span class="s">}</span>
+
+<span class="s">my_grid = expand.grid(neg = unique(d[d$sample_type==&#39;neg&#39;, &#39;sample&#39;]),  pos = unique(d[d$sample_type==&#39;pos&#39;, &#39;sample&#39;]), x3_plate_name = unique(d$x3_plate_name))</span>
+<span class="s">d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, x3_plate_name))</span>
+
+<span class="s">thresholds = c(0, 0.5)</span>
+<span class="s">labels = c(&quot;unacceptable&quot;, &quot;acceptable&quot;, &quot;very good&quot;)</span>
+<span class="s">label_positions = get_label_positions(d_qc_score$z_prime_factor, thresholds)</span>
+<span class="s">label_position_x3 = round(length(d_qc_score$x3)/2)</span>
+
+<span class="s">p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))</span>
+<span class="s">p = p + geom_point(size=2, aes(color=neg))</span>
+<span class="s">p = p + geom_hline(yintercept=thresholds)</span>
+<span class="s">p = p + annotate(&quot;text&quot;, x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour=&quot;grey40&quot;)</span>
+<span class="s">p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)</span>
+
+<span class="s">print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])&#39;&#39;&#39;</span>
+
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+</div>
+<div class="viewcode-block" id="smoothed_histogram"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.smoothed_histogram">[docs]</a><span class="k">def</span> <span class="nf">smoothed_histogram</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Smoothed histogram to visualise the overlap of value densities per sample type.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">p = ggplot(d, aes(y, colour=sample)) + geom_density()</span>
+<span class="s">p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Elke Schaper.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

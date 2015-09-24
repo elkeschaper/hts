@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>hts.run.run_io &mdash; HTS 0.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="HTS 0.0.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for hts.run.run_io</h1><div class="highlight"><pre>
+<span class="c"># (C) 2015 Elke Schaper</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :synopsis: Input/output for runs.</span>
+
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c">################################## WRITE RUN DATA  #########################</span>
+
+
+<div class="viewcode-block" id="serialize_run_for_r"><a class="viewcode-back" href="../../../hts.run.html#hts.run.run_io.serialize_run_for_r">[docs]</a><span class="k">def</span> <span class="nf">serialize_run_for_r</span><span class="p">(</span><span class="n">run_data</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="n">column_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Serialize run data for easy read-in as a data.frame in R.</span>
+
+<span class="sd">    Serialize run data for easy read-in as a data.frame in R, in e.g. csv or</span>
+<span class="sd">    tsv format.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        run (Run): A ``Run`` instance.</span>
+<span class="sd">        delimiter (str): A String instance. Defines the delimiter in the output</span>
+<span class="sd">            file (e.g. &quot;,&quot; for csv or &quot;\t&quot; for tsv)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The serialized run_data as a string.</span>
+
+<span class="sd">    ..ToDo: Update to fit current Run class.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">column_name</span><span class="p">:</span>
+        <span class="n">column_name</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;x3_plate_name&quot;</span><span class="p">,</span> <span class="s">&quot;xp1&quot;</span><span class="p">,</span> <span class="s">&quot;xp2&quot;</span><span class="p">,</span> <span class="s">&quot;x1&quot;</span><span class="p">,</span> <span class="s">&quot;x2&quot;</span><span class="p">,</span> <span class="s">&quot;x3&quot;</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">,</span> <span class="s">&quot;y_type&quot;</span><span class="p">,</span> <span class="s">&quot;sample&quot;</span><span class="p">,</span> <span class="s">&quot;sample_type&quot;</span><span class="p">,</span> <span class="s">&quot;sample_replicate&quot;</span><span class="p">]</span>
+
+    <span class="n">all_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+    <span class="c"># Iterate over plates</span>
+    <span class="k">for</span> <span class="n">iPlate_index</span><span class="p">,</span> <span class="n">iPlate</span> <span class="ow">in</span> <span class="n">run_data</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c"># Plates can have different layouts.</span>
+        <span class="n">plate_layout_container</span> <span class="o">=</span> <span class="n">iPlate</span><span class="o">.</span><span class="n">plate_layout</span>
+        <span class="n">plate_layout</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">layout</span>
+        <span class="n">layout_general_type</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">layout_general_type</span>
+        <span class="n">sample_replicate_count</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">sample_replicate_count</span>
+        <span class="c"># Iterate over readouts in plates (raw and preprocessed)</span>
+        <span class="k">for</span> <span class="n">iReadout_index</span><span class="p">,</span> <span class="n">iReadout</span> <span class="ow">in</span> <span class="n">iPlate</span><span class="o">.</span><span class="n">read_outs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c"># Iterate over the x axis (&quot;width&quot;) and the y axis (&quot;height&quot;)</span>
+            <span class="k">for</span> <span class="n">i_row</span><span class="p">,</span> <span class="n">i_col</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">iPlate</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">iPlate</span><span class="o">.</span><span class="n">width</span><span class="p">)):</span>
+                <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">iPlate</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">iReadout</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="s">&#39;x&#39;</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
+                                <span class="n">iReadout</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">][</span><span class="n">i_row</span><span class="p">],</span>
+                                <span class="n">i_col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">i_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">iPlate_index</span><span class="p">,</span>
+                                <span class="n">iReadout</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
+                                <span class="n">iReadout_index</span><span class="p">,</span>
+                                <span class="n">plate_layout</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
+                                <span class="n">layout_general_type</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
+                                <span class="n">sample_replicate_count</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">]])</span>
+
+
+
+    <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">all_data</span><span class="p">])</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Elke Schaper.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

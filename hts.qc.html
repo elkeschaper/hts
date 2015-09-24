@@ -41,14 +41,166 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-qc-qc-knitr-module">
-<h2>hts.qc.qc_knitr module<a class="headerlink" href="#hts-qc-qc-knitr-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.qc.qc_knitr">
+<span id="hts-qc-qc-knitr-module"></span><h2>hts.qc.qc_knitr module<a class="headerlink" href="#module-hts.qc.qc_knitr" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">quality_control</span></code> implementes all methods connected to the</td>
+</tr>
+</tbody>
+</table>
+<p>quality control of a high throughput screening experiment.
+qc_knitr implements knitr specific methods.</p>
+<dl class="function">
+<dt id="hts.qc.qc_knitr.chessboard_pattern">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">chessboard_pattern</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#chessboard_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.chessboard_pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.compare_plate_replicates">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">compare_plate_replicates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#compare_plate_replicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.compare_plate_replicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.heat_map">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">heat_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#heat_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.heat_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.knitr_header_setup">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">knitr_header_setup</code><span class="sig-paren">(</span><em>qc_helper_methods_path</em>, <em>path_knitr_data</em>, <em>x3_plate_names</em>, <em>meta_data=None</em>, <em>original_data_frame='d_all'</em>, <em>output='html_document'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#knitr_header_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.knitr_header_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create knitr markdown file header and setup.</p>
+<p>Create knitr markdown file header and setup.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd>path_qc_methods (str): Path to external R methods file
+path_data (str): Path to data file</dd>
+<dt>Returns:</dt>
+<dd>header (str): Knittr markdown file header
+environment (str): Knittr markdown environment setter
+data_loader (str): Knittr markdown data loader</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.knitr_subset">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">knitr_subset</code><span class="sig-paren">(</span><em>subset_requirements</em>, <em>original_data_frame='d_all'</em>, <em>new_data_frame='d'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#knitr_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.knitr_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create knitr code to subset the data.</p>
+<p>Create knitr code to subset the data.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd>subset_requirements (dict): For each requirement, key, values and negated need to be supplied.
+original_data_frame (str): Name of the original data frame.
+new_data_frame (str): Name of the new data frame.</dd>
+<dt>Returns:</dt>
+<dd>subset (str): Knittr code subsetting</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.kolmogorov_smirnov">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">kolmogorov_smirnov</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#kolmogorov_smirnov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.kolmogorov_smirnov" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.kolmogorov_smirnov_estimated">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">kolmogorov_smirnov_estimated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#kolmogorov_smirnov_estimated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.kolmogorov_smirnov_estimated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.mean_value_across_plates">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">mean_value_across_plates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#mean_value_across_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.mean_value_across_plates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.perform_qc">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">perform_qc</code><span class="sig-paren">(</span><em>method_name</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#perform_qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.perform_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform QC <cite>method_name</cite> with parameter <a href="#id1"><span class="problematic" id="id2">*</span></a>args and <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs, and return result.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.plate_layout">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">plate_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#plate_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.plate_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.report_qc">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">report_qc</code><span class="sig-paren">(</span><em>run</em>, <em>qc_result_path</em>, <em>qc_helper_methods_path</em>, <em>qc_methods</em>, <em>meta_data=None</em>, <em>knit_html=True</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#report_qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.report_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run QC tasks, and combine the result to a report.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.shapiro_wilk_normality_test">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">shapiro_wilk_normality_test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#shapiro_wilk_normality_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.shapiro_wilk_normality_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.smoothed_histogram">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">smoothed_histogram</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#smoothed_histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.smoothed_histogram" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.ssmd">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">ssmd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#ssmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.ssmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.wrap_knitr_chunk">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">wrap_knitr_chunk</code><span class="sig-paren">(</span><em>chunk</em>, <em>echo=True</em>, <em>eval=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#wrap_knitr_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.wrap_knitr_chunk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.z_factor">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">z_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#z_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.z_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_knitr.z_prime_factor">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">z_prime_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#z_prime_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.z_prime_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="hts-qc-qc-matplotlib-module">
-<h2>hts.qc.qc_matplotlib module<a class="headerlink" href="#hts-qc-qc-matplotlib-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.qc.qc_matplotlib">
+<span id="hts-qc-qc-matplotlib-module"></span><h2>hts.qc.qc_matplotlib module<a class="headerlink" href="#module-hts.qc.qc_matplotlib" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">quality_control</span></code> implementes all methods connected to the</td>
+</tr>
+</tbody>
+</table>
+<p>quality control of a high throughput screening experiment
+qc_matplotlib implements matplotlib specific methods.</p>
+<dl class="function">
+<dt id="hts.qc.qc_matplotlib.heat_map_multiple">
+<code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">heat_map_multiple</code><span class="sig-paren">(</span><em>data</em>, <em>plate_tags=None</em>, <em>file='heat_map_run.pdf'</em>, <em>nPlates_max=10</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#heat_map_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.heat_map_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<p>Create a heat_map for multiple readouts</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_matplotlib.heat_map_single">
+<code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">heat_map_single</code><span class="sig-paren">(</span><em>data</em>, <em>file='heat_map_plate.pdf'</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#heat_map_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.heat_map_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for a single readout</p>
+<p>Create a heat_map for a single readout</p>
+<p>..todo:: Share code between heat_map_single and heat_map_multiple</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_matplotlib.perform_qc">
+<code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">perform_qc</code><span class="sig-paren">(</span><em>methods</em>, <em>data</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#perform_qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.perform_qc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.qc">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.qc" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -62,9 +214,9 @@
   <ul>
 <li><a class="reference internal" href="#">hts.qc package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-qc-qc-knitr-module">hts.qc.qc_knitr module</a></li>
-<li><a class="reference internal" href="#hts-qc-qc-matplotlib-module">hts.qc.qc_matplotlib module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-hts.qc.qc_knitr">hts.qc.qc_knitr module</a></li>
+<li><a class="reference internal" href="#module-hts.qc.qc_matplotlib">hts.qc.qc_matplotlib module</a></li>
+<li><a class="reference internal" href="#module-hts.qc">Module contents</a></li>
 </ul>
 </li>
 </ul>
