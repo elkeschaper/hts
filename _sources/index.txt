@@ -1,17 +1,26 @@
-.. hts documentation master file, created by
-   sphinx-quickstart on Thu Sep 24 19:04:37 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. hts
 
-Welcome to hts's documentation!
-===============================
+High Throughput Screening Library - beta version
+================================
 
-Contents:
+HTS streamlines I/O, QC and Analysis of High Throughput Screening data.
 
-.. toctree::
-   :maxdepth: 4
 
-   hts
+
+Reference Guide
+===============
+
+- `Code base on GitHub <https://github.com/elkeschaper/hts>`_
+- :ref:`Class documentation <code_docs>`
+
+
+
+Background
+===============
+
+More on :ref:`contributors and the background <contributors>` of this project.
+
+
 
 
 Indices and tables
