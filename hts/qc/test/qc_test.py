@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from hts.readout import readout, readout_dict
-from hts.qc import qc
+from hts.qc import qc_matplotlib
 from hts.run.run import Run
 
 # Test file names
@@ -32,6 +32,6 @@ def test_qc_methods(path):
 @pytest.mark.no_external_software_required
 def test_create_basic_heatmap(path):
     test_readout = readout_dict.ReadoutDict(TEST_RUN)
-    ax = qc.heat_map_single(test_readout.read_outs[(0,0)])
-    axes = qc.heat_map_multiple(test_readout)
+    ax = qc_matplotlib.heat_map_single(test_readout.read_outs[(0,0)])
+    axes = qc_matplotlib.heat_map_multiple(test_readout)
 

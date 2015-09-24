@@ -56,7 +56,7 @@ def test_create_from_insulin_csv(path_raw):
 def test_calculate_net_fret(path, path_raw):
     TEST_FILE_SIRNA = os.path.join(path_raw, "siRNA", "siRNA_12595.csv")
     test_plate = readout_dict.ReadoutDict.create(path = TEST_FILE_SIRNA, format = "envision_csv")
-    TEST_PLATELAYOUT = os.path.join(path, "Plate_layouts", "plate_layout_siRNA_20150708_old_setup_Marc.csv")
+    TEST_PLATELAYOUT = os.path.join(path, "Plate_layouts", "plate_layout_siRNA_Marc_20150708_old_setup.csv")
     test_plate_layout = PlateLayout.create(path=TEST_PLATELAYOUT, format="csv")
     test_plate.set_plate_layout(plate_layout=test_plate_layout)
     # Add plate_layout
