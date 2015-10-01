@@ -543,7 +543,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
     return description, calculation
