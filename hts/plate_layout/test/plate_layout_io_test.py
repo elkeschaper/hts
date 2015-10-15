@@ -4,9 +4,9 @@ import pytest
 from hts.plate_layout import plate_layout_io
 
 # Test file names
-TEST_LAYOUT_siRNA = 'plate_layout_siRNA_Marc_20150806.csv'
-TEST_LAYOUT_dpia = 'plate_layout_Bei_neg_2_11_12_21_22.csv'
-TEST_LAYOUT_insulin = 'plate_layout_insulin_goodbad_Manuela.csv'
+TEST_LAYOUT_siRNA = 'plate_layout_siRNA_1.csv'
+TEST_LAYOUT_dpia = 'plate_layout_dPIA_1.csv'
+TEST_LAYOUT_insulin = 'plate_layout_insulin_1.csv'
 
 import logging
 logging.basicConfig(level=logging.INFO)
