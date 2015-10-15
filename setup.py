@@ -9,6 +9,11 @@ except ImportError:
     from distutils.core import setup, Command
 
 
+def read(*paths):
+    """Build a file path from *paths* and return the contents."""
+    with open(os.path.join(*paths), "r") as f:
+        return f.read()
+
 setup(
     name="hts",
     version="0.0.1",
@@ -16,7 +21,6 @@ setup(
     author_email="elke.schaper@isb-sib.ch",
     packages=["hts", "hts.run", "hts.run.test"],
     #packages=find_packages(exclude=["tests*"]),
-    scripts= SCRIPTS1 + SCRIPTS2,
     url="http://pypi.python.org/pypi/hts_io/",
     license="LICENSE.txt",
     description="Input / output for high throughput screening data.",
