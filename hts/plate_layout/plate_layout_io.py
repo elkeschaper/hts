@@ -31,4 +31,4 @@ def read_csv(file):
 
     with open(file) as csvfile:
         reader = csv.reader(csvfile, delimiter = ",")
-        return [line for line in reader if line != []]
+        return [line for line in reader if line != [] and set(line) != {''}]
