@@ -239,9 +239,10 @@ class ReadoutDict:
         mean_buffer_acceptor_channel = np.mean(acceptor_readout.filter_wells(buffer))
 
         #import pdb; pdb.set_trace()
-        for i in [mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel, mean_donor_acceptor_channel, mean_acceptor_acceptor_channel, mean_buffer_acceptor_channel]:
-            if np.isnan(i):
-                raise ValueError("Calculation of {} resulted in {}. Check whether the plate layout is correctly assigned.".format(varname(i), i))
+        for i, value in enumerate([mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel, mean_donor_acceptor_channel, mean_acceptor_acceptor_channel, mean_buffer_acceptor_channel]):
+            if np.isnan(value):
+                import pdb; pdb.set_trace()
+                raise ValueError("Calculation of variable {} resulted in {}. Check whether the plate layout is correctly assigned.".format(i, value))
 
         p = (mean_donor_acceptor_channel - mean_buffer_acceptor_channel) / (mean_donor_donor_channel - mean_buffer_donor_channel)
 
