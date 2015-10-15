@@ -1,6 +1,6 @@
 experimenter = John Doe
 experimenter_mail = john.doe@mighty.university.edu
-send_mail_upon_qc = True
+send_mail_upon_qc = False
 
 
 [plate_layout]

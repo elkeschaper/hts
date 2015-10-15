@@ -29,8 +29,14 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-#import pdb; pdb.set_trace()
 
+def report_qc(*args, **kwargs):
+    """
+    This methods is expected by run.Run .
+    Todo: Needs implementation if Matplotlib reports are required.
+    """
+
+    return None
 
 def perform_qc(methods, data, *args, **kwargs):
     local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}

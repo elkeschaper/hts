@@ -201,7 +201,7 @@ class Run:
         if type(file) != list:
             file = [file]
         plates = [readout_dict.ReadoutDict.create(os.path.join(path, i), format="envision_csv") for i in file]
-        return Run(path = os.path.join(path, file), plates = plates)
+        return Run(path=path, plates=plates)
 
 
     def create_qc_report(self, path):
@@ -219,7 +219,7 @@ class Run:
         # Create pdf
 
 
-    def filter(self, type, tag, subset = None):
+    def filter(self, type, tag, subset=None):
         """ Filter run data according to type and tag.
 
         Filter run data according to type and tag.

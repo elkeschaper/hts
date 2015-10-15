@@ -11,7 +11,7 @@ TEST_FILE_LUMINESCENCE_CSV = 'dPIA_example_Bei.csv'
 TEST_FILE_FRET_CSV = '164110_13383_p4mo3000.csv'
 TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_QC"
 TEST_FOLDER_LUMINESCENCE_CSV_FIRST_FILE_PARAMTERS = {'Ambient temperature at end': 'N/A', 'Humidity at end': 'N/A', 'Measured height': 'N/A', 'Formula': 'Calc 1: Crosstalk = Crosstalk correction where Label : US LUM 384 (cps)(1) channel 1', 'Chamber temperature at end': 'N/A', 'Measurement date': '5/23/2015 16:33:33', 'Plate': '1', 'Humidity at start': 'N/A', 'Repeat': '1', 'Chamber temperature at start': 'N/A', 'Barcode': '', 'Ambient temperature at start': 'N/A'}
-TEST_FILE_FLUORESCENCE_CSV = "mimic_jc-1_7.csv"
+TEST_FILE_FLUORESCENCE_CSV = "miRNA_fluorescence_test_1.csv"
 TEST_FILE_SIRNA = "siRNA_12599.csv"
 TEST_FILE_INSULIN_CSV = os.path.join("insulin", "test_1.csv")
 

@@ -6,7 +6,7 @@ from hts.plate_layout.plate_layout import PlateLayout
 from hts.protocol.protocol import Protocol
 
 # Test file names
-TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_QC"
+TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_for_QC"
 TEST_RUN_CONFIG_INSULIN = "run_config_insulin_1.txt"
 TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
 
@@ -32,14 +32,14 @@ def test_read_run_from_config_insulin(path_run):
                         path=os.path.join(path_run, TEST_RUN_CONFIG_INSULIN))
     assert type(test_run) == Run
     assert len(test_run.plates) == 2
-    test_plate = test_run.plates["test_1.csv"]
+    test_plate = test_run.plates["1"]
     test_height = 16
     assert test_plate.height == test_height
     assert test_run.height == test_height
     test_width = 24
     assert test_plate.width == test_width
     assert test_run.width == test_width
-    assert len(test_plate.read_outs) == 480
+    assert len(test_plate.read_outs) == 481
     test_protocol = test_run.protocol()
     assert type(test_protocol) == Protocol
     test_plate_layout = test_run.plate_layout()
@@ -63,7 +63,7 @@ def test_do_qc_siRNA(path_run):
 #@notfixed
 @pytest.mark.no_external_software_required
 def test_read_run_from_readouts(path_raw_data):
-    test_run = Run.create(origin="envision", format="csv",  dir=True,
-                        path=os.path.join(path_raw_data, TEST_FOLDER_LUMINESCENCE_CSV))
+    test_run = Run.create(origin="envision", format="csv", dir=True,
+                          path=os.path.join(path_raw_data, TEST_FOLDER_LUMINESCENCE_CSV))
     assert type(test_run) == Run
     assert len(test_run.plates) == 5
