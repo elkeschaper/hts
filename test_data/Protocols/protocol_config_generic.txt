@@ -1,0 +1,109 @@
+# Description: This is a generic protocol for testing purposes.
+type = generic_test
+format = csv
+
+[preprocessing]
+    [[calculate_net_fret]]
+        donor_channel = 2
+        acceptor_channel = 1
+        net_fret_key = net_fret
+
+[qc]
+    type = knitr
+    qc_helper_methods_path = /path/to/QC_methods.R
+    [[Plate layout]]
+        method = plate_layout
+    [[1: Channel 1]]
+        method = heat_map
+        [[[filter]]]
+            [[[[y_type]]]]
+                values = 1
+                is_negated = False
+    [[1: Channel 2]]
+        method = heat_map
+        [[[filter]]]
+            [[[[y_type]]]]
+                values = 2
+                is_negated = False
+    [[1: Net FRET]]
+        method = heat_map
+        [[[filter]]]
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[1: Net FRET Only sample and controls]]
+        method = heat_map
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = s, neg, pos
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[2: Control distribution overlap]]
+        method = smoothed_histogram
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = neg, pos
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[2: z-factor]]
+        method = z_factor
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = s, neg
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[2: z'-factor]]
+        method = z_prime_factor
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = pos, neg
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_is_negated = False
+    [[2: SSMD]]
+        method = ssmd
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = pos, neg
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[2: Overlap of negative control and sample]]
+        method = kolmogorov_smirnov
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = neg, s
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[3: Consistency of replicate values]]
+        method = compare_plate_replicates
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+    [[4: Checking for row or columns effects on the plate]]
+        method = chessboard_pattern
+        [[[filter]]]
+            [[[[sample_type]]]]
+                values = pos, neg, s
+                is_negated = False
+            [[[[y_type]]]]
+                values = net_fret
+                is_negated = False
+
+
+[analysis]
+    methods = lag_time, progeny

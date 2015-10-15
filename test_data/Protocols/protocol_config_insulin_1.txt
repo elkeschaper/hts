@@ -1,0 +1,25 @@
+# Description: This is a protocol for testing purposes.
+type = insulin
+format = csv
+
+
+[preprocessing]
+
+
+[qc]
+    type = matplotlib
+    [[1: Heat map run wise]]
+        method = heat_map_multiple
+        [[[filter]]]
+            type = run_wise
+            tag = 1059
+            subset = s_1,
+    [[2: Heat map plate wise]]
+        method = heat_map_multiple
+        [[[filter]]]
+            type = plate_wise
+            subset = 0, 1059
+
+
+[analysis]
+    methods = lag_time, progeny

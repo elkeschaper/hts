@@ -41,6 +41,8 @@ class Protocol:
         #import pdb; pdb.set_trace()
 
         if "qc" in config:
+            # We distinguish qc_methods from other qc meta info. To do so, we
+            # use the fact that all qc_methods are configobj.Section elements.
             qc_tmp = {}
             for i,j in self.qc.items():
                 if type(j) != configobj.Section:
@@ -60,8 +62,6 @@ class Protocol:
             path (str): Path to input file or directory
             format (str):  Format of the input file, at current not specified
 
-
-        .. todo:: Write checks for ``format`` and ``path``.
         """
 
         if not os.path.isfile(path):
@@ -72,7 +72,7 @@ class Protocol:
             path_trunk, file = os.path.split(path)
             return Protocol(path=path, name=file, config=config)
         elif format == 'pickle':
-            with open(file, 'rb') as fh:
+            with open(path, 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise Exception("Format: {} is not implemented in "
@@ -92,13 +92,14 @@ class Protocol:
         """
 
         if format == 'pickle':
-            with open(file, 'wb') as fh:
+            with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
         else:
             raise Exception('Format is unknown: {}'.format(format))
 
-        if path:
-            with open(path, 'w') as fh:
-                fh.write(output)
-        if return_string:
-            return output
+            # These are code snippets for potential future use:
+            if path:
+                with open(path, 'w') as fh:
+                    fh.write(output)
+            if return_string:
+                return output
