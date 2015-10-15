@@ -1,0 +1,21 @@
+experimenter = John Doe
+experimenter_mail = john.doe@mighty.university.edu
+send_mail_upon_qc = True
+
+
+[plate_layout]
+    path = ../test_data/Plate_layouts/plate_layout_siRNA_1.csv
+    format = csv
+
+[protocol]
+    path = ../test_data/Protocols/protocol_config_siRNA_1.txt
+    format = config
+
+[plate_source]
+    path = ../test_data/Raw_data/siRNA
+    filename = siRNA_{}.csv
+    filenumber = 12593, 12594, 12595, 12596, 12597, 12598, 12599, 12600, 12601, 12602
+    format = envision_csv
+
+[qc]
+    qc_result_path = ../test_data/QC/siRNA_1
