@@ -7,7 +7,7 @@ HTS is a flexible sequence high throughput screening Python3 library.
   - QC
   - ?
 
-The source code is [documented on Bitbucket Atlassian].
+The source code is [documented on GitHub IO].
 
 ### Version
 0.0.1
@@ -33,5 +33,5 @@ $ pip install hts
 None declared
 
 
-[documented on GitHub IO]:www.google.com/
+[documented on GitHub IO]:http://elkeschaper.github.io/hts/
 [Pypi]:https://pypi.python.org/pypi
