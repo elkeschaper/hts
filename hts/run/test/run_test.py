@@ -31,8 +31,8 @@ def test_read_run_from_config_insulin(path_run):
     test_run = Run.create(origin="config",
                         path=os.path.join(path_run, TEST_RUN_CONFIG_INSULIN))
     assert type(test_run) == Run
-    assert len(test_run.plates) == 5
-    test_plate = test_run.plates["150622_AmAmAs384_SanofiBatches1.csv"]
+    assert len(test_run.plates) == 2
+    test_plate = test_run.plates["test_1.csv"]
     test_height = 16
     assert test_plate.height == test_height
     assert test_run.height == test_height
