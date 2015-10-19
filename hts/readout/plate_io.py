@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 ################################## READ SCREEN DATA  #########################
 
 
-def read_envision_csv(file):
+def read_envision_csv(file, delimiter=","):
     """Read screen data file in [] format.
 
     The envision .csv file structure is not described publicly.
@@ -238,6 +238,7 @@ def read_envision_csv(file):
     # 5: search for Exported with EnVision Workstation version number
 
     state = 0
+    data_plate = None
     data_plate_count = 0
     channel_wise_reads = {}
     channel_wise_info = {}
@@ -249,7 +250,7 @@ def read_envision_csv(file):
         #reader = csv.reader(csvfile, dialect)
         #csvfile.seek(0)
         #import pdb; pdb.set_trace()
-        reader = csv.reader(csvfile, delimiter = ",")
+        reader = csv.reader(csvfile, delimiter=delimiter)
         for i, line in enumerate(reader):
             if len(line) <= 1:
                 continue
