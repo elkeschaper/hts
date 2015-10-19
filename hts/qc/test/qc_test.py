@@ -3,7 +3,7 @@ import os
 import pytest
 
 from hts.readout import readout_dict
-from hts.qc import qc_matplotlib, qc_knitr
+from hts.qc import qc_detect_data_issues, qc_knitr, qc_matplotlib
 from hts.run import run
 
 # Test file names
@@ -14,6 +14,8 @@ TEST_RUN = {i: np.array([np.array([float(read) for read in column]) for column i
 
 TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
 
+TEST_DATA_FOLDER_GLO = os.path.join("Raw_data", "RealTime-Glo")
+TEST_DATA_ISSUE_OUTPUT = os.path.join("Data_issues", "RealTime-Glo", "test.csv")
 
 notfixed = pytest.mark.notfixed
 
@@ -25,7 +27,7 @@ def path():
 
 
 @pytest.mark.no_external_software_required
-def test_qc_methods(path):
+def test_qc_knitr_report(path):
     test_run = run.Run.create(origin="config", path=os.path.join(path, "Runs", TEST_RUN_CONFIG_SIRNA))
     test_qc_result_path = os.path.join(path, "QC", "qc_test")
     test_qc_helper_methods_path = os.path.join(os.path.abspath('.'), "qc", "qc_helper_methods.R")
@@ -45,4 +47,16 @@ def test_create_basic_heatmap(path):
     test_readout = readout_dict.ReadoutDict(TEST_RUN)
     ax = qc_matplotlib.heat_map_single(test_readout.read_outs[(0,0)])
     axes = qc_matplotlib.heat_map_multiple(test_readout)
+
+
+@pytest.mark.no_external_software_required
+def test_create_data_issue_file_glo(path):
+
+    test_run = run.Run.create(origin="envision", format="csv", dir=True,
+                          path=os.path.join(path, TEST_DATA_FOLDER_GLO))
+    assert type(test_run) == run.Run
+    assert len(test_run.plates) == 2
+
+    test_issues = qc_detect_data_issues.detect_low_cell_viability(run=test_run, result_path=os.path.join(path, TEST_DATA_ISSUE_OUTPUT))
+    assert type(test_issues) == dict
 

@@ -549,3 +549,35 @@ beautifier(p)'''
     return description, calculation
 
 
+def smoothed_histogram_sample_type():
+
+    description = '''
+Smoothed histogram to visualise the overlap of value densities per sample type.'''
+
+    calculation = '''
+p = ggplot(d, aes(y, colour=sample_type)) + geom_density()
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(palette="Set1")
+beautifier(p)'''
+
+    return description, calculation
+
+
+
+
+def time_course():
+
+    description = '''
+Visualise the time course of mean and sd of different sample types.'''
+
+    calculation = '''
+d$x3 = factor(d$x3, levels = min(d$x3):max(d$x3))
+d_summary = ddply(d, .(x3, x3_plate_name, sample_type), summarize, y_mean =mean(y), y_sd =sd(y))
+p = ggplot(d_summary, aes(x3, y_mean, colour=sample_type))
+p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
+p = p + scale_colour_brewer(palette="Set1")
+p = p + geom_point(size = 2)
+p = p + geom_line(size = 1, aes(group=sample_type))
+# LATER: Add http://docs.ggplot2.org/current/geom_smooth.html
+beautifier(p)'''
+
+    return description, calculation
