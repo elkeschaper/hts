@@ -97,8 +97,9 @@ class Run:
                 plate_indices = i
                 break
         else:
-            raise Exception("No plate numbering is informative: {}. {}."
-                    "".format(self.plates.keys(), plate_tag_numbers_t))
+            raise Exception("No plate numbering is informative: {}. {}. Please check if the files have useful names"
+                            "from which a numbering could be derived. Otherwise, change the implementation ;) "
+                            "".format(list(self.plates.keys()), plate_tag_numbers_t))
 
         # Set index for each plate.
         for i_plate, plate_index in zip(list(self.plates.keys()), plate_indices):
