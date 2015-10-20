@@ -27,6 +27,7 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
 
     """
 
+    qc_result_path = os.path.realpath(qc_result_path)
     if not os.path.exists(qc_result_path):
         LOG.warning("Creating QC report result path: {}".format(qc_result_path))
         os.makedirs(qc_result_path)
@@ -62,9 +63,14 @@ def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data
             chunk = "\n".join([qc_subset, qc_calculation, qc_decision])
         else:
             chunk = "\n".join([qc_subset, qc_calculation])
+        # 4. Choose how verbose Knitr is:
+        if "verbosity" in i_qc_characteristics:
+            verbosity = i_qc_characteristics['verbosity']
+        else:
+            verbosity = {}
 
         # Later on, you can make this line more complicated.
-        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, echo=True, eval=True)
+        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, **verbosity)
         qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
 
     #import pdb; pdb.set_trace()
@@ -141,40 +147,37 @@ output: "{}"
 
 
     environment_commands = """
-rm(list = ls(all = TRUE))
-gc()
+# Create environment:
+# rm(list = ls(all = TRUE))
+# gc()
 source("{}")
 library(reshape2)
 require(gridExtra)""".format(qc_helper_methods_path)
-    environment="\n\nCreate environment:\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, eval=True)
+    environment="\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, evaluate=True)
+
 
     data_loader_commands="""
+# Load data:
 path = "{0}"
 {1} = read.csv(path, sep=",", header = TRUE)
 {1}$x3_plate_name = factor({1}$x3_plate_name, levels = c("{2}"))
 """.format(path_knitr_data, original_data_frame, '","'.join(x3_plate_names))
-    data_loader="\nLoad data:\n" + wrap_knitr_chunk(chunk=data_loader_commands, echo=False, eval=True)
+    data_loader="\n" + wrap_knitr_chunk(chunk=data_loader_commands, echo=False, evaluate=True)
 
     return header, environment, data_loader
 
+
+
 ################ wrap knitr chunk ###################
 
-def wrap_knitr_chunk(chunk, echo = True, eval=True):
+def wrap_knitr_chunk(chunk, echo=False, evaluate=True, message=False, warning=False, **kwargs):
 
-    if echo:
-        echo_tag = "echo=TRUE"
-    else:
-        echo_tag = "echo=FALSE"
-    if eval:
-        eval_tag = "eval=TRUE"
-    else:
-        eval_tag = "eval=FALSE"
-
-    return "```{{r, {}, {}}}\n{}\n```\n".format(echo_tag, eval_tag, chunk)
+    parameter_mapping = {"echo": echo, "eval": evaluate, "message": message, "warning": warning}
+    parameters = ["{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i,j in parameter_mapping.items()]
+    return "```{{r, {1}, {2}, {3}, {4}}}\n{0}\n```\n".format(chunk, *parameters)
 
 
 ################ Data subsetting #####################
-
 
 def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_frame = "d"):
     """ Create knitr code to subset the data.
@@ -234,8 +237,6 @@ p = beautifier(p)
 p'''
 
     return description, calculation
-
-
 
 
 ################ QC methods ####################
