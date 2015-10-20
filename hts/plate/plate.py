@@ -13,10 +13,11 @@ import pickle
 
 import numpy as np
 
-from hts.plate_data import plate_io, readout
+from hts.plate_data import plate_layout, readout
 
 LOG = logging.getLogger(__name__)
 
+KNOWN_DATA_TYPES = ["plate_layout", "readout", "qc_data", "meta_data"]
 
 class Plate:
 
@@ -54,14 +55,31 @@ class Plate:
         return readout_dict
 
 
-    def __init__(self, read_outs, name = None, **kwargs):
+    def __init__(self, data, name=None, **kwargs):
 
-        LOG.debug(read_outs)
+        LOG.debug(data)
 
+        self.name = name
+
+        for data_type in KNOWN_DATA_TYPES:
+            if data_type in data:
+                setattr(self, data_type, data[data_type])
+            else:
+                setattr(self, data_type, None)
+
+        if "height" in kwargs:
+            self.height = kwargs.pop("height")
+        if "width" in kwargs:
+            self.height = kwargs.pop("width")
+
+        # You are using this construct in many an __init__ . Consider turning into decorator.
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                setattr(self, key, value)
+
+        """
+        FORMERLY:
         self.read_outs = {i: j if type(j) == readout.Readout else readout.Readout(j) for i,j in read_outs.items()}
-
-        if name:
-            self.name = name
 
         # Make sure all readouts are equal in height and width.
         plate_heights = [i.height for i in self.read_outs.values()]
@@ -70,12 +88,8 @@ class Plate:
             raise Exception("Plate widths and lengths in the parsed output "
                 "files are not all equal: plate_heights: {}, plate_widths: {} "
                     "".format(plate_heights, plate_widths))
-        self.height = plate_heights[0]
-        self.width = plate_widths[0]
 
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                setattr(self, key, value)
+        """
 
 
     def create(path, format=None, **kwargs):
@@ -91,65 +105,52 @@ class Plate:
         .. todo:: Implement
         """
         path_trunk, file = os.path.split(path)
-        if "name" in kwargs:
-            name = kwargs.pop("name")
-        else:
-            name = file
         LOG.debug("filename: {}".format(file))
 
-        if format == 'csv':
-            readout_dict = plate_io.read_csv(path)
-            return Plate(name=name, read_outs=readout_dict)
-        elif format == 'excel':
-            readout_dict = plate_io.read_excel(path, **kwargs)
-            return Plate(name=name, read_outs=readout_dict)
-        elif format == 'envision_csv':
-            readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_envision_csv(path)
-            return Plate(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
-        elif format == 'insulin_csv':
-            readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_insulin_csv(path)
-            return Plate(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
-        elif format == 'pickle':
-            with open(file, 'rb') as fh:
+        if format == 'pickle':
+            with open(path, 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise Exception("Format: {} is not implemented in "
                             "Plate.create()".format(format))
 
 
-    def get_readout(self, tag):
-        """ Retrieve plate `tag`
+    '''
+    TODO: Needs implementation.
+    def set_meta_data(self, *args, **kwargs):
+        """ Set `self.meta_data`
 
-        Retrieve plate `tag`
-
-        Args:
-            tag (str): Key of plate
-
+        Set `self.meta_data`
         """
 
-        try:
-            return self.read_outs[tag]
-        except:
-            try:
-                return self.read_outs[ast.literal_eval(tag)]
-            except:
-                raise KeyError('tag: {} is not in self.readouts: {}'
-                                ''.format(tag, self.read_outs.keys()))
+        self.meta_data = meta_data.MetaData.create(*args, **kwargs)
 
-    def set_plate_layout(self, plate_layout):
-        """ Set `self.plate_data`
 
-        Set `self.plate_data`
+    def set_qc_data(self, *args, **kwargs):
+        """ Set `self.qc_data`
 
-        Args:
-            plate_data (PlateLayout): A ``PlateLayout`` instance
+        Set `self.qc_data`
         """
 
-        self.plate_layout = plate_layout
-        # Push PlateLayout to readouts
-        for read_out in self.read_outs.values():
-            read_out.plate_layout = self.plate_layout
+        self.qc = qc_data.QCData.create(*args, **kwargs)
+    '''
 
+    def set_plate_layout(self, *args, **kwargs):
+        """ Set `self.plate_layout`
+
+        Set `self.plate_layout`
+        """
+
+        self.plate_layout = plate_layout.PlateLayout.create(*args, **kwargs)
+
+
+    def set_readout(self, *args, **kwargs):
+        """ Set `self.readout`
+
+        Set `self.readout`
+        """
+
+        self.readout = readout.Readout.create(*args, **kwargs)
 
 
     def write(self, format, path=None, return_string=None, *args):
@@ -165,7 +166,7 @@ class Plate:
         """
 
         if format == 'pickle':
-            with open(file, 'wb') as fh:
+            with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
         else:
             raise Exception('Format is unknown: {}'.format(format))
@@ -175,6 +176,7 @@ class Plate:
                 fh.write(output)
         if return_string:
             return output
+
 
     #### Preprocessing functions
 
@@ -250,3 +252,25 @@ class Plate:
         netfret = acceptor_readout.data - mean_acceptor_acceptor_channel - p*(donor_readout.data - mean_buffer_donor_channel)
         self.read_outs[net_fret_key] = readout.Readout(netfret)
         self.read_outs[net_fret_key].plate_layout = self.plate_layout
+
+
+    ### Potentially obsolete
+    def get_readout(self, tag):
+        """ Retrieve plate `tag`
+
+        Retrieve plate `tag`
+
+        Args:
+            tag (str): Key of plate
+
+        """
+
+        try:
+            return self.read_outs[tag]
+        except:
+            try:
+                return self.read_outs[ast.literal_eval(tag)]
+            except:
+                raise KeyError('tag: {} is not in self.readouts: {}'
+                                ''.format(tag, self.read_outs.keys()))
+

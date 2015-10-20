@@ -13,6 +13,7 @@ import logging
 import os
 import pickle
 import re
+
 from hts.analysis import analysis
 from hts.qc import qc_knitr, qc_matplotlib
 from hts.run import run_io
@@ -23,6 +24,7 @@ from hts.protocol import protocol
 
 LOG = logging.getLogger(__name__)
 
+KNOWN_DATA_TYPES = plate.KNOWN_DATA_TYPES
 
 class Run:
 
@@ -163,26 +165,58 @@ class Run:
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
-        if "plate_source" in config:
+
+
+        defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
+        LOG.info(defined_data_types)
+        data_types_plate_wise = [data_type for data_type in defined_data_types if eval(config[data_type]["is_defined_plate_wise"]) == True]
+        data_types_not_plate_wise = [data_type for data_type in defined_data_types if data_type not in data_types_plate_wise]
+
+        ## 1. Create `Plate` instances from plate_wise information.
+
+        if len(data_types_plate_wise) == 0:
+            raise Exception("No plate wise information was defined in Run config.")
+
+        config_type_wise = {}
+        n_files = {}
+        for data_type in data_types_plate_wise:
             # Plate data is located in multiple files.
-            config_local = config["plate_source"]
+            config_local = config[data_type]
             # Either, a filename template and filenumbers (indices) are supplied, or the filenames are supplied directly:
             config_file = {i: config_local.pop(i) for i in ["filenames", "path", "filename", "filenumber"] if i in config_local}
             if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
                 l_files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
             elif all(i in config_file for i in ["path", "filename", "filenumber"]):
                 l_files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
+            config_type_wise[data_type] = {"files": l_files, "config": config_local}
+            n_files[data_type] = len(l_files)
 
-            #plates = [readout_dict.Plate.create(path=os.path.join(config_ps["path"], i), format=config_ps['format'], config = config_ps) for i in config_ps["filenames"]]
-            plates = [plate.Plate.create(path=i_file, **config_local) for i_file in l_files]
-        elif "run_source" in config:
-            # Plate data is located in one file.
-            config_rs = config["run_source"]
-            local_config = {i:j for i,j in config_rs.items() if i not in ["tags"]}
-            plates = [plate.Plate.create(tags = [i], name = i, **local_config) for i in config_rs["tags"]]
+        # Check if the number of files is equal for all data_types_plate_wise:
+        if len(set(n_files.values())) != 1:
+            raise Exception("The run configuration defines different numbers of plates for different datatypes: {}"
+                            "".format(n_files))
         else:
-            raise Exception("plate_source nor run_source are properly defined in config file: {}"
-                            "".format(os.path.join(path, file)))
+            n_files = next(iter(n_files.values()))
+
+        # Transform config_type_wise to per config_plate_wise:
+        config_plate_wise = {}
+        for i in range(n_files):
+            config_plate_wise[i] = {data_type: {"file": info["files"][i], "config": info["config"]} for data_type, info in config_type_wise.items()}
+
+        plates = [plate.Plate.create(**config) for i_plate, config in config_plate_wise.items()]
+
+        ## 2. If available, add general = not_plate_wise information to each plate
+        data_run_wise = {}
+        for data_type in data_types_not_plate_wise:
+            print("HELP! Needs implementation")
+            if data_type == "plate_layout":
+                data = plate_data.plate_layout.PlateLayout.create(data_type, **config[data_type])
+            else:
+                raise Exception("Reading in general info for data_type {} is not yet implemented."
+                                "".format(data_type))
+
+            for i_plate in plates:
+                i_plate.set_data(data_type, data)
 
         return Run(path = os.path.join(path, file), plates = plates, **config)
 

@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from hts.plate_data import plate_io
+from hts.plate_data import readout_io
 
 logging.basicConfig(level=logging.INFO)
 
@@ -33,25 +33,25 @@ def path_siRNA():
 
 @pytest.mark.no_external_software_required
 def test_envision_luminesence_csv_read(path):
-    test_plate_info, test_channel_wise_reads, test_channel_wise_info = plate_io.read_envision_csv(os.path.join(path, TEST_FILE_LUMINESCENCE_CSV))
+    test_plate_info, test_channel_wise_reads, test_channel_wise_info = readout_io.read_envision_csv(os.path.join(path, TEST_FILE_LUMINESCENCE_CSV))
     assert len(test_channel_wise_reads) == 2
 
 
 @pytest.mark.no_external_software_required
 def test_envision_fret_csv_read(path):
-    test_plate_info, test_channel_wise_reads, test_channel_wise_info = plate_io.read_envision_csv(os.path.join(path, TEST_FILE_FRET_CSV))
+    test_plate_info, test_channel_wise_reads, test_channel_wise_info = readout_io.read_envision_csv(os.path.join(path, TEST_FILE_FRET_CSV))
     assert len(test_channel_wise_reads) == 2
 
 
 @pytest.mark.no_external_software_required
 def test_envision_fluorescence_csv_read(path):
-    test_plate_info, test_channel_wise_reads, test_channel_wise_info = plate_io.read_envision_csv(os.path.join(path, TEST_FILE_FLUORESCENCE_CSV))
+    test_plate_info, test_channel_wise_reads, test_channel_wise_info = readout_io.read_envision_csv(os.path.join(path, TEST_FILE_FLUORESCENCE_CSV))
     assert len(test_channel_wise_reads) == 3
 
 
 @pytest.mark.no_external_software_required
 def test_insulin_csv_read(path):
-    test_plate_info, test_channel_wise_reads, test_channel_wise_info = plate_io.read_insulin_csv(os.path.join(path, TEST_FILE_INSULIN_CSV))
+    test_plate_info, test_channel_wise_reads, test_channel_wise_info = readout_io.read_insulin_csv(os.path.join(path, TEST_FILE_INSULIN_CSV))
     assert len(test_channel_wise_reads) == 481
     for i_test_plate_element in test_channel_wise_reads.values():
         assert len(i_test_plate_element) == 16
@@ -60,7 +60,7 @@ def test_insulin_csv_read(path):
 
 @pytest.mark.no_external_software_required
 def test_siRNA_csv_read(path_siRNA):
-    test_plate_info, test_channel_wise_reads, test_channel_wise_info = plate_io.read_envision_csv(os.path.join(path_siRNA, TEST_FILE_SIRNA))
+    test_plate_info, test_channel_wise_reads, test_channel_wise_info = readout_io.read_envision_csv(os.path.join(path_siRNA, TEST_FILE_SIRNA))
     assert len(test_channel_wise_reads) == 2
     for i_test_plate_element in test_channel_wise_reads.values():
         assert len(i_test_plate_element) == 16

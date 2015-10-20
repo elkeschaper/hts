@@ -51,7 +51,7 @@ class PlateData:
         if "name" in kwargs:
             self.name = kwargs.pop("name")
 
-         for key, value in kwargs.items():
+        for key, value in kwargs.items():
             if not hasattr(self, key):
                 setattr(self, key, value)
 
@@ -63,29 +63,9 @@ class PlateData:
                     " {}".format(self.height))
 
 
-"""
-Readout:
-        # Convert all data to floats
-        self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
+    def create(self, *args, **kwargs):
+        raise NotImplementedError('Implement create()')
 
 
-"""
-
-"""
-PlateLayout:
-
-
-        # Get short forms of well content. E.g. s_1 -> s
-        # Assuming that the short forms are marked by the underscore character "_"
-        deliminator = "_"
-        self.layout_general_type = [[j.split(deliminator)[0] for j in i] for i in layout]
-
-        # Define sample replicates. Traverse row-wise, the first occurence is counted as replicate 1, and so on.
-        counter = {i:1 for i in set([item for sublist in layout for item in sublist])}
-        sample_replicate_count = np.zeros((self.height, self.width))
-        for iRow, iColumn in itertools.product(range(self.height), range(self.width)):
-            type = layout[iRow][iColumn]
-            sample_replicate_count[iRow][iColumn] = counter[type]
-            counter[type] += 1
-        self.sample_replicate_count = sample_replicate_count
-"""
+    def write(self, *args, **kwargs):
+        raise NotImplementedError('Implement write()')

@@ -12,7 +12,8 @@ import numpy as np
 import os
 import pickle
 import re
-from string import ascii_lowercase, ascii_uppercase
+
+from hts.plate_data import plate_data, readout_io
 
 
 LOG = logging.getLogger(__name__)
@@ -59,6 +60,45 @@ class Readout(plate_data.PlateData):
         #self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
 
 
+    def create(path, format=None, **kwargs):
+        """ Create ``Readout`` instance.
+
+        Create ``Readout`` instance.
+
+        Args:
+            path (str): Path to input file or directory
+            format (str):  Format of the input file, at current not specified
+
+        .. todo:: Write checks for ``format`` and ``path``.
+        .. todo:: Implement
+        """
+        
+        path_trunk, file = os.path.split(path)
+        LOG.debug("filename: {}".format(file))
+
+        if "name" in kwargs:
+            name = kwargs.pop("name")
+        else:
+            name = file
+
+        if format == 'csv':
+            readout_dict = readout_io.read_csv(path)
+            return Readout(name=name, read_outs=readout_dict)
+        elif format == 'excel':
+            readout_dict = readout_io.read_excel(path, **kwargs)
+            return Readout(name=name, read_outs=readout_dict)
+        elif format == 'envision_csv':
+            readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path)
+            return Readout(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+        elif format == 'insulin_csv':
+            readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path)
+            return Readout(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+        if format == 'pickle':
+            with open(path, 'rb') as fh:
+                return pickle.load(fh)
+        else:
+            raise Exception("Format: {} is not implemented in "
+                            "Readout.create()".format(format))
 
     def filter_wells(self, starting_tag = "neg"):
         """
