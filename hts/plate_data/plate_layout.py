@@ -42,11 +42,11 @@ class PlateLayout(plate_data.PlateData):
         # Get short forms of well content. E.g. s_1 -> s
         # Assuming that the short forms are marked by the underscore character "_"
         deliminator = "_"
-        self.data["layout"]_general_type = [[j.split(deliminator)[0] for j in i] for i in self.data["layout"]]
+        self.layout_general_type = [[j.split(deliminator)[0] for j in i] for i in self.data["layout"]]
 
         #import pdb; pdb.set_trace()
         # Define sample replicates. Traverse row-wise, the first occurence is counted as replicate 1, and so on.
-        counter = {i:1 for i in set([item for sublist in layout for item in sublist])}
+        counter = {i:1 for i in set([item for sublist in self.data["layout"] for item in sublist])}
         sample_replicate_count = np.zeros((self.height, self.width))
         for iRow, iColumn in itertools.product(range(self.height), range(self.width)):
             type = self.data["layout"][iRow][iColumn]
@@ -106,7 +106,7 @@ class PlateLayout(plate_data.PlateData):
         """
 
         if format == 'pickle':
-            with open(file, 'wb') as fh:
+            with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
         else:
             raise Exception('Format is unknown: {}'.format(format))
