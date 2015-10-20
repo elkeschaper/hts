@@ -52,5 +52,9 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Test data
+test_data/
+
+
 # Other stuff
 .DS_Store
