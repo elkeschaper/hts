@@ -14,39 +14,42 @@ import pickle
 import re
 
 from hts.plate_data import plate_layout_io
+from hts.plate_data import plate_data
 
 LOG = logging.getLogger(__name__)
 
 
-class PlateLayout:
+
+
+class PlateLayout(plate_data.PlateData):
 
     """ ``PlateLayout`` describes all information connected to the plate_data of a
     high throughput screen.
 
     Attributes:
-        name (str): Name of the plate_data
-        layout (list of lists): The plate layout
+        sample_replicate_count (str): (Explain!)
+        layout_general_type (list of lists): The plate layout (explain!)
 
     """
 
-    def __init__(self, name, layout):
+    def __init__(self):
 
-        self.name = name
-        self.layout = layout
-        self.height = len(layout)
-        self.width = len(layout[0])
+        # Run super __init__
+        super(PlateLayout, self).__init__()
+
+        # Perform PlateLayout specific __init__
 
         # Get short forms of well content. E.g. s_1 -> s
         # Assuming that the short forms are marked by the underscore character "_"
         deliminator = "_"
-        self.layout_general_type = [[j.split(deliminator)[0] for j in i] for i in layout]
+        self.data["layout"]_general_type = [[j.split(deliminator)[0] for j in i] for i in self.data["layout"]]
 
         #import pdb; pdb.set_trace()
         # Define sample replicates. Traverse row-wise, the first occurence is counted as replicate 1, and so on.
         counter = {i:1 for i in set([item for sublist in layout for item in sublist])}
         sample_replicate_count = np.zeros((self.height, self.width))
         for iRow, iColumn in itertools.product(range(self.height), range(self.width)):
-            type = layout[iRow][iColumn]
+            type = self.data["layout"][iRow][iColumn]
             sample_replicate_count[iRow][iColumn] = counter[type]
             counter[type] += 1
         self.sample_replicate_count = sample_replicate_count
@@ -60,8 +63,8 @@ class PlateLayout:
         to be adjusted.
         """
 
-        inverted_layout = [[j for j in i[::-1]] for i in self.layout[::-1]]
-        return PlateLayout(name="{}_inverted".format(self.name), layout=inverted_layout)
+        inverted_layout = [[j for j in i[::-1]] for i in self.data["layout"][::-1]]
+        return PlateLayout(name="{}_inverted".format(self.name), data={"layout": inverted_layout})
 
 
 
@@ -81,9 +84,9 @@ class PlateLayout:
         if format == 'csv':
             layout = plate_layout_io.read_csv(path)
             path, file = os.path.split(path)
-            return PlateLayout(name=file, layout=layout)
+            return PlateLayout(name=file, layout={"layout": layout})
         elif format == 'pickle':
-            with open(file, 'rb') as fh:
+            with open(path, 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise Exception("Format: {} is not implemented in "

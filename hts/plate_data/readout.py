@@ -17,11 +17,10 @@ from string import ascii_lowercase, ascii_uppercase
 
 LOG = logging.getLogger(__name__)
 
-PLATE_LETTERS = ascii_uppercase + ascii_lowercase
 
 
 
-class Readout:
+class Readout(plate_data.PlateData):
 
     """ ``Readout`` describes one plate matrix
 
@@ -50,23 +49,15 @@ class Readout:
 
     def __init__(self, data, **kwargs):
 
-        LOG.debug(data)
+        # Run super __init__
+        super(PlateLayout, self).__init__()
 
+        # Perform PlateLayout specific __init__
+
+        # This is what you've originally done- what should you do with it now?
         # Convert all data to floats
-        self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
+        #self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
 
-        self.height = len(self.data)
-        self.width = len(self.data[0])
-
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                setattr(self, key, value)
-
-        if self.height <= len(PLATE_LETTERS):
-            self.axes = {"x": list(range(1, self.width + 1)), "y": PLATE_LETTERS[:self.height]}
-        else:
-            raise Exception("Add plate letters for large plates. Plate height:"
-                    " {}".format(self.height))
 
 
     def filter_wells(self, starting_tag = "neg"):
