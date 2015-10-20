@@ -13,6 +13,8 @@ format = csv
     qc_helper_methods_path = /path/to/QC_methods.R
     [[Plate layout]]
         method = plate_layout
+        [[[verbosity]]]
+            echo = False
     [[1: Channel 1]]
         method = heat_map
         [[[filter]]]
@@ -106,4 +108,9 @@ format = csv
 
 
 [analysis]
-    methods = lag_time, progeny
+    [[1]]
+        [[[methods]]]
+            [[[[perform_xyz]]]]
+        [[[filter]]]
+            type = run_wise
+            tag = net_fret
