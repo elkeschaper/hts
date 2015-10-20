@@ -1,9 +1,10 @@
 import os
+import logging
+
 import pytest
 
-from hts.readout import plate_io
+from hts.plate_data import plate_io
 
-import logging
 logging.basicConfig(level=logging.INFO)
 
 # Test file names

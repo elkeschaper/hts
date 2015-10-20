@@ -2,7 +2,7 @@ import os
 import pytest
 
 from hts.run.run import Run
-from hts.plate_layout.plate_layout import PlateLayout
+from hts.plate_data.plate_layout import PlateLayout
 from hts.protocol.protocol import Protocol
 
 # Test file names

@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from hts.plate_layout import plate_layout
+from hts.plate_data import plate_layout
 
 # Test file names
 TEST_LAYOUT_siRNA = 'plate_layout_siRNA_1.csv'

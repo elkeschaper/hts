@@ -7,13 +7,8 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
-import collections
-import datetime
 import logging
 import os
-import sys
-
-from hts.readout import readout, readout_dict
 
 LOG = logging.getLogger(__name__)
 

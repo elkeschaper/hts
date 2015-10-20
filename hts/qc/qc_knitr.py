@@ -14,8 +14,6 @@ import logging
 import os
 import sys
 
-from hts.readout import readout, readout_dict
-
 LOG = logging.getLogger(__name__)
 
 PATH = '/Users/elkeschaper/Downloads/'

@@ -1,29 +1,28 @@
 # (C) 2015 Elke Schaper
 
 """
-    :synopsis: The ReadoutDict Class.
+    :synopsis: The Plate Class.
 
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
 import ast
 import logging
-import numpy as np
 import os
 import pickle
-import re
-import sys
 
-from hts.readout import plate_io, readout
+import numpy as np
+
+from hts.plate_data import plate_io, readout
 
 LOG = logging.getLogger(__name__)
 
 
-class ReadoutDict:
+class Plate:
 
-    """ ``ReadoutDict`` describes all information connected to the readout_dict
+    """ ``Plate`` describes all information connected to the readout_dict
     of a high throughput screen. This could be either several readouts of a
-    plate, or the same readout across several plates.
+    plate, or the same plate across several plates.
 
     Attributes:
         name (str): Name of the readout_dict (e.g. plate)
@@ -37,20 +36,20 @@ class ReadoutDict:
 
     def __str__(self):
         """
-            Create string for ReadoutDict instance.
+            Create string for Plate instance.
         """
         if hasattr(self, "name"):
             name = self.name
         else:
             name = "<not named>"
         try:
-            readout_dict = ("<ReadoutDict instance>\nname: {}\nread_outs: {}"
+            readout_dict = ("<Plate instance>\nname: {}\nread_outs: {}"
                     "\nNumber of read_outs: {}\nwidth: {}\nheight: {}".format(name,
                     str(self.read_outs.keys()), len(self.read_outs),
                     self.width, self.height))
         except:
-            readout_dict = "<ReadoutDict instance>"
-            LOG.warning("Could not create string of ReadoutDict instance.")
+            readout_dict = "<Plate instance>"
+            LOG.warning("Could not create string of Plate instance.")
 
         return readout_dict
 
@@ -68,7 +67,7 @@ class ReadoutDict:
         plate_heights = [i.height for i in self.read_outs.values()]
         plate_widths = [i.width for i in self.read_outs.values()]
         if len(set(plate_heights)) != 1 or len(set(plate_widths)) != 1:
-            raise Exception("ReadoutDict widths and lengths in the parsed output "
+            raise Exception("Plate widths and lengths in the parsed output "
                 "files are not all equal: plate_heights: {}, plate_widths: {} "
                     "".format(plate_heights, plate_widths))
         self.height = plate_heights[0]
@@ -80,9 +79,9 @@ class ReadoutDict:
 
 
     def create(path, format=None, **kwargs):
-        """ Create ``ReadoutDict`` instance.
+        """ Create ``Plate`` instance.
 
-        Create ``ReadoutDict`` instance.
+        Create ``Plate`` instance.
 
         Args:
             path (str): Path to input file or directory
@@ -100,31 +99,31 @@ class ReadoutDict:
 
         if format == 'csv':
             readout_dict = plate_io.read_csv(path)
-            return ReadoutDict(name=name, read_outs=readout_dict)
+            return Plate(name=name, read_outs=readout_dict)
         elif format == 'excel':
             readout_dict = plate_io.read_excel(path, **kwargs)
-            return ReadoutDict(name=name, read_outs=readout_dict)
+            return Plate(name=name, read_outs=readout_dict)
         elif format == 'envision_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_envision_csv(path)
-            return ReadoutDict(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return Plate(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'insulin_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = plate_io.read_insulin_csv(path)
-            return ReadoutDict(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return Plate(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise Exception("Format: {} is not implemented in "
-                            "ReadoutDict.create()".format(format))
+                            "Plate.create()".format(format))
 
 
     def get_readout(self, tag):
-        """ Retrieve readout `tag`
+        """ Retrieve plate `tag`
 
-        Retrieve readout `tag`
+        Retrieve plate `tag`
 
         Args:
-            tag (str): Key of readout
+            tag (str): Key of plate
 
         """
 
@@ -138,12 +137,12 @@ class ReadoutDict:
                                 ''.format(tag, self.read_outs.keys()))
 
     def set_plate_layout(self, plate_layout):
-        """ Set `self.plate_layout`
+        """ Set `self.plate_data`
 
-        Set `self.plate_layout`
+        Set `self.plate_data`
 
         Args:
-            plate_layout (PlateLayout): A ``PlateLayout`` instance
+            plate_data (PlateLayout): A ``PlateLayout`` instance
         """
 
         self.plate_layout = plate_layout
@@ -154,9 +153,9 @@ class ReadoutDict:
 
 
     def write(self, format, path=None, return_string=None, *args):
-        """ Serialize and write ``ReadoutDict`` instances.
+        """ Serialize and write ``Plate`` instances.
 
-        Serialize ``ReadoutDict`` instance using the stated ``format``.
+        Serialize ``Plate`` instance using the stated ``format``.
 
         Args:
             format (str):  The output format: Currently only "pickle".
@@ -216,9 +215,9 @@ class ReadoutDict:
         Args:
             donor_channel (str):  The key for self.read_outs where the donor_channel ``Readout`` instance is stored.
             acceptor_channel (str):  The key for self.read_outs where the acceptor_channel ``Readout`` instance is stored.
-            fluorophore_donor (str):  The name of the donor fluorophore in self.plate_layout.
-            fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_layout.
-            buffer (str):  The name of the buffer in self.plate_layout.
+            fluorophore_donor (str):  The name of the donor fluorophore in self.plate_data.
+            fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_data.
+            buffer (str):  The name of the buffer in self.plate_data.
             net_fret_key (str):  The key for self.read_outs where the resulting net fret ``Readout`` instance will be stored.
 
         """

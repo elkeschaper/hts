@@ -23,12 +23,12 @@ PLATE_LETTERS = ascii_uppercase + ascii_lowercase
 
 class Readout:
 
-    """ ``Readout`` describes one readout matrix
+    """ ``Readout`` describes one plate matrix
 
     Attributes:
         width (int): Width of the plate
         height (int): Height of the plate
-        data (np.array of np.arrays): A matrix of readout values
+        data (np.array of np.arrays): A matrix of plate values
         axes (dict of list): The naming of the two axes of the plates (e.g. {"x": ["A", "B", ...], "y": [1, 2, 3, 4, ...]})
 
 
@@ -72,10 +72,10 @@ class Readout:
     def filter_wells(self, starting_tag = "neg"):
         """
             Return all values of wells that start with ``starting_tag`` in the
-            plate_layout as a np.array
+            plate_data as a np.array
         """
-        if not hasattr(self, "plate_layout"):
-            raise Exception('Readout does not have a plate_layout attribute')
+        if not hasattr(self, "plate_data"):
+            raise Exception('Readout does not have a plate_data attribute')
         else:
             filter_result = []
             for i_height,i_width in itertools.product(range(self.height), range(self.width)):

@@ -8,21 +8,21 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
-import itertools
 import logging
 import math
+
 import matplotlib
+
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 import os
-import pickle
-import re
 import sys
 
 
-from hts.readout import readout, readout_dict
+from hts.plate import plate
+from hts.plate_data import readout
 
 LOG = logging.getLogger(__name__)
 
@@ -41,9 +41,9 @@ def report_qc(*args, **kwargs):
 def perform_qc(methods, data, *args, **kwargs):
     local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
     #import pdb; pdb.set_trace()
-    if not (type(data) == readout.Readout or type(data) == readout_dict.ReadoutDict):
+    if not (type(data) == readout.Readout or type(data) == plate.Plate):
         if type(data) == dict:
-            data = readout_dict.ReadoutDict(read_outs = data)
+            data = plate.Plate(read_outs = data)
         else:
             data = readout.Readout(data)
     results = [i(data, **param) for i, param in local_methods.items()]
@@ -54,9 +54,9 @@ def perform_qc(methods, data, *args, **kwargs):
 
 
 def heat_map_single(data, file = "heat_map_plate.pdf", *args, **kwargs):
-    """ Create a heat_map for a single readout
+    """ Create a heat_map for a single plate
 
-    Create a heat_map for a single readout
+    Create a heat_map for a single plate
 
     ..todo:: Share code between heat_map_single and heat_map_multiple
     """

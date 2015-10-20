@@ -13,18 +13,18 @@ import os
 import pickle
 import re
 
-from hts.plate_layout import plate_layout_io
+from hts.plate_data import plate_layout_io
 
 LOG = logging.getLogger(__name__)
 
 
 class PlateLayout:
 
-    """ ``PlateLayout`` describes all information connected to the plate_layout of a
+    """ ``PlateLayout`` describes all information connected to the plate_data of a
     high throughput screen.
 
     Attributes:
-        name (str): Name of the plate_layout
+        name (str): Name of the plate_data
         layout (list of lists): The plate layout
 
     """

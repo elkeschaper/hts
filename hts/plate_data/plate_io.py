@@ -286,7 +286,7 @@ def read_envision_csv(file, delimiter=","):
                         read.pop()
                     data_plate = [read]
                     line_length = len(data_plate[0])
-                    LOG.debug(" * (2.3->2.4) Store first plate readout line.")
+                    LOG.debug(" * (2.3->2.4) Store first plate plate line.")
                     state = 2.4
 
             elif 2.4 == state:
@@ -297,19 +297,19 @@ def read_envision_csv(file, delimiter=","):
                     data_plate.append(read)
                     if line_length != len(data_plate[-1]):
                         LOG.error(" The lines in the plate differ in length. line_length: {}. line: {}".format(line_length, data_plate[-1]))
-                    LOG.debug(" * (2.4->2.4) Store another plate readout line.")
+                    LOG.debug(" * (2.4->2.4) Store another plate plate line.")
                     state = 2.4
                 else:
                     channel_wise_reads[data_plate_count] = data_plate
                     channel_wise_info[data_plate_count] = data_background_info
                     data_plate = None
-                    LOG.debug(" * (2.4->2) Plate readout complete.")
+                    LOG.debug(" * (2.4->2) Plate plate complete.")
                     state = 2
 
     if data_plate:
         channel_wise_reads[data_plate_count] = data_plate
         channel_wise_info[data_plate_count] = data_background_info
-        LOG.debug(" * (2.4->None) Overall plate readout complete.")
+        LOG.debug(" * (2.4->None) Overall plate plate complete.")
         state = None
 
     # Currently: Replace all "" with 0
@@ -439,7 +439,7 @@ def read_csv(file, tag = '1'):
     """Read screen data file in csv format.
 
     Read screen data file in csv format.
-    The readout values must be the only data in the csv sheet. That is, no
+    The plate values must be the only data in the csv sheet. That is, no
     check of the content of the sheet, nor of its size is currently performed.
 
 
@@ -467,7 +467,7 @@ def read_excel(file, tags = None):
     """Read screen data file in excel format.
 
     Read screen data file in excel format.
-    The readout values must be the only data in the excel sheets. That is, no
+    The plate values must be the only data in the excel sheets. That is, no
     check of the content of the sheet, nor of its size is currently performed.
 
 

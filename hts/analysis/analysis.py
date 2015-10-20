@@ -10,10 +10,13 @@
 import logging
 import os
 import sys
+
 from fit.model import Model
+
 #from fit.model_dpia_linear_ml import ModelDPIAML
 
-from hts.readout import readout, readout_dict
+from hts.plate import plate
+from hts.plate_data import readout
 
 LOG = logging.getLogger(__name__)
 
@@ -27,9 +30,9 @@ def perform_analysis(methods, data, *args, **kwargs):
 
     local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
     #import pdb; pdb.set_trace()
-    if not (type(data) == readout.Readout or type(data) == readout_dict.ReadoutDict):
+    if not (type(data) == readout.Readout or type(data) == plate.Plate):
         if type(data) == dict:
-            data = readout_dict.ReadoutDict(read_outs = data)
+            data = plate.Plate(read_outs = data)
         else:
             data = readout.Readout(data)
     results = [i(data, path=path, *args, **kwargs) for i, param in local_methods.items()]
@@ -47,10 +50,10 @@ def perform_prion_fitting(data, path, write_data=False, *args, **kwargs):
     ..todo:: Add methods
     """
 
-    if 'plate_layout' in kwargs:
-        plate_layout = kwargs['plate_layout']
+    if 'plate_data' in kwargs:
+        plate_layout = kwargs['plate_data']
     else:
-        raise ValueError('plate_layout is not in kwargs. Check e.g. definitions in the run config file.')
+        raise ValueError('plate_data is not in kwargs. Check e.g. definitions in the run config file.')
     if 'dpia_dilution' in kwargs:
         dpia_dilution = kwargs['dpia_dilution']
     else:

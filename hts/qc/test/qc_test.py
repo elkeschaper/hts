@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pytest
 
-from hts.readout import readout_dict
+from hts.plate import plate
 from hts.qc import qc_detect_data_issues, qc_knitr, qc_matplotlib
 from hts.run import run
 
@@ -44,7 +44,7 @@ def test_qc_knitr_report(path):
 
 @pytest.mark.no_external_software_required
 def test_create_basic_heatmap(path):
-    test_readout = readout_dict.ReadoutDict(TEST_RUN)
+    test_readout = plate.Plate(TEST_RUN)
     ax = qc_matplotlib.heat_map_single(test_readout.read_outs[(0,0)])
     axes = qc_matplotlib.heat_map_multiple(test_readout)
 

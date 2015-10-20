@@ -1,12 +1,14 @@
-import numpy
 import ntpath
 import os
+import logging
+
+import numpy
 import pytest
 
-from hts.readout import readout, readout_dict
-from hts.plate_layout.plate_layout import PlateLayout
+from hts.plate import plate
+from hts.plate_data import readout
+from hts.plate_data.plate_layout import PlateLayout
 
-import logging
 logging.basicConfig(level=logging.INFO)
 
 TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_QC"
@@ -34,7 +36,7 @@ def path_raw():
 
 @pytest.mark.no_external_software_required
 def test_create_from_insulin_csv(path_raw):
-    test_plate = readout_dict.ReadoutDict.create(path=os.path.join(path_raw, TEST_FILE_INSULIN), format="insulin_csv")
+    test_plate = plate.Plate.create(path=os.path.join(path_raw, TEST_FILE_INSULIN), format="insulin_csv")
     assert test_plate.name == ntpath.basename(TEST_FILE_INSULIN)
     assert type(test_plate.read_outs) == dict
     assert type(list(test_plate.read_outs.values())[0]) == readout.Readout
@@ -42,8 +44,8 @@ def test_create_from_insulin_csv(path_raw):
 
 @pytest.mark.no_external_software_required
 def test_calculate_net_fret(path, path_raw):
-    test_plate = readout_dict.ReadoutDict.create(path=os.path.join(path_raw, TEST_FILE_SIRNA), format="envision_csv")
-    test_plate_layout = PlateLayout.create(path=os.path.join(path, TEST_PLATELAYOUT), format="csv") # Add plate_layout
+    test_plate = plate.Plate.create(path=os.path.join(path_raw, TEST_FILE_SIRNA), format="envision_csv")
+    test_plate_layout = PlateLayout.create(path=os.path.join(path, TEST_PLATELAYOUT), format="csv") # Add plate_data
     test_plate.set_plate_layout(plate_layout=test_plate_layout)
 
     test_plate.calculate_net_fret(donor_channel="2", acceptor_channel="1")

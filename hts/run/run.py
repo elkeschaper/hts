@@ -16,8 +16,8 @@ import re
 from hts.analysis import analysis
 from hts.qc import qc_knitr, qc_matplotlib
 from hts.run import run_io
-from hts.readout import readout_dict
-from hts.plate_layout import plate_layout
+from hts.plate import plate
+from hts.plate_data import plate_layout
 from hts.protocol import protocol
 
 
@@ -31,7 +31,7 @@ class Run:
 
     Attributes:
         name (str): Name of the run
-        plates (list of ``ReadoutDict``): List of ``ReadoutDict`` instances
+        plates (list of ``Plate``): List of ``Plate`` instances
         width (int): Width of the plates
         height (int): Height of the plates
         _protocol (``Protocol``): ``Protocol`` instance
@@ -75,10 +75,10 @@ class Run:
                 raise Exception("param for protocol is not of type "
                     "configobj.Section: {}, {}".format(param, type(param)))
             self.protocol(path = param['path'], format = param['format'])
-        if "plate_layout" in kwargs:
-            param = kwargs.pop('plate_layout')
+        if "plate_data" in kwargs:
+            param = kwargs.pop('plate_data')
             if not type(param) == configobj.Section:
-                raise Exception("param for plate_layout is not of type "
+                raise Exception("param for plate_data is not of type "
                     "configobj.Section: {}, {}".format(param, type(param)))
             self.plate_layout(path = param['path'], format = param['format'], **kwargs)
 
@@ -173,13 +173,13 @@ class Run:
             elif all(i in config_file for i in ["path", "filename", "filenumber"]):
                 l_files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
 
-            #plates = [readout_dict.ReadoutDict.create(path=os.path.join(config_ps["path"], i), format=config_ps['format'], config = config_ps) for i in config_ps["filenames"]]
-            plates = [readout_dict.ReadoutDict.create(path=i_file, **config_local) for i_file in l_files]
+            #plates = [readout_dict.Plate.create(path=os.path.join(config_ps["path"], i), format=config_ps['format'], config = config_ps) for i in config_ps["filenames"]]
+            plates = [plate.Plate.create(path=i_file, **config_local) for i_file in l_files]
         elif "run_source" in config:
             # Plate data is located in one file.
             config_rs = config["run_source"]
             local_config = {i:j for i,j in config_rs.items() if i not in ["tags"]}
-            plates = [readout_dict.ReadoutDict.create(tags = [i], name = i, **local_config) for i in config_rs["tags"]]
+            plates = [plate.Plate.create(tags = [i], name = i, **local_config) for i in config_rs["tags"]]
         else:
             raise Exception("plate_source nor run_source are properly defined in config file: {}"
                             "".format(os.path.join(path, file)))
@@ -201,7 +201,7 @@ class Run:
 
         if type(file) != list:
             file = [file]
-        plates = [readout_dict.ReadoutDict.create(os.path.join(path, i), format="envision_csv") for i in file]
+        plates = [plate.Plate.create(os.path.join(path, i), format="envision_csv") for i in file]
         return Run(path=path, plates=plates)
 
 
@@ -227,12 +227,12 @@ class Run:
 
         Args:
             type (str): Either per "run_wise" or per "plate_wise".
-            tags (str): Defines either the readout (within the plate),
+            tags (str): Defines either the plate (within the plate),
                 or the plate (within the run).
             subset (list of str): Defines which plates/plate_readouts shall be included.
 
         Returns:
-            Readout or ReadoutDict (for multiple Readouts)
+            Readout or Plate (for multiple Readouts)
         """
         #import pdb; pdb.set_trace()
         #if subset:
@@ -399,9 +399,9 @@ class Run:
 
 
     def plate_layout(self, path = None, format = None, **kwargs):
-        """ Read plate_layout and attach to `Run` instance.
+        """ Read plate_data and attach to `Run` instance.
 
-        Read plate_layout and attach to `Run` instance.
+        Read plate_data and attach to `Run` instance.
 
         Args:
             path (str): Path to input file
@@ -414,14 +414,14 @@ class Run:
             if format == "csv":
                 self._plate_layout = plate_layout.PlateLayout.create(path, format)
                 if len(self._plate_layout.layout) != self.height or len(self._plate_layout.layout[0]) != self.width:
-                    raise Exception("ReadoutDict width and length of the plate layout "
+                    raise Exception("Plate width and length of the plate layout "
                             "({}, {}) are not the same as for the plate data ({}, {})"
                             "".format(len(self._plate_layout.layout), len(self._plate_layout.layout[0]), self.height, self.width))
             else:
                 raise Exception("Format: {} is not implemented in "
                             "ScreenData.set_plate_layout()".format(format))
 
-            # Push PlateLayout to plates the first time plate_layout is called.
+            # Push PlateLayout to plates the first time plate_data is called.
             inverted_plates = []
             if 'plate_source' in kwargs and 'inverted_plates' in kwargs['plate_source']:
                 inverted_plates = kwargs['plate_source']['inverted_plates']
