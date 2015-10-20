@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from fit.model import Model
-from fit.model_dpia_ml import ModelDPIAML
+#from fit.model_dpia_linear_ml import ModelDPIAML
 
 from hts.readout import readout, readout_dict
 
