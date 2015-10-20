@@ -169,7 +169,7 @@ class Run:
 
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
-        data_types_plate_wise = [data_type for data_type in defined_data_types if eval(config[data_type]["is_defined_plate_wise"]) == True]
+        data_types_plate_wise = [data_type for data_type in defined_data_types if eval(config[data_type].pop("is_defined_plate_wise")) == True]
         data_types_not_plate_wise = [data_type for data_type in defined_data_types if data_type not in data_types_plate_wise]
 
         ## 1. Create `Plate` instances from plate_wise information.
@@ -201,9 +201,9 @@ class Run:
         # Transform config_type_wise to per config_plate_wise:
         config_plate_wise = {}
         for i in range(n_files):
-            config_plate_wise[i] = {data_type: {"file": info["files"][i], "config": info["config"]} for data_type, info in config_type_wise.items()}
+            config_plate_wise[i] = {data_type: {"path": info["files"][i], "config": info["config"]} for data_type, info in config_type_wise.items()}
 
-        plates = [plate.Plate.create(**config) for i_plate, config in config_plate_wise.items()]
+        plates = [plate.Plate.create(format="config", **config) for i_plate, config in config_plate_wise.items()]
 
         ## 2. If available, add general = not_plate_wise information to each plate
         data_run_wise = {}

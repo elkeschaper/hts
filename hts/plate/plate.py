@@ -92,7 +92,8 @@ class Plate:
         """
 
 
-    def create(path, format=None, **kwargs):
+
+    def create(format, **kwargs):
         """ Create ``Plate`` instance.
 
         Create ``Plate`` instance.
@@ -104,11 +105,20 @@ class Plate:
         .. todo:: Write checks for ``format`` and ``path``.
         .. todo:: Implement
         """
-        path_trunk, file = os.path.split(path)
-        LOG.debug("filename: {}".format(file))
 
-        if format == 'pickle':
-            with open(path, 'rb') as fh:
+        if format == "config":
+            data = {}
+            if "meta_data" in kwargs:
+                data["meta_data"] = meta_data.MetaData.create(path=kwargs["meta_data"]["path"], **kwargs["meta_data"]["config"])
+            if "plate_layout" in kwargs:
+                data["plate_layout"] = plate_layout.PlateLayout.create(path=kwargs["plate_layout"]["path"], **kwargs["plate_layout"]["config"])
+            if "qc_data" in kwargs:
+                data["qc_data"] = qc_data.QCData.create(path=kwargs["qc_data"]["path"], **kwargs["qc_data"]["config"])
+            if "readout" in kwargs:
+                data["readout"] = readout.Readout.create(path=kwargs["readout"]["path"], **kwargs["readout"]["config"])
+            return Plate(data=data)
+        elif format == 'pickle':
+            with open(kwargs["path"], 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise Exception("Format: {} is not implemented in "

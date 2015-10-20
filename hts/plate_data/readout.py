@@ -72,7 +72,8 @@ class Readout(plate_data.PlateData):
         .. todo:: Write checks for ``format`` and ``path``.
         .. todo:: Implement
         """
-        
+
+        #import pdb; pdb.set_trace()
         path_trunk, file = os.path.split(path)
         LOG.debug("filename: {}".format(file))
 
