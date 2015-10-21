@@ -7,17 +7,40 @@
 """
 
 import ast
+import itertools
 import logging
+import numpy as np
 import os
 import pickle
-
-import numpy as np
+import re
+import string
 
 from hts.plate_data import plate_layout, readout
 
+KNOWN_DATA_TYPES = ["plate_layout", "readout", "qc_data", "meta_data"]
+LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
+MAX_WIDTH = 48
+MAX_HEIGHT = 32
+TRANSLATE_HUMANREADABLE_COORDINATE = {(LETTERS[cc[0]], str(cc[1]+1)): cc for cc in itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
+TRANSLATE_COORDINATE_HUMANREADABLE = {cc: (LETTERS[cc[0]], str(cc[0]+1), str(cc[1]+1)) for cc in itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
 LOG = logging.getLogger(__name__)
 
-KNOWN_DATA_TYPES = ["plate_layout", "readout", "qc_data", "meta_data"]
+
+def translate_coordinate_humanreadable(coordinate):
+
+    return TRANSLATE_COORDINATE_HUMANREADABLE[coordinate]
+
+
+def translate_humanreadable_coordinate(humanreadable):
+
+    pattern = re.compile('([a-zA-Z]+)0*(\d+)')
+    match = re.match(pattern, humanreadable)
+    if not match:
+        LOG.error("pattern: {} did not match {}".format(pattern, humanreadable))
+    humanreadable = (match.group(1), match.group(2))
+
+    return TRANSLATE_HUMANREADABLE_COORDINATE[humanreadable]
+
 
 class Plate:
 

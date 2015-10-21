@@ -55,13 +55,6 @@ class PlateData:
             if not hasattr(self, key):
                 setattr(self, key, value)
 
-        # You may want to shift this to plate... also get inspired HTS sample trace.
-        if self.height <= len(PLATE_LETTERS):
-            self.axes = {"x": list(range(1, self.width + 1)), "y": PLATE_LETTERS[:self.height]}
-        else:
-            raise Exception("Add plate letters for large plates. Plate height:"
-                    " {}".format(self.height))
-
 
     def create(self, *args, **kwargs):
         raise NotImplementedError('Implement create()')

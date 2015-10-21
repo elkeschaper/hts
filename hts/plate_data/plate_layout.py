@@ -34,26 +34,25 @@ class PlateLayout(plate_data.PlateData):
 
     def __init__(self, layout, **kwargs):
 
-        data = {"layout": layout}
-
-        # Run super __init__
-        super().__init__(data=data, **kwargs)
         # Perform PlateLayout specific __init__
 
         # Get short forms of well content. E.g. s_1 -> s
         # Assuming that the short forms are marked by the underscore character "_"
         deliminator = "_"
-        self.layout_general_type = [[j.split(deliminator)[0] for j in i] for i in self.data["layout"]]
+        layout_general_type = [[j.split(deliminator)[0] for j in i] for i in layout]
 
-        #import pdb; pdb.set_trace()
         # Define sample replicates. Traverse row-wise, the first occurence is counted as replicate 1, and so on.
-        counter = {i:1 for i in set([item for sublist in self.data["layout"] for item in sublist])}
-        sample_replicate_count = np.zeros((self.height, self.width))
-        for iRow, iColumn in itertools.product(range(self.height), range(self.width)):
-            type = self.data["layout"][iRow][iColumn]
+        counter = {i:1 for i in set([item for sublist in layout for item in sublist])}
+        sample_replicate_count = np.zeros_like(layout)
+        for iRow, iColumn in itertools.product(range(len(layout)), range(len(layout[0]))):
+            type = layout[iRow][iColumn]
             sample_replicate_count[iRow][iColumn] = counter[type]
             counter[type] += 1
-        self.sample_replicate_count = sample_replicate_count
+
+        data = {"layout": layout, "layout_general_type": layout_general_type, "sample_replicate_count": sample_replicate_count}
+
+        # Run super __init__
+        super().__init__(data=data, **kwargs)
 
 
     def invert(self):

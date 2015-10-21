@@ -12,6 +12,8 @@ import logging
 import os
 import re
 
+from hts.plate import plate
+
 LOG = logging.getLogger(__name__)
 
 ################################## WRITE RUN DATA  #########################
@@ -41,20 +43,22 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
     for iPlate_index, iPlate in run_data.plates.items():
         # Plates can have different layouts.
         plate_layout_container = iPlate.plate_layout
-        plate_layout = plate_layout_container.layout
-        layout_general_type = plate_layout_container.layout_general_type
-        sample_replicate_count = plate_layout_container.sample_replicate_count
+        plate_layout = plate_layout_container.data["layout"]
+        layout_general_type = plate_layout_container.data["layout_general_type"]
+        sample_replicate_count = plate_layout_container.data["sample_replicate_count"]
         # Iterate over readouts in plates (raw and preprocessed)
-        for iReadout_index, iReadout in iPlate.read_outs.items():
+        #import pdb; pdb.set_trace()
+        for iReadout_index, iReadout in iPlate.readout.data.items():
             # Iterate over the x axis ("width") and the y axis ("height")
             for i_row, i_col in itertools.product(range(iPlate.height), range(iPlate.width)):
+                h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
                 all_data.append([iPlate.name,
-                                iReadout.axes['x'][i_col],
-                                iReadout.axes['y'][i_row],
+                                h_coordinate[1],
+                                h_coordinate[0],
                                 i_col + 1,
                                 i_row + 1,
                                 iPlate_index,
-                                iReadout.data[i_row][i_col],
+                                iReadout[i_row][i_col],
                                 iReadout_index,
                                 plate_layout[i_row][i_col],
                                 layout_general_type[i_row][i_col],
