@@ -17,7 +17,7 @@ import string
 
 from hts.plate_data import plate_layout, readout
 
-KNOWN_DATA_TYPES = ["plate_layout", "readout", "qc_data", "meta_data"]
+KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
 LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
 MAX_WIDTH = 48
 MAX_HEIGHT = 32
@@ -135,8 +135,8 @@ class Plate:
                 data["meta_data"] = meta_data.MetaData.create(path=kwargs["meta_data"]["path"], **kwargs["meta_data"]["config"])
             if "plate_layout" in kwargs:
                 data["plate_layout"] = plate_layout.PlateLayout.create(path=kwargs["plate_layout"]["path"], **kwargs["plate_layout"]["config"])
-            if "qc_data" in kwargs:
-                data["qc_data"] = qc_data.QCData.create(path=kwargs["qc_data"]["path"], **kwargs["qc_data"]["config"])
+            if "data_issue" in kwargs:
+                data["data_issue"] = data_issue.DataIssue.create(path=kwargs["data_issue"]["path"], **kwargs["data_issue"]["config"])
             if "readout" in kwargs:
                 data["readout"] = readout.Readout.create(path=kwargs["readout"]["path"], **kwargs["readout"]["config"])
             height = len(next(iter(next(iter(data.values())).data.values())))
@@ -161,7 +161,7 @@ class Plate:
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
         elif data_type == "plate_layout" and not type(data) == plate_layout.PlateLayout:
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
-        elif data_type == "qc_data" and not type(data) == qc_data.QCData:
+        elif data_type == "data_issue" and not type(data) == data_issue.DataIssue:
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
         elif data_type == "readout" and not type(data) == readout.Readout:
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
