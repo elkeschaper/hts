@@ -46,7 +46,7 @@ class PlateData:
 
         self.data = data
         self.height = len(next(iter(self.data.values())))
-        self.height = len(next(iter(self.data.values()))[0])
+        self.width = len(next(iter(self.data.values()))[0])
 
         if "name" in kwargs:
             self.name = kwargs.pop("name")

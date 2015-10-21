@@ -46,7 +46,7 @@ class Plate:
         try:
             readout_dict = ("<Plate instance>\nname: {}\nread_outs: {}"
                     "\nNumber of read_outs: {}\nwidth: {}\nheight: {}".format(name,
-                    str(self.read_outs.keys()), len(self.read_outs),
+                    str(self.readout.data.keys()), len(self.readout.data),
                     self.width, self.height))
         except:
             readout_dict = "<Plate instance>"
@@ -55,7 +55,7 @@ class Plate:
         return readout_dict
 
 
-    def __init__(self, data, name=None, **kwargs):
+    def __init__(self, data, name, **kwargs):
 
         LOG.debug(data)
 
@@ -70,7 +70,7 @@ class Plate:
         if "height" in kwargs:
             self.height = kwargs.pop("height")
         if "width" in kwargs:
-            self.height = kwargs.pop("width")
+            self.width = kwargs.pop("width")
 
         # You are using this construct in many an __init__ . Consider turning into decorator.
         for key, value in kwargs.items():
@@ -79,11 +79,9 @@ class Plate:
 
         """
         FORMERLY:
-        self.read_outs = {i: j if type(j) == readout.Readout else readout.Readout(j) for i,j in read_outs.items()}
-
         # Make sure all readouts are equal in height and width.
-        plate_heights = [i.height for i in self.read_outs.values()]
-        plate_widths = [i.width for i in self.read_outs.values()]
+        plate_heights = [i.height for i in self.readout.data.values()]
+        plate_widths = [i.width for i in self.readout.data.values()]
         if len(set(plate_heights)) != 1 or len(set(plate_widths)) != 1:
             raise Exception("Plate widths and lengths in the parsed output "
                 "files are not all equal: plate_heights: {}, plate_widths: {} "
@@ -116,7 +114,10 @@ class Plate:
                 data["qc_data"] = qc_data.QCData.create(path=kwargs["qc_data"]["path"], **kwargs["qc_data"]["config"])
             if "readout" in kwargs:
                 data["readout"] = readout.Readout.create(path=kwargs["readout"]["path"], **kwargs["readout"]["config"])
-            return Plate(data=data)
+            height = len(next(iter(next(iter(data.values())).data.values())))
+            width = len(next(iter(next(iter(data.values())).data.values()))[0])
+            name = next(iter(data.values())).name
+            return Plate(data=data, height=height, width=width, name=name)
         elif format == 'pickle':
             with open(kwargs["path"], 'rb') as fh:
                 return pickle.load(fh)
@@ -125,42 +126,22 @@ class Plate:
                             "Plate.create()".format(format))
 
 
-    '''
-    TODO: Needs implementation.
-    def set_meta_data(self, *args, **kwargs):
+    def set_data(self, data_type, data):
         """ Set `self.meta_data`
 
         Set `self.meta_data`
         """
 
-        self.meta_data = meta_data.MetaData.create(*args, **kwargs)
+        if data_type == "meta_data" and not type(data) == meta_data.MetaData:
+            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+        elif data_type == "plate_layout" and not type(data) == plate_layout.PlateLayout:
+            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+        elif data_type == "qc_data" and not type(data) == qc_data.QCData:
+            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+        elif data_type == "readout" and not type(data) == readout.Readout:
+            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
 
-
-    def set_qc_data(self, *args, **kwargs):
-        """ Set `self.qc_data`
-
-        Set `self.qc_data`
-        """
-
-        self.qc = qc_data.QCData.create(*args, **kwargs)
-    '''
-
-    def set_plate_layout(self, *args, **kwargs):
-        """ Set `self.plate_layout`
-
-        Set `self.plate_layout`
-        """
-
-        self.plate_layout = plate_layout.PlateLayout.create(*args, **kwargs)
-
-
-    def set_readout(self, *args, **kwargs):
-        """ Set `self.readout`
-
-        Set `self.readout`
-        """
-
-        self.readout = readout.Readout.create(*args, **kwargs)
+        setattr(self, data_type, data)
 
 
     def write(self, format, path=None, return_string=None, *args):
@@ -225,21 +206,21 @@ class Plate:
         netfret = x_{acceptor_channel} - \hat{acceptor_{acceptor_channel}} - p \cdot (x_{donor_channel} - \hat{buffer_{donor_channel}})
 
         Args:
-            donor_channel (str):  The key for self.read_outs where the donor_channel ``Readout`` instance is stored.
-            acceptor_channel (str):  The key for self.read_outs where the acceptor_channel ``Readout`` instance is stored.
+            donor_channel (str):  The key for self.readout.data where the donor_channel ``Readout`` instance is stored.
+            acceptor_channel (str):  The key for self.readout.data where the acceptor_channel ``Readout`` instance is stored.
             fluorophore_donor (str):  The name of the donor fluorophore in self.plate_data.
             fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_data.
             buffer (str):  The name of the buffer in self.plate_data.
-            net_fret_key (str):  The key for self.read_outs where the resulting net fret ``Readout`` instance will be stored.
+            net_fret_key (str):  The key for self.readout.data where the resulting net fret ``Readout`` instance will be stored.
 
         """
 
-        if net_fret_key in self.read_outs:
-            raise ValueError("The net_fret_key {} is already in self.read_outs.".format(net_fret_key))
+        if net_fret_key in self.readout.data:
+            raise ValueError("The net_fret_key {} is already in self.readout.data.".format(net_fret_key))
 
         #import pdb; pdb.set_trace()
-        donor_readout = self.read_outs[donor_channel]
-        acceptor_readout = self.read_outs[acceptor_channel]
+        donor_readout = self.readout.data[donor_channel]
+        acceptor_readout = self.readout.data[acceptor_channel]
 
         # Calculate p
         mean_donor_donor_channel = np.mean(donor_readout.filter_wells(fluorophore_donor))
@@ -260,8 +241,8 @@ class Plate:
 
         # Calculate the net FRET signal for the entire plate
         netfret = acceptor_readout.data - mean_acceptor_acceptor_channel - p*(donor_readout.data - mean_buffer_donor_channel)
-        self.read_outs[net_fret_key] = readout.Readout(netfret)
-        self.read_outs[net_fret_key].plate_layout = self.plate_layout
+        self.readout.data[net_fret_key] = readout.Readout(netfret)
+        self.readout.data[net_fret_key].plate_layout = self.plate_layout
 
 
     ### Potentially obsolete
@@ -276,11 +257,11 @@ class Plate:
         """
 
         try:
-            return self.read_outs[tag]
+            return self.readout.data[tag]
         except:
             try:
-                return self.read_outs[ast.literal_eval(tag)]
+                return self.readout.data[ast.literal_eval(tag)]
             except:
                 raise KeyError('tag: {} is not in self.readouts: {}'
-                                ''.format(tag, self.read_outs.keys()))
+                                ''.format(tag, self.readout.data.keys()))
 

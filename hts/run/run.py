@@ -69,8 +69,12 @@ class Run:
         self.plates = collections.OrderedDict((plate.name, plate) for plate in plates)
         #Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
-        self.width = plates[0].width
-        self.height = plates[0].height
+        try:
+            self.width = plates[0].width
+            self.height = plates[0].height
+        except:
+            LOG.info("Could not discern plate width/height from first plate.")
+
         if "protocol" in kwargs:
             param = kwargs.pop('protocol')
             if not type(param) == configobj.Section:
@@ -210,7 +214,7 @@ class Run:
         for data_type in data_types_not_plate_wise:
             print("HELP! Needs implementation")
             if data_type == "plate_layout":
-                data = plate_data.plate_layout.PlateLayout.create(data_type, **config[data_type])
+                data = plate_layout.PlateLayout.create(**config[data_type])
             else:
                 raise Exception("Reading in general info for data_type {} is not yet implemented."
                                 "".format(data_type))

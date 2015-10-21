@@ -51,7 +51,7 @@ class Readout(plate_data.PlateData):
     def __init__(self, data, **kwargs):
 
         # Run super __init__
-        super(PlateLayout, self).__init__()
+        super().__init__(data=data, **kwargs)
 
         # Perform PlateLayout specific __init__
 
@@ -84,16 +84,16 @@ class Readout(plate_data.PlateData):
 
         if format == 'csv':
             readout_dict = readout_io.read_csv(path)
-            return Readout(name=name, read_outs=readout_dict)
+            return Readout(name=name, data=readout_dict)
         elif format == 'excel':
             readout_dict = readout_io.read_excel(path, **kwargs)
-            return Readout(name=name, read_outs=readout_dict)
+            return Readout(name=name, data=readout_dict)
         elif format == 'envision_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path)
-            return Readout(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         elif format == 'insulin_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path)
-            return Readout(name=name, read_outs=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+            return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
         if format == 'pickle':
             with open(path, 'rb') as fh:
                 return pickle.load(fh)

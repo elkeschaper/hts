@@ -32,11 +32,12 @@ class PlateLayout(plate_data.PlateData):
 
     """
 
-    def __init__(self):
+    def __init__(self, layout, **kwargs):
+
+        data = {"layout": layout}
 
         # Run super __init__
-        super(PlateLayout, self).__init__()
-
+        super().__init__(data=data, **kwargs)
         # Perform PlateLayout specific __init__
 
         # Get short forms of well content. E.g. s_1 -> s
@@ -68,7 +69,7 @@ class PlateLayout(plate_data.PlateData):
 
 
 
-    def create(path, format=None):
+    def create(path, format=None, **kwargs):
         """ Create ``PlateLayout`` instance.
 
         Create ``PlateLayout`` instance.
@@ -84,7 +85,7 @@ class PlateLayout(plate_data.PlateData):
         if format == 'csv':
             layout = plate_layout_io.read_csv(path)
             path, file = os.path.split(path)
-            return PlateLayout(name=file, layout={"layout": layout})
+            return PlateLayout(name=file, layout=layout)
         elif format == 'pickle':
             with open(path, 'rb') as fh:
                 return pickle.load(fh)
