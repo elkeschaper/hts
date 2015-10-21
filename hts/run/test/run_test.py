@@ -39,7 +39,7 @@ def test_read_run_from_config_insulin(path_run):
     test_width = 24
     assert test_plate.width == test_width
     assert test_run.width == test_width
-    assert len(test_plate.read_outs) == 481
+    assert len(test_plate.readout.data) == 481
     test_protocol = test_run.protocol()
     assert type(test_protocol) == Protocol
     test_plate_layout = test_run.plate_layout()

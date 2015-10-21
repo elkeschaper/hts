@@ -33,7 +33,7 @@ class Run:
 
     Attributes:
         name (str): Name of the run
-        plates (list of ``Plate``): List of ``Plate`` instances
+        plates (collections.OrderedDict of ``Plate``): collections.OrderedDict of ``Plate`` instances
         width (int): Width of the plates
         height (int): Height of the plates
         _protocol (``Protocol``): ``Protocol`` instance
@@ -81,12 +81,6 @@ class Run:
                 raise Exception("param for protocol is not of type "
                     "configobj.Section: {}, {}".format(param, type(param)))
             self.protocol(path = param['path'], format = param['format'])
-        if "plate_data" in kwargs:
-            param = kwargs.pop('plate_data')
-            if not type(param) == configobj.Section:
-                raise Exception("param for plate_data is not of type "
-                    "configobj.Section: {}, {}".format(param, type(param)))
-            self.plate_layout(path = param['path'], format = param['format'], **kwargs)
 
         # Save all other kwargs simply as attributes.
         #for key, value in kwargs.items():
@@ -222,7 +216,7 @@ class Run:
             for i_plate in plates:
                 i_plate.set_data(data_type, data)
 
-        return Run(path = os.path.join(path, file), plates = plates, **config)
+        return Run(path=os.path.join(path, file), plates=plates, **config)
 
 
     def create_from_envision(path, file):
@@ -239,7 +233,12 @@ class Run:
 
         if type(file) != list:
             file = [file]
-        plates = [plate.Plate.create(os.path.join(path, i), format="envision_csv") for i in file]
+
+        plates = []
+        for i_file in file:
+            config = {"readout": {"path": os.path.join(path, i_file), "config": {"format": "envision_csv"}}}
+            plates.append(plate.Plate.create(format="config", **config))
+
         return Run(path=path, plates=plates)
 
 
@@ -436,41 +435,17 @@ class Run:
         return self._analysis
 
 
-    def plate_layout(self, path = None, format = None, **kwargs):
-        """ Read plate_data and attach to `Run` instance.
+    def plate_layout(self):
+        """ Return a plate_layout instance.
 
-        Read plate_data and attach to `Run` instance.
+        Return a plate_layout instance.
 
-        Args:
-            path (str): Path to input file
-            format (str):  At current only "csv"
-
-        .. todo:: Write checks if path and format exists when necessary.
         """
 
-        if not hasattr(self, '_plate_layout'):
-            if format == "csv":
-                self._plate_layout = plate_layout.PlateLayout.create(path, format)
-                if len(self._plate_layout.layout) != self.height or len(self._plate_layout.layout[0]) != self.width:
-                    raise Exception("Plate width and length of the plate layout "
-                            "({}, {}) are not the same as for the plate data ({}, {})"
-                            "".format(len(self._plate_layout.layout), len(self._plate_layout.layout[0]), self.height, self.width))
-            else:
-                raise Exception("Format: {} is not implemented in "
-                            "ScreenData.set_plate_layout()".format(format))
-
-            # Push PlateLayout to plates the first time plate_data is called.
-            inverted_plates = []
-            if 'plate_source' in kwargs and 'inverted_plates' in kwargs['plate_source']:
-                inverted_plates = kwargs['plate_source']['inverted_plates']
-
-            for plate in self.plates.values():
-                if plate.name in inverted_plates:
-                    plate.set_plate_layout(self._plate_layout.invert())
-                else:
-                    plate.set_plate_layout(self._plate_layout)
-
-        return self._plate_layout
+        plate_layouts = [plate.plate_layout for plate in self.plates.values()]
+        if len(set(plate_layouts)) != 1:
+            LOG.warning("The plates may have different plate layouts")
+        return plate_layouts[0]
 
 
     def protocol(self, path = None, format = None):
