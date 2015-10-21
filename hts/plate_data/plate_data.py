@@ -69,3 +69,54 @@ class PlateData:
 
     def write(self, *args, **kwargs):
         raise NotImplementedError('Implement write()')
+
+
+    def get_wells(self, data_tag, condition):
+        """ Get list of well coordinates for which the data tagged with `data_tag` conforms to `condition`.
+
+        Get list of well coordinates for which the data tagged with `data_tag` conforms to `condition`.
+
+        Args:
+            data_tag (str): Data tag.
+            condition (method): The condition expressed as a method. E.g., condition=lambda x: x==True
+
+        Returns:
+            (list of (int, int)).
+        """
+
+        if data_tag in self.data:
+            data = self.data[data_tag]
+        else:
+            raise Exception("data_tag {} not in self.data {}".format(data_tag, self.data.keys()))
+
+        well_coordinates = [cc for cc in itertools.product(range(self.height), range(self.width)) if condition(data[cc[0]][cc[1]])]
+
+        return well_coordinates
+
+
+    def get_values(self, wells, data_tag, value_type=None):
+        """ Get list of values for defined `wells` of the data tagged with `data_tag`.
+
+        Get list of values for defined `wells` of the data tagged with `data_tag`.
+        If `value_type` is set, check if all values conform with `value_type`.
+
+        Args:
+            wells (lists of tuple):  List of well coordinates.
+            data_tag (str): Data tag.
+            value_type (str): The type of the return values.
+
+        Returns:
+            (list of x), where x are of type `value_type`, if `value_type` is set.
+        """
+
+        if data_tag in self.data:
+            data = self.data[data_tag]
+        else:
+            raise Exception("data_tag {} not in self.data {}".format(data_tag, self.data.keys()))
+
+        values = [data[cc[0]][cc[1]] for cc in wells]
+
+        if value_type and not all([type(i) == value_type for i in values]):
+            raise Exception("Not all values conform with value_type{}:\n{}".format(value_type, values))
+
+        return values

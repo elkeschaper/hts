@@ -144,6 +144,7 @@ class Plate:
         setattr(self, data_type, data)
 
 
+
     def write(self, format, path=None, return_string=None, *args):
         """ Serialize and write ``Plate`` instances.
 
@@ -167,6 +168,34 @@ class Plate:
                 fh.write(output)
         if return_string:
             return output
+
+
+
+    def filter(self, condition_data_type, condition_data_tag, condition, value_data_type, value_data_tag, value_type=None):
+        """
+
+        Get list of values for defined `wells` of the data tagged with `data_tag`.
+        If `value_type` is set, check if all values conform with `value_type`.
+
+        Args:
+            condition_data_type (str): Reference to PlateData instance on which wells are filtered for the condition.
+            condition_data_tag (str): Data tag for condition_data_type
+            condition (method): The condition expressed as a method.
+            value_data_type (str): Reference to PlateData instance from which (for filtered wells) the values are retrieved.
+            value_data_tag (str): Data tag for value_data_type.
+            value_type (str): The type of the return values.
+
+        Returns:
+            (list of x), where x are of type `value_type`, if `value_type` is set.
+        """
+
+        condition_plate_data = getattr(self, condition_data_type)
+        value_plate_data = getattr(self, value_data_type)
+
+        wells = condition_plate_data.get_wells(data_tag=condition_data_tag, condition=condition)
+        values = value_plate_data.get_values(wells=wells, data_tag=value_data_tag, value_type=value_type)
+
+        return values
 
 
     #### Preprocessing functions
@@ -218,19 +247,25 @@ class Plate:
         if net_fret_key in self.readout.data:
             raise ValueError("The net_fret_key {} is already in self.readout.data.".format(net_fret_key))
 
-        #import pdb; pdb.set_trace()
-        donor_readout = self.readout.data[donor_channel]
-        acceptor_readout = self.readout.data[acceptor_channel]
+        mean_donor_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==fluorophore_donor,
+                                                       value_data_type="readout", value_data_tag=donor_channel))
+        mean_acceptor_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==fluorophore_acceptor,
+                                                       value_data_type="readout", value_data_tag=donor_channel))
+        mean_buffer_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==buffer,
+                                                       value_data_type="readout", value_data_tag=donor_channel))
+        mean_donor_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==fluorophore_donor,
+                                                       value_data_type="readout", value_data_tag=acceptor_channel))
+        mean_acceptor_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==fluorophore_acceptor,
+                                                       value_data_type="readout", value_data_tag=acceptor_channel))
+        mean_buffer_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==buffer,
+                                                       value_data_type="readout", value_data_tag=acceptor_channel))
 
-        # Calculate p
-        mean_donor_donor_channel = np.mean(donor_readout.filter_wells(fluorophore_donor))
-        mean_acceptor_donor_channel = np.mean(donor_readout.filter_wells(fluorophore_acceptor))
-        mean_buffer_donor_channel = np.mean(donor_readout.filter_wells(buffer))
-        mean_donor_acceptor_channel = np.mean(acceptor_readout.filter_wells(fluorophore_donor))
-        mean_acceptor_acceptor_channel = np.mean(acceptor_readout.filter_wells(fluorophore_acceptor))
-        mean_buffer_acceptor_channel = np.mean(acceptor_readout.filter_wells(buffer))
-
-        #import pdb; pdb.set_trace()
         for i, value in enumerate([mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel, mean_donor_acceptor_channel, mean_acceptor_acceptor_channel, mean_buffer_acceptor_channel]):
             if np.isnan(value):
                 import pdb; pdb.set_trace()
