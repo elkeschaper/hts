@@ -50,6 +50,9 @@ class Readout(plate_data.PlateData):
 
     def __init__(self, data, **kwargs):
 
+        # All readout data is transformed to numpy array data
+        data = {i: np.array([np.array([float(datum) for datum in row]) for row in j]) for i,j in data.items()}
+
         # Run super __init__
         super().__init__(data=data, **kwargs)
 

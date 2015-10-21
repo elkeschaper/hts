@@ -275,9 +275,8 @@ class Plate:
 
 
         # Calculate the net FRET signal for the entire plate
-        netfret = acceptor_readout.data - mean_acceptor_acceptor_channel - p*(donor_readout.data - mean_buffer_donor_channel)
-        self.readout.data[net_fret_key] = readout.Readout(netfret)
-        self.readout.data[net_fret_key].plate_layout = self.plate_layout
+        netfret = self.readout.get_data(acceptor_channel) - mean_acceptor_acceptor_channel - p*(self.readout.get_data(donor_channel) - mean_buffer_donor_channel)
+        self.readout.add_data(data_tag=net_fret_key, data=netfret)
 
 
     ### Potentially obsolete

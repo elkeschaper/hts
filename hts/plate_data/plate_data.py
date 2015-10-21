@@ -71,6 +71,22 @@ class PlateData:
         raise NotImplementedError('Implement write()')
 
 
+    def add_data(self, data_tag, data):
+
+        if data_tag in self.data:
+            LOG.warning("data_tag {} already in self.data - overwriting".format(data_tag))
+
+        self.data[data_tag] = data
+
+
+    def get_data(self, data_tag):
+
+        if data_tag not in self.data:
+            raise Exception("data_tag {} not in self.data: {}".format(data_tag, self.data.keys()))
+
+        return self.data[data_tag]
+
+
     def get_wells(self, data_tag, condition):
         """ Get list of well coordinates for which the data tagged with `data_tag` conforms to `condition`.
 
