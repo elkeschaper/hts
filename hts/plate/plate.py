@@ -304,23 +304,4 @@ class Plate:
         self.readout.add_data(data_tag=net_fret_key, data=netfret)
 
 
-    ### Potentially obsolete
-    def get_readout(self, tag):
-        """ Retrieve plate `tag`
-
-        Retrieve plate `tag`
-
-        Args:
-            tag (str): Key of plate
-
-        """
-
-        try:
-            return self.readout.data[tag]
-        except:
-            try:
-                return self.readout.data[ast.literal_eval(tag)]
-            except:
-                raise KeyError('tag: {} is not in self.readouts: {}'
-                                ''.format(tag, self.readout.data.keys()))
 
