@@ -26,6 +26,8 @@ TRANSLATE_COORDINATE_HUMANREADABLE = {cc: (LETTERS[cc[0]], str(cc[0]+1), str(cc[
 LOG = logging.getLogger(__name__)
 
 
+## TODO: Instead of creating a matrix for both coordinates, simply create a list each to safe memory.
+
 def translate_coordinate_humanreadable(coordinate):
 
     return TRANSLATE_COORDINATE_HUMANREADABLE[coordinate]
