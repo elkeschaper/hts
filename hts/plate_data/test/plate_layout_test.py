@@ -27,7 +27,7 @@ def test_read_plate_layout_siRNA(path):
     assert test_plate_layout.height == 16
     assert test_plate_layout.width == 24
     assert test_plate_layout.name == "plate_layout_siRNA_1.csv"
-    assert test_plate_layout.layout == TEST_LAYOUT_siRNA_LIST
+    assert test_plate_layout.data["layout"] == TEST_LAYOUT_siRNA_LIST
 
 @pytest.mark.no_external_software_required
 def test_read_plate_layout_insulin(path):
