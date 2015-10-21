@@ -89,7 +89,10 @@ class Readout(plate_data.PlateData):
             readout_dict = readout_io.read_csv(path)
             return Readout(name=name, data=readout_dict)
         elif format == 'excel':
-            readout_dict = readout_io.read_excel(path, **kwargs)
+            # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
+            tags = [path]
+            path = kwargs.pop("file")
+            readout_dict = readout_io.read_excel(path=path, tags=tags, **kwargs)
             return Readout(name=name, data=readout_dict)
         elif format == 'envision_csv':
             readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path)

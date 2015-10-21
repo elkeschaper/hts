@@ -158,8 +158,6 @@ class Run:
         Args:
             path (str): Path to input configobj file
             file (str): Filename of configobj file
-
-        .. todo:: Write checks if path and file exists when necessary.
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
@@ -178,14 +176,20 @@ class Run:
         config_type_wise = {}
         n_files = {}
         for data_type in data_types_plate_wise:
+            # ToDo: Plate data can also be located in a single file (e.g. one excel file with a sheet for every plate.)
             # Plate data is located in multiple files.
             config_local = config[data_type]
             # Either, a filename template and filenumbers (indices) are supplied, or the filenames are supplied directly:
-            config_file = {i: config_local.pop(i) for i in ["filenames", "path", "filename", "filenumber"] if i in config_local}
+            config_file = {i: config_local.pop(i) for i in ["filenames", "path", "filename", "filenumber", "tags"] if i in config_local}
             if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
                 l_files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
             elif all(i in config_file for i in ["path", "filename", "filenumber"]):
                 l_files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
+            elif all(i in config_file for i in ["path", "tags"]):
+                # In reality, we are in this case only dealing with one file, in which the information for all plates is stored.
+                # For these cases, for now, we pass the path information in hidden as config["file"]
+                l_files = config_file["tags"]
+                config_local["file"] = config_file["path"]
             config_type_wise[data_type] = {"files": l_files, "config": config_local}
             n_files[data_type] = len(l_files)
 
@@ -206,7 +210,6 @@ class Run:
         ## 2. If available, add general = not_plate_wise information to each plate
         data_run_wise = {}
         for data_type in data_types_not_plate_wise:
-            print("HELP! Needs implementation")
             if data_type == "plate_layout":
                 data = plate_layout.PlateLayout.create(**config[data_type])
             else:

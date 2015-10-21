@@ -463,16 +463,16 @@ def read_csv(file, tag = '1'):
     return {tag: data}
 
 
-def read_excel(file, tags = None):
-    """Read screen data file in excel format.
+def read_excel(path, tags=None, **kwargs):
+    """Read screen data path in excel format.
 
-    Read screen data file in excel format.
+    Read screen data path in excel format.
     The plate values must be the only data in the excel sheets. That is, no
     check of the content of the sheet, nor of its size is currently performed.
 
 
     Args:
-        file (str): Path to the file with  data in the excel file format.
+        path (str): Path to the path with  data in the excel path format.
         tag (list of str): Names of all spreadsheets for which the data shall be returned.
 
 
@@ -481,14 +481,14 @@ def read_excel(file, tags = None):
 
     """
 
-    excel_workbook = xlrd.open_workbook(file)
+    excel_workbook = xlrd.open_workbook(path)
 
     if tags:
         try:
             excel_sheets = [excel_workbook.sheet_by_name(i) for i in tags]
         except:
             raise ValueError('Retrieving the excel sheets by name failed.'
-                'Probably, the tags {} were not included in the excel file {},'
+                'Probably, the tags {} were not included in the excel path {},'
                 '{}'.format(tags, path, xl_workbook.sheet_names()))
     else:
         excel_sheets = excel_workbook.sheets()
@@ -501,6 +501,6 @@ def read_excel(file, tags = None):
             reads[i_sheet.name] = data
 
     if reads == {}:
-        raise ValueError('One of the requested excel sheets in {} with defined tags {} is empty.'.format(file, tags))
+        raise ValueError('One of the requested excel sheets in {} with defined tags {} is empty.'.format(path, tags))
 
     return reads
