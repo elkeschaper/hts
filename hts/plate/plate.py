@@ -13,6 +13,7 @@ import numpy as np
 import os
 import pickle
 import re
+from scipy import stats
 import string
 
 from hts.plate_data import plate_layout, readout
@@ -300,8 +301,51 @@ class Plate:
 
 
         # Calculate the net FRET signal for the entire plate
+        # See TechNote #TNPJ100.04 PROzyme
+        # http://prozyme.com/pages/tech-notes
         netfret = self.readout.get_data(acceptor_channel) - mean_acceptor_acceptor_channel - p*(self.readout.get_data(donor_channel) - mean_buffer_donor_channel)
+
+        # ToDo: Add calculations for other values, as described by Eq. 5 or Eq. 6 in the Technote.
+
         self.readout.add_data(data_tag=net_fret_key, data=netfret)
 
 
+    def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,
+                                                          data_issue_key="realtime-glo", threshold_level=0.05):
+        """ Calculate which wells suffer from cell viability issues via RealTime-Glo measurements.
 
+        Calculate which wells suffer from cell viability issues via RealTime-Glo measurements.
+        Add the results to self.data_issue.
+
+        Current approach: We assume that the `real_time_glo_measurement` readout values for `normal_well` follow a
+        Gaussian distribution. Further, we define that any `real_time_glo_measurement` readout values for other wells
+        outside a `threshold_level` (analogous to a significance level; e.g. 5%) from this Gaussian distribution
+        has cell viability issues. For increased growth, we mark as "1". For decreased growth, we mark as "-1". For
+        normal growth, we mark the well as "0".
+
+        Args:
+            real_time_glo_measurement (str):  The key for self.readout.data where the
+                                            real_time_glo_measurement ``Readout`` instance is stored.
+            normal_well (str):  The name of the wells in self.plate_layout that show standard RealTimeGlo measurements.
+                                All other wells will be evaluated in comparison to these wells.
+            data_issue_key (str):  The key for self.data_issue.data where the resulting ``DataIssue`` instance will be
+                                  stored.
+        """
+
+        if hasattr(self, "data_issue") and self.data_issue and data_issue_key in self.data_issue.data:
+            raise ValueError("The data_issue_key {} is already in self.data_issue.data.".format(data_issue_key))
+
+
+        normal_rtglo = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                                       condition=lambda x: x==normal_well,
+                                                       value_data_type="readout",
+                                                       value_data_tag=real_time_glo_measurement)
+
+        # First, calculate the critical value of the distribution.
+        import pdb; pdb.set_trace()
+        # Todo: Calculate p-values correctly :)
+
+        pvalue = [stats.ttest_1samp(row, normal_rtglo) for row in self.readout.get_data(real_time_glo_measurement)]
+
+        data = {"pvalue": pvalue}
+        self.data_issue.set_data(data_type="data_issue", data=data)

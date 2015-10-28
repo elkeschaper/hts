@@ -65,6 +65,20 @@ def test_create_from_insulin_csv(path_raw):
 
 
 @pytest.mark.no_external_software_required
+def test_filter_wells(path, path_raw):
+
+    config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
+              "plate_layout": {"path": os.path.join(path, TEST_PLATELAYOUT), "config": {"format": "csv"}}
+              }
+    test_plate = plate.Plate.create(format="config", **config)
+
+    test_neg = test_plate.filter(condition_data_type="plate_layout", condition_data_tag="layout", condition=lambda x: x=="s_1",
+                                 value_data_type="readout", value_data_tag="1", value_type=None)
+    assert type(test_neg) == list
+    assert all([i in test_neg for i in TEST_PLATE_COLUMN_7_s_1])
+
+
+@pytest.mark.no_external_software_required
 def test_calculate_net_fret(path, path_raw):
 
     config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
@@ -78,15 +92,14 @@ def test_calculate_net_fret(path, path_raw):
 
 
 @pytest.mark.no_external_software_required
-def test_filter_wells(path, path_raw):
+def test_calculate_data_issue_realtime_glo(path, path_raw):
 
     config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
               "plate_layout": {"path": os.path.join(path, TEST_PLATELAYOUT), "config": {"format": "csv"}}
               }
     test_plate = plate.Plate.create(format="config", **config)
 
-    test_neg = test_plate.filter(condition_data_type="plate_layout", condition_data_tag="layout", condition=lambda x: x=="s_1",
-                                 value_data_type="readout", value_data_tag="1", value_type=None)
-    assert type(test_neg) == list
-    assert all([i in test_neg for i in TEST_PLATE_COLUMN_7_s_1])
+    test_plate.calculate_data_issue_cell_viability_real_time_glo(real_time_glo_measurement="1", normal_well="neg_1")
+    assert type(test_plate.readout) == readout.Readout
+    assert type(test_plate.readout.data["net_fret"]) == numpy.ndarray
 
