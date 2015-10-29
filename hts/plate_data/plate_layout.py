@@ -13,7 +13,7 @@ import os
 import pickle
 import re
 
-from hts.plate_data import plate_layout_io
+from hts.plate_data import plate_data_io
 from hts.plate_data import plate_data
 
 LOG = logging.getLogger(__name__)
@@ -38,6 +38,9 @@ class PlateLayout(plate_data.PlateData):
 
         # Get short forms of well content. E.g. s_1 -> s
         # Assuming that the short forms are marked by the underscore character "_"
+
+        layout = [[datum.lower() for datum in row] for row in layout]
+
         deliminator = "_"
         layout_general_type = [[j.split(deliminator)[0] for j in i] for i in layout]
 
@@ -82,7 +85,7 @@ class PlateLayout(plate_data.PlateData):
         """
 
         if format == 'csv':
-            layout = plate_layout_io.read_csv(path)
+            layout = plate_data_io.read_csv(path)
             path, file = os.path.split(path)
             return PlateLayout(name=file, layout=layout)
         elif format == 'pickle':

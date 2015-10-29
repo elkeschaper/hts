@@ -351,7 +351,7 @@ class Plate:
         # p_value for one-sided test. For two-sided test, multiply by 2:
         p_value = scipy.stats.norm.sf(abs(z_score))
 
-        # Mark wells as True if they withold the Quality Control threshold.
+        # Mark wells as True if they persist the Quality Control threshold.
         qc = [[True if datum > threshold_level else False for datum in row] for row in p_value]
 
         data = data_issue.DataIssue(data={data_issue_key + "_pvalue": p_value,
