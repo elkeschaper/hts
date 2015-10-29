@@ -13,10 +13,10 @@ import numpy as np
 import os
 import pickle
 import re
-from scipy import stats
+import scipy.stats
 import string
 
-from hts.plate_data import plate_layout, readout
+from hts.plate_data import data_issue, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
 LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
@@ -161,11 +161,11 @@ class Plate:
         if data_type == "meta_data" and not type(data) == meta_data.MetaData:
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
         elif data_type == "plate_layout" and not type(data) == plate_layout.PlateLayout:
-            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+            raise Exception('data is not of type plate_layout.PlateLayout, but {}'.format(type(data)))
         elif data_type == "data_issue" and not type(data) == data_issue.DataIssue:
-            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+            raise Exception('data is not of type data_issue.DataIssue, but {}'.format(type(data)))
         elif data_type == "readout" and not type(data) == readout.Readout:
-            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+            raise Exception('data is not of type readout.Readout, but {}'.format(type(data)))
 
         setattr(self, data_type, data)
 
@@ -342,10 +342,20 @@ class Plate:
                                                        value_data_tag=real_time_glo_measurement)
 
         # First, calculate the critical value of the distribution.
-        import pdb; pdb.set_trace()
-        # Todo: Calculate p-values correctly :)
 
-        pvalue = [stats.ttest_1samp(row, normal_rtglo) for row in self.readout.get_data(real_time_glo_measurement)]
 
-        data = {"pvalue": pvalue}
-        self.data_issue.set_data(data_type="data_issue", data=data)
+
+        mu_normal = np.mean(normal_rtglo)
+        sigma_normal = np.std(normal_rtglo)
+        z_score = (self.readout.get_data(real_time_glo_measurement) - mu_normal)/sigma_normal
+        # p_value for one-sided test. For two-sided test, multiply by 2:
+        p_value = scipy.stats.norm.sf(abs(z_score))
+
+        # Mark wells as True if they withold the Quality Control threshold.
+        qc = [[True if datum > threshold_level else False for datum in row] for row in p_value]
+
+        data = data_issue.DataIssue(data={data_issue_key + "_pvalue": p_value,
+                                          data_issue_key + "_qc": qc,
+                                          data_issue_key + "_zscore": z_score})
+
+        self.set_data(data_type="data_issue", data=data)
