@@ -28,6 +28,5 @@ def test_read_manual_data_issue(path):
     test_data_issue = data_issue.DataIssue.create(format="csv", path=os.path.join(path, "Manual", TEST_DATA_ISSUE))
     assert test_data_issue.height == 16
     assert test_data_issue.width == 24
-    assert test_data_issue.name == TEST_DATA_ISSUE
     assert test_data_issue.data[TEST_DATA_ISSUE] == TEST_DATA_ISSUE_DATA
 

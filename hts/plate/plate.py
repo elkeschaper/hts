@@ -356,6 +356,7 @@ class Plate:
 
         data = data_issue.DataIssue(data={data_issue_key + "_pvalue": p_value,
                                           data_issue_key + "_qc": qc,
-                                          data_issue_key + "_zscore": z_score})
+                                          data_issue_key + "_zscore": z_score},
+                                    name=data_issue_key)
 
         self.set_data(data_type="data_issue", data=data)

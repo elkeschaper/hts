@@ -27,13 +27,11 @@ class DataIssue(plate_data.PlateData):
 
     """
 
-    def __init__(self, data, name, **kwargs):
-
+    def __init__(self, data, **kwargs):
         # Perform DataIssue specific __init__
-        data = {name: data}
 
         # Run super __init__
-        super().__init__(data=data, name=name, **kwargs)
+        super().__init__(data=data, **kwargs)
 
 
 
@@ -53,7 +51,7 @@ class DataIssue(plate_data.PlateData):
         if format == 'csv':
             data = plate_data_io.read_csv(path, remove_empty_row=False)
             path, file = os.path.split(path)
-            return DataIssue(name=file, data=data)
+            return DataIssue(data={file: data})
         elif format == 'pickle':
             with open(path, 'rb') as fh:
                 return pickle.load(fh)

@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from hts.plate_data import plate_layout_io
+from hts.plate_data import plate_data_io
 
 # Test file names
 TEST_LAYOUT_siRNA = 'plate_layout_siRNA_1.csv'
@@ -24,16 +24,16 @@ def path():
 
 @pytest.mark.no_external_software_required
 def test_read_plate_layout_siRNA(path):
-    test_plate_layout = plate_layout_io.read_csv(os.path.join(path, TEST_LAYOUT_siRNA))
+    test_plate_layout = plate_data_io.read_csv(os.path.join(path, TEST_LAYOUT_siRNA))
     assert test_plate_layout == TEST_LAYOUT_MUSCLE
 
 
 @pytest.mark.no_external_software_required
 def test_read_plate_layout_insulin(path):
-    test_plate_layout = plate_layout_io.read_csv(os.path.join(path, TEST_LAYOUT_insulin))
+    test_plate_layout = plate_data_io.read_csv(os.path.join(path, TEST_LAYOUT_insulin))
 
 
 @pytest.mark.no_external_software_required
 def TEST_LAYOUT_dpia(path):
-    test_plate_layout = plate_layout_io.read_csv(os.path.join(path, TEST_LAYOUT_dpia))
+    test_plate_layout = plate_data_io.read_csv(os.path.join(path, TEST_LAYOUT_dpia))
 
