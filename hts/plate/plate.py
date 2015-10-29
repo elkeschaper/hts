@@ -16,7 +16,7 @@ import re
 import scipy.stats
 import string
 
-from hts.plate_data import data_issue, plate_layout, readout
+from hts.plate_data import plate_data, data_issue, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
 LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
@@ -52,12 +52,11 @@ class Plate:
     plate, or the same plate across several plates.
 
     Attributes:
-        name (str): Name of the readout_dict (e.g. plate)
-        #width (int): Width of the plate
-        #height (int): Height of the plate
-        read_outs (dict of Readout): The raw readouts from i.e. the envision reader.
-        net_read_outs (dict of Readout): The net readouts derived from the read_outs
-
+        name (str): Name of the plate
+        width (int): Width of the plate
+        height (int): Height of the plate
+        KNOWN_DATA_TYPES[i] (subclass of plate_data.PlateData): The data associated to this Plate, e.g. a plate layout,
+                                                                or readouts.
 
     """
 
@@ -89,6 +88,8 @@ class Plate:
 
         for data_type in KNOWN_DATA_TYPES:
             if data_type in data:
+                if not isinstance(data[data_type], plate_data.PlateData):
+                    raise Exception("type of {} data is {}, not plate_data.PlateData.".format(data_type, type(data[data_type])))
                 setattr(self, data_type, data[data_type])
             else:
                 setattr(self, data_type, None)

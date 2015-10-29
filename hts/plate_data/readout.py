@@ -29,9 +29,6 @@ class Readout(plate_data.PlateData):
         width (int): Width of the plate
         height (int): Height of the plate
         data (np.array of np.arrays): A matrix of plate values
-        axes (dict of list): The naming of the two axes of the plates (e.g. {"x": ["A", "B", ...], "y": [1, 2, 3, 4, ...]})
-
-
     """
 
     def __str__(self):
@@ -107,37 +104,6 @@ class Readout(plate_data.PlateData):
             raise Exception("Format: {} is not implemented in "
                             "Readout.create()".format(format))
 
-    def filter_wells(self, starting_tag = "neg"):
-        """
-            Return all values of wells that start with ``starting_tag`` in the
-            plate_data as a np.array
-        """
-        if not hasattr(self, "plate_data"):
-            raise Exception('Readout does not have a plate_data attribute')
-        else:
-            filter_result = []
-            for i_height,i_width in itertools.product(range(self.height), range(self.width)):
-                if self.plate_layout.layout[i_height][i_width].startswith(starting_tag):
-                    filter_result.append(self.data[i_height][i_width])
-        return filter_result
-
-
-    def min(self):
-        """
-            Return the min of all values
-        """
-        return self.data.min()
-
-
-    def max(self):
-        """
-            Return the max of all values
-        """
-        return self.data.max()
-
-
-    def set_plate_layout(self, plate_layout):
-        self.plate_layout = plate_layout
 
 
     def write(self, format, path=None, return_string=None, *args):

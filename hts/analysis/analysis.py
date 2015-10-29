@@ -85,7 +85,8 @@ def perform_prion_fitting(data, path, write_data=False, *args, **kwargs):
 
         # 2) model_data. model_data needs to follows the following form:
         # {"plateA": {"neg": np.array([1,2,1]), "s": np.array([3,4,4,3])}, "plateB": {"neg": np.array([3,2,3]), "s": np.array([4,5,6,2])}, ...}
-        model_data = {plate_name: {"neg": data.read_outs[plate_name].filter_wells("neg"), "sample": data.read_outs[plate_name].filter_wells("s")} for plate_name in dpia_plates.keys()}
+
+        model_data = {plate_name: {"neg": filter(data, "neg", plate_name), "sample": filter(data, "s", plate_name)} for plate_name in dpia_plates.keys()}
         LOG.info(model_data)
 
         my_model = Model.create(origin="dict", model_class=ModelDPIAML, model_name=model_name, data=model_data, parameters=model_parameters)
@@ -111,3 +112,12 @@ def perform_prion_fitting(data, path, write_data=False, *args, **kwargs):
         results[dpia_experiment_tag] = {"fit_parameters": fit_parameters['dict'], "optimisation_parameters": optimisation_parameters["dict"]}
 
     return results
+
+
+def filter(data, sample_type, readout_tag):
+
+    return data.filter(condition_data_type="plate_layout",
+                       condition_data_tag="layout_general_type",
+                       condition=lambda x: x==sample_type,
+                       value_data_type="readout",
+                       value_data_tag=readout_tag)
