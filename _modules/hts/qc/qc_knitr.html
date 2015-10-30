@@ -54,8 +54,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">hts.readout</span> <span class="kn">import</span> <span class="n">readout</span><span class="p">,</span> <span class="n">readout_dict</span>
-
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="n">PATH</span> <span class="o">=</span> <span class="s">&#39;/Users/elkeschaper/Downloads/&#39;</span>
@@ -67,6 +65,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">qc_result_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">):</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Creating QC report result path: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">))</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">qc_result_path</span><span class="p">)</span>
@@ -102,9 +101,14 @@
             <span class="n">chunk</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">qc_subset</span><span class="p">,</span> <span class="n">qc_calculation</span><span class="p">,</span> <span class="n">qc_decision</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">chunk</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">qc_subset</span><span class="p">,</span> <span class="n">qc_calculation</span><span class="p">])</span>
+        <span class="c"># 4. Choose how verbose Knitr is:</span>
+        <span class="k">if</span> <span class="s">&quot;verbosity&quot;</span> <span class="ow">in</span> <span class="n">i_qc_characteristics</span><span class="p">:</span>
+            <span class="n">verbosity</span> <span class="o">=</span> <span class="n">i_qc_characteristics</span><span class="p">[</span><span class="s">&#39;verbosity&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">verbosity</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c"># Later on, you can make this line more complicated.</span>
-        <span class="n">wrapped_chunk</span> <span class="o">=</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">wrapped_chunk</span> <span class="o">=</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="o">**</span><span class="n">verbosity</span><span class="p">)</span>
         <span class="n">qc_report_data</span><span class="p">[</span><span class="n">i_qc</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;### QC {} ({})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_qc</span><span class="p">,</span> <span class="n">qc_method_name</span><span class="p">),</span> <span class="n">qc_description</span><span class="p">,</span> <span class="n">wrapped_chunk</span><span class="p">])</span>
 
     <span class="c">#import pdb; pdb.set_trace()</span>
@@ -181,40 +185,37 @@
 
 
     <span class="n">environment_commands</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">rm(list = ls(all = TRUE))</span>
-<span class="s">gc()</span>
+<span class="s"># Create environment:</span>
+<span class="s"># rm(list = ls(all = TRUE))</span>
+<span class="s"># gc()</span>
 <span class="s">source(&quot;{}&quot;)</span>
 <span class="s">library(reshape2)</span>
 <span class="s">require(gridExtra)&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">qc_helper_methods_path</span><span class="p">)</span>
-    <span class="n">environment</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">Create environment:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">environment_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">environment</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">environment_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
 
     <span class="n">data_loader_commands</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s"># Load data:</span>
 <span class="s">path = &quot;{0}&quot;</span>
 <span class="s">{1} = read.csv(path, sep=&quot;,&quot;, header = TRUE)</span>
 <span class="s">{1}$x3_plate_name = factor({1}$x3_plate_name, levels = c(&quot;{2}&quot;))</span>
 <span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_knitr_data</span><span class="p">,</span> <span class="n">original_data_frame</span><span class="p">,</span> <span class="s">&#39;&quot;,&quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x3_plate_names</span><span class="p">))</span>
-    <span class="n">data_loader</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Load data:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">data_loader_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">data_loader</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">data_loader_commands</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">header</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">data_loader</span>
 
+
+
 <span class="c">################ wrap knitr chunk ###################</span>
 </div>
-<div class="viewcode-block" id="wrap_knitr_chunk"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.wrap_knitr_chunk">[docs]</a><span class="k">def</span> <span class="nf">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">echo</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="wrap_knitr_chunk"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.wrap_knitr_chunk">[docs]</a><span class="k">def</span> <span class="nf">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">evaluate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">warning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-    <span class="k">if</span> <span class="n">echo</span><span class="p">:</span>
-        <span class="n">echo_tag</span> <span class="o">=</span> <span class="s">&quot;echo=TRUE&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">echo_tag</span> <span class="o">=</span> <span class="s">&quot;echo=FALSE&quot;</span>
-    <span class="k">if</span> <span class="nb">eval</span><span class="p">:</span>
-        <span class="n">eval_tag</span> <span class="o">=</span> <span class="s">&quot;eval=TRUE&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">eval_tag</span> <span class="o">=</span> <span class="s">&quot;eval=FALSE&quot;</span>
-
-    <span class="k">return</span> <span class="s">&quot;```{{r, {}, {}}}</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">```</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">echo_tag</span><span class="p">,</span> <span class="n">eval_tag</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+    <span class="n">parameter_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;echo&quot;</span><span class="p">:</span> <span class="n">echo</span><span class="p">,</span> <span class="s">&quot;eval&quot;</span><span class="p">:</span> <span class="n">evaluate</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span> <span class="s">&quot;warning&quot;</span><span class="p">:</span> <span class="n">warning</span><span class="p">}</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;{}=TRUE&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="k">else</span> <span class="s">&quot;{}=FALSE&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">parameter_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="s">&quot;```{{r, {1}, {2}, {3}, {4}}}</span><span class="se">\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">```</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="o">*</span><span class="n">parameters</span><span class="p">)</span>
 
 
 <span class="c">################ Data subsetting #####################</span>
-
 </div>
 <div class="viewcode-block" id="knitr_subset"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.knitr_subset">[docs]</a><span class="k">def</span> <span class="nf">knitr_subset</span><span class="p">(</span><span class="n">subset_requirements</span><span class="p">,</span> <span class="n">original_data_frame</span> <span class="o">=</span> <span class="s">&quot;d_all&quot;</span><span class="p">,</span> <span class="n">new_data_frame</span> <span class="o">=</span> <span class="s">&quot;d&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Create knitr code to subset the data.</span>
@@ -274,8 +275,6 @@
 <span class="s">p&#39;&#39;&#39;</span>
 
     <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
-
-
 
 
 <span class="c">################ QC methods ####################</span>
@@ -583,11 +582,45 @@
 
     <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
 <span class="s">p = ggplot(d, aes(y, colour=sample)) + geom_density()</span>
-<span class="s">p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">p = p + facet_wrap( ~x3_plate_name, ncol=2, scales=&quot;free_y&quot;) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
 <span class="s">beautifier(p)&#39;&#39;&#39;</span>
 
     <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
-</pre></div></div>
+
+</div>
+<div class="viewcode-block" id="smoothed_histogram_sample_type"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.smoothed_histogram_sample_type">[docs]</a><span class="k">def</span> <span class="nf">smoothed_histogram_sample_type</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Smoothed histogram to visualise the overlap of value densities per sample type.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">p = ggplot(d, aes(y, colour=sample_type)) + geom_density()</span>
+<span class="s">p = p + facet_wrap( ~x3_plate_name, ncol=2, scales=&quot;free_y&quot;) + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span>
+
+
+
+</div>
+<div class="viewcode-block" id="time_course"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_knitr.time_course">[docs]</a><span class="k">def</span> <span class="nf">time_course</span><span class="p">():</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">Visualise the time course of mean and sd of different sample types.&#39;&#39;&#39;</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">d$x3 = factor(d$x3, levels = min(d$x3):max(d$x3))</span>
+<span class="s">d_summary = ddply(d, .(x3, x3_plate_name, sample_type), summarize, y_mean =mean(y), y_sd =sd(y))</span>
+<span class="s">p = ggplot(d_summary, aes(x3, y_mean, colour=sample_type))</span>
+<span class="s">p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)</span>
+<span class="s">p = p + scale_colour_brewer(palette=&quot;Set1&quot;)</span>
+<span class="s">p = p + geom_point(size = 2)</span>
+<span class="s">p = p + geom_line(size = 1, aes(group=sample_type))</span>
+<span class="s"># LATER: Add http://docs.ggplot2.org/current/geom_smooth.html</span>
+<span class="s">beautifier(p)&#39;&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span></div>
+</pre></div>
 
           </div>
         </div>

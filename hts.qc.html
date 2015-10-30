@@ -146,13 +146,23 @@ new_data_frame (str): Name of the new data frame.</dd>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="hts.qc.qc_knitr.smoothed_histogram_sample_type">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">smoothed_histogram_sample_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#smoothed_histogram_sample_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.smoothed_histogram_sample_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="hts.qc.qc_knitr.ssmd">
 <code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">ssmd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#ssmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.ssmd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="hts.qc.qc_knitr.time_course">
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">time_course</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#time_course"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.time_course" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="hts.qc.qc_knitr.wrap_knitr_chunk">
-<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">wrap_knitr_chunk</code><span class="sig-paren">(</span><em>chunk</em>, <em>echo=True</em>, <em>eval=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#wrap_knitr_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.wrap_knitr_chunk" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">hts.qc.qc_knitr.</code><code class="descname">wrap_knitr_chunk</code><span class="sig-paren">(</span><em>chunk</em>, <em>echo=False</em>, <em>evaluate=True</em>, <em>message=False</em>, <em>warning=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_knitr.html#wrap_knitr_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_knitr.wrap_knitr_chunk" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -188,8 +198,8 @@ qc_matplotlib implements matplotlib specific methods.</p>
 <dl class="function">
 <dt id="hts.qc.qc_matplotlib.heat_map_single">
 <code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">heat_map_single</code><span class="sig-paren">(</span><em>data</em>, <em>file='heat_map_plate.pdf'</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#heat_map_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.heat_map_single" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a heat_map for a single readout</p>
-<p>Create a heat_map for a single readout</p>
+<dd><p>Create a heat_map for a single plate</p>
+<p>Create a heat_map for a single plate</p>
 <p>..todo:: Share code between heat_map_single and heat_map_multiple</p>
 </dd></dl>
 
@@ -197,6 +207,13 @@ qc_matplotlib implements matplotlib specific methods.</p>
 <dt id="hts.qc.qc_matplotlib.perform_qc">
 <code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">perform_qc</code><span class="sig-paren">(</span><em>methods</em>, <em>data</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#perform_qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.perform_qc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.qc.qc_matplotlib.report_qc">
+<code class="descclassname">hts.qc.qc_matplotlib.</code><code class="descname">report_qc</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/qc/qc_matplotlib.html#report_qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.qc.qc_matplotlib.report_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods is expected by run.Run .
+Todo: Needs implementation if Matplotlib reports are required.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-hts.qc">

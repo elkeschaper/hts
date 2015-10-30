@@ -50,10 +50,13 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">fit.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">fit.model_dpia_ml</span> <span class="kn">import</span> <span class="n">ModelDPIAML</span>
 
-<span class="kn">from</span> <span class="nn">hts.readout</span> <span class="kn">import</span> <span class="n">readout</span><span class="p">,</span> <span class="n">readout_dict</span>
+<span class="kn">from</span> <span class="nn">fit.model</span> <span class="kn">import</span> <span class="n">Model</span>
+
+<span class="c">#from fit.model_dpia_linear_ml import ModelDPIAML</span>
+
+<span class="kn">from</span> <span class="nn">hts.plate</span> <span class="kn">import</span> <span class="n">plate</span>
+<span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="kn">import</span> <span class="n">readout</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
@@ -67,9 +70,9 @@
 
     <span class="n">local_methods</span> <span class="o">=</span> <span class="p">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">__name__</span><span class="p">],</span> <span class="n">method_name</span><span class="p">):</span> <span class="n">methods</span><span class="p">[</span><span class="n">method_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">methods</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
     <span class="c">#import pdb; pdb.set_trace()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">plate</span><span class="o">.</span><span class="n">Plate</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="p">(</span><span class="n">read_outs</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">plate</span><span class="o">.</span><span class="n">Plate</span><span class="p">(</span><span class="n">read_outs</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">local_methods</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
@@ -87,10 +90,10 @@
 <span class="sd">    ..todo:: Add methods</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="s">&#39;plate_layout&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">plate_layout</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;plate_layout&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s">&#39;plate_data&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">plate_layout</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;plate_data&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;plate_layout is not in kwargs. Check e.g. definitions in the run config file.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;plate_data is not in kwargs. Check e.g. definitions in the run config file.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s">&#39;dpia_dilution&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">dpia_dilution</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;dpia_dilution&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -122,7 +125,8 @@
 
         <span class="c"># 2) model_data. model_data needs to follows the following form:</span>
         <span class="c"># {&quot;plateA&quot;: {&quot;neg&quot;: np.array([1,2,1]), &quot;s&quot;: np.array([3,4,4,3])}, &quot;plateB&quot;: {&quot;neg&quot;: np.array([3,2,3]), &quot;s&quot;: np.array([4,5,6,2])}, ...}</span>
-        <span class="n">model_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">plate_name</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;neg&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">read_outs</span><span class="p">[</span><span class="n">plate_name</span><span class="p">]</span><span class="o">.</span><span class="n">filter_wells</span><span class="p">(</span><span class="s">&quot;neg&quot;</span><span class="p">),</span> <span class="s">&quot;sample&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">read_outs</span><span class="p">[</span><span class="n">plate_name</span><span class="p">]</span><span class="o">.</span><span class="n">filter_wells</span><span class="p">(</span><span class="s">&quot;s&quot;</span><span class="p">)}</span> <span class="k">for</span> <span class="n">plate_name</span> <span class="ow">in</span> <span class="n">dpia_plates</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+        <span class="n">model_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">plate_name</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;neg&quot;</span><span class="p">:</span> <span class="nb">filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;neg&quot;</span><span class="p">,</span> <span class="n">plate_name</span><span class="p">),</span> <span class="s">&quot;sample&quot;</span><span class="p">:</span> <span class="nb">filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s">&quot;s&quot;</span><span class="p">,</span> <span class="n">plate_name</span><span class="p">)}</span> <span class="k">for</span> <span class="n">plate_name</span> <span class="ow">in</span> <span class="n">dpia_plates</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">model_data</span><span class="p">)</span>
 
         <span class="n">my_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s">&quot;dict&quot;</span><span class="p">,</span> <span class="n">model_class</span><span class="o">=</span><span class="n">ModelDPIAML</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">model_data</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">model_parameters</span><span class="p">)</span>
@@ -147,7 +151,16 @@
         <span class="c"># Define the return values</span>
         <span class="n">results</span><span class="p">[</span><span class="n">dpia_experiment_tag</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;fit_parameters&quot;</span><span class="p">:</span> <span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">],</span> <span class="s">&quot;optimisation_parameters&quot;</span><span class="p">:</span> <span class="n">optimisation_parameters</span><span class="p">[</span><span class="s">&quot;dict&quot;</span><span class="p">]}</span>
 
-    <span class="k">return</span> <span class="n">results</span></div>
+    <span class="k">return</span> <span class="n">results</span>
+
+</div>
+<div class="viewcode-block" id="filter"><a class="viewcode-back" href="../../../hts.analysis.html#hts.analysis.analysis.filter">[docs]</a><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_type</span><span class="p">,</span> <span class="n">readout_tag</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s">&quot;plate_layout&quot;</span><span class="p">,</span>
+                       <span class="n">condition_data_tag</span><span class="o">=</span><span class="s">&quot;layout_general_type&quot;</span><span class="p">,</span>
+                       <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">==</span><span class="n">sample_type</span><span class="p">,</span>
+                       <span class="n">value_data_type</span><span class="o">=</span><span class="s">&quot;readout&quot;</span><span class="p">,</span>
+                       <span class="n">value_data_tag</span><span class="o">=</span><span class="n">readout_tag</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

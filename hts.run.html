@@ -69,8 +69,8 @@
 <dl class="attribute">
 <dt id="hts.run.run.Run.plates">
 <code class="descname">plates</code><a class="headerlink" href="#hts.run.run.Run.plates" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of <code class="docutils literal"><span class="pre">ReadoutDict</span></code></p>
-<p>List of <code class="docutils literal"><span class="pre">ReadoutDict</span></code> instances</p>
+<dd><p>collections.OrderedDict of <code class="docutils literal"><span class="pre">Plate</span></code></p>
+<p>collections.OrderedDict of <code class="docutils literal"><span class="pre">Plate</span></code> instances</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -133,7 +133,7 @@
 <dt>
 <code class="descname">experimenter</code></dt>
 <dd><p><em>str</em></p>
-<p>Mail adress of the experimenter</p>
+<p>Mail address of the experimenter</p>
 </dd></dl>
 
 <p>..todo:: Implement me :)</p>
@@ -193,10 +193,6 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks if path and file exists when necessary.</p>
-</div>
 </dd></dl>
 
 <dl class="method">
@@ -216,7 +212,7 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="index-2">
+<div class="admonition-todo admonition" id="index-1">
 <p class="first admonition-title">Todo</p>
 <p class="last">Write checks if path and file exists when necessary.</p>
 </div>
@@ -235,7 +231,7 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="index-3">
+<div class="admonition-todo admonition" id="index-2">
 <p class="first admonition-title">Todo</p>
 <p class="last">Write checks if the path exists.</p>
 </div>
@@ -252,13 +248,13 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>type</strong> (<em>str</em>) &#8211; Either per &#8220;run_wise&#8221; or per &#8220;plate_wise&#8221;.</li>
-<li><strong>tags</strong> (<em>str</em>) &#8211; Defines either the readout (within the plate),
+<li><strong>tags</strong> (<em>str</em>) &#8211; Defines either the plate (within the plate),
 or the plate (within the run).</li>
 <li><strong>subset</strong> (<em>list of str</em>) &#8211; Defines which plates/plate_readouts shall be included.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Readout or ReadoutDict (for multiple Readouts)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Readout or Plate (for multiple Readouts)</p>
 </td>
 </tr>
 </tbody>
@@ -280,25 +276,9 @@ Returns list of tuples: [(key_str, value_str)]</p>
 
 <dl class="method">
 <dt id="hts.run.run.Run.plate_layout">
-<code class="descname">plate_layout</code><span class="sig-paren">(</span><em>path=None</em>, <em>format=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.plate_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.plate_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read plate_layout and attach to <cite>Run</cite> instance.</p>
-<p>Read plate_layout and attach to <cite>Run</cite> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file</li>
-<li><strong>format</strong> (<em>str</em>) &#8211; At current only &#8220;csv&#8221;</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-4">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks if path and format exists when necessary.</p>
-</div>
+<code class="descname">plate_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.plate_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.plate_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a plate_layout instance.</p>
+<p>Return a plate_layout instance.</p>
 </dd></dl>
 
 <dl class="method">
@@ -325,7 +305,7 @@ Returns list of tuples: [(key_str, value_str)]</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="index-5">
+<div class="admonition-todo admonition" id="index-3">
 <p class="first admonition-title">Todo</p>
 <p class="last">Write checks if path and format exists when necessary.</p>
 </div>
@@ -337,11 +317,11 @@ Returns list of tuples: [(key_str, value_str)]</p>
 <dd><p>Perform quality control and save the results</p>
 <p>Perform quality control and save the results</p>
 <p>Args:</p>
-<div class="admonition-todo admonition" id="index-6">
+<div class="admonition-todo admonition" id="index-4">
 <p class="first admonition-title">Todo</p>
 <p class="last">Create QC for different plate subsets (e.g. raw/net).</p>
 </div>
-<div class="admonition-todo admonition" id="index-7">
+<div class="admonition-todo admonition" id="index-5">
 <p class="first admonition-title">Todo</p>
 <p class="last">Use function to get to plate data instead of attributes?</p>
 </div>
@@ -364,7 +344,7 @@ Returns list of tuples: [(key_str, value_str)]</p>
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="index-8">
+<div class="admonition-todo admonition" id="index-6">
 <p class="first admonition-title">Todo</p>
 <p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
 </div>

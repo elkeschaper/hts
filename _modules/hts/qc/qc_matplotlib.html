@@ -48,36 +48,42 @@
 <span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
+
 <span class="kn">import</span> <span class="nn">matplotlib</span>
+
 <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">&#39;pdf&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pdf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
-<span class="kn">from</span> <span class="nn">hts.readout</span> <span class="kn">import</span> <span class="n">readout</span><span class="p">,</span> <span class="n">readout_dict</span>
+<span class="kn">from</span> <span class="nn">hts.plate</span> <span class="kn">import</span> <span class="n">plate</span>
+<span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="kn">import</span> <span class="n">readout</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="n">PATH</span> <span class="o">=</span> <span class="s">&#39;/Users/elkeschaper/Downloads/&#39;</span>
 
 
-<span class="c">#import pdb; pdb.set_trace()</span>
 
+<div class="viewcode-block" id="report_qc"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_matplotlib.report_qc">[docs]</a><span class="k">def</span> <span class="nf">report_qc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This methods is expected by run.Run .</span>
+<span class="sd">    Todo: Needs implementation if Matplotlib reports are required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
 <div class="viewcode-block" id="perform_qc"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_matplotlib.perform_qc">[docs]</a><span class="k">def</span> <span class="nf">perform_qc</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">local_methods</span> <span class="o">=</span> <span class="p">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">__name__</span><span class="p">],</span> <span class="n">method_name</span><span class="p">):</span> <span class="n">methods</span><span class="p">[</span><span class="n">method_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">methods</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
     <span class="c">#import pdb; pdb.set_trace()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">plate</span><span class="o">.</span><span class="n">Plate</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">readout_dict</span><span class="o">.</span><span class="n">ReadoutDict</span><span class="p">(</span><span class="n">read_outs</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">plate</span><span class="o">.</span><span class="n">Plate</span><span class="p">(</span><span class="n">read_outs</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">local_methods</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
@@ -88,9 +94,9 @@
 
 </div>
 <div class="viewcode-block" id="heat_map_single"><a class="viewcode-back" href="../../../hts.qc.html#hts.qc.qc_matplotlib.heat_map_single">[docs]</a><span class="k">def</span> <span class="nf">heat_map_single</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="s">&quot;heat_map_plate.pdf&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Create a heat_map for a single readout</span>
+    <span class="sd">&quot;&quot;&quot; Create a heat_map for a single plate</span>
 
-<span class="sd">    Create a heat_map for a single readout</span>
+<span class="sd">    Create a heat_map for a single plate</span>
 
 <span class="sd">    ..todo:: Share code between heat_map_single and heat_map_multiple</span>
 <span class="sd">    &quot;&quot;&quot;</span>

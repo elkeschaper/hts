@@ -52,6 +52,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
+<span class="kn">from</span> <span class="nn">hts.plate</span> <span class="kn">import</span> <span class="n">plate</span>
+
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="c">################################## WRITE RUN DATA  #########################</span>
@@ -81,20 +83,22 @@
     <span class="k">for</span> <span class="n">iPlate_index</span><span class="p">,</span> <span class="n">iPlate</span> <span class="ow">in</span> <span class="n">run_data</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="c"># Plates can have different layouts.</span>
         <span class="n">plate_layout_container</span> <span class="o">=</span> <span class="n">iPlate</span><span class="o">.</span><span class="n">plate_layout</span>
-        <span class="n">plate_layout</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">layout</span>
-        <span class="n">layout_general_type</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">layout_general_type</span>
-        <span class="n">sample_replicate_count</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">sample_replicate_count</span>
+        <span class="n">plate_layout</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;layout&quot;</span><span class="p">]</span>
+        <span class="n">layout_general_type</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;layout_general_type&quot;</span><span class="p">]</span>
+        <span class="n">sample_replicate_count</span> <span class="o">=</span> <span class="n">plate_layout_container</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;sample_replicate_count&quot;</span><span class="p">]</span>
         <span class="c"># Iterate over readouts in plates (raw and preprocessed)</span>
-        <span class="k">for</span> <span class="n">iReadout_index</span><span class="p">,</span> <span class="n">iReadout</span> <span class="ow">in</span> <span class="n">iPlate</span><span class="o">.</span><span class="n">read_outs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c">#import pdb; pdb.set_trace()</span>
+        <span class="k">for</span> <span class="n">iReadout_index</span><span class="p">,</span> <span class="n">iReadout</span> <span class="ow">in</span> <span class="n">iPlate</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c"># Iterate over the x axis (&quot;width&quot;) and the y axis (&quot;height&quot;)</span>
             <span class="k">for</span> <span class="n">i_row</span><span class="p">,</span> <span class="n">i_col</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">iPlate</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">iPlate</span><span class="o">.</span><span class="n">width</span><span class="p">)):</span>
+                <span class="n">h_coordinate</span> <span class="o">=</span> <span class="n">plate</span><span class="o">.</span><span class="n">translate_coordinate_humanreadable</span><span class="p">((</span><span class="n">i_row</span><span class="p">,</span> <span class="n">i_col</span><span class="p">))</span>
                 <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">iPlate</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                                <span class="n">iReadout</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="s">&#39;x&#39;</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
-                                <span class="n">iReadout</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">][</span><span class="n">i_row</span><span class="p">],</span>
+                                <span class="n">h_coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">h_coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                 <span class="n">i_col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                                 <span class="n">i_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                                 <span class="n">iPlate_index</span><span class="p">,</span>
-                                <span class="n">iReadout</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
+                                <span class="n">iReadout</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
                                 <span class="n">iReadout_index</span><span class="p">,</span>
                                 <span class="n">plate_layout</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>
                                 <span class="n">layout_general_type</span><span class="p">[</span><span class="n">i_row</span><span class="p">][</span><span class="n">i_col</span><span class="p">],</span>

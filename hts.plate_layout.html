@@ -41,119 +41,14 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-hts.plate_layout.plate_layout">
-<span id="hts-plate-layout-plate-layout-module"></span><h2>hts.plate_layout.plate_layout module<a class="headerlink" href="#module-hts.plate_layout.plate_layout" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The PlateLayout Class.</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="hts.plate_layout.plate_layout.PlateLayout">
-<em class="property">class </em><code class="descclassname">hts.plate_layout.plate_layout.</code><code class="descname">PlateLayout</code><span class="sig-paren">(</span><em>name</em>, <em>layout</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_layout/plate_layout.html#PlateLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p><code class="docutils literal"><span class="pre">PlateLayout</span></code> describes all information connected to the plate_layout of a
-high throughput screen.</p>
-<dl class="attribute">
-<dt id="hts.plate_layout.plate_layout.PlateLayout.name">
-<code class="descname">name</code><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout.name" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em></p>
-<p>Name of the plate_layout</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.plate_layout.plate_layout.PlateLayout.layout">
-<code class="descname">layout</code><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout.layout" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list of lists</em></p>
-<p>The plate layout</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.plate_layout.plate_layout.PlateLayout.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>path</em>, <em>format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_layout/plate_layout.html#PlateLayout.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.</p>
-<p>Create <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file or directory</li>
-<li><strong>format</strong> (<em>str</em>) &#8211; Format of the input file, at current not specified</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+<div class="section" id="hts-plate-layout-plate-layout-module">
+<h2>hts.plate_layout.plate_layout module<a class="headerlink" href="#hts-plate-layout-plate-layout-module" title="Permalink to this headline">¶</a></h2>
 </div>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.plate_layout.plate_layout.PlateLayout.invert">
-<code class="descname">invert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_layout/plate_layout.html#PlateLayout.invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout.invert" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an inverted <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.</p>
-<p>Create an inverted <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.
-The misfortunate experimenter turned the plate by 180 degrees, such that the general plate layout needs
-to be adjusted.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.plate_layout.plate_layout.PlateLayout.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_layout/plate_layout.html#PlateLayout.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_layout.plate_layout.PlateLayout.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and write <code class="docutils literal"><span class="pre">PlateLayout</span></code> instances.</p>
-<p>Serialize <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+<div class="section" id="hts-plate-layout-plate-layout-io-module">
+<h2>hts.plate_layout.plate_layout_io module<a class="headerlink" href="#hts-plate-layout-plate-layout-io-module" title="Permalink to this headline">¶</a></h2>
 </div>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-hts.plate_layout.plate_layout_io">
-<span id="hts-plate-layout-plate-layout-io-module"></span><h2>hts.plate_layout.plate_layout_io module<a class="headerlink" href="#module-hts.plate_layout.plate_layout_io" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Input/output for plate layouts.</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="hts.plate_layout.plate_layout_io.read_csv">
-<code class="descclassname">hts.plate_layout.plate_layout_io.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_layout/plate_layout_io.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_layout.plate_layout_io.read_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read plate layout file in csv format.</p>
-<p>The arrangement in the .csv file corresponds exactly to the plate layout.
-Vocabulary:
-neg_k: negative control k
-pos_k: positive control k
-s_k: sample k
-All other names may be used, but are not interpreted at current.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-hts.plate_layout">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.plate_layout" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -167,9 +62,9 @@ All other names may be used, but are not interpreted at current.</p>
   <ul>
 <li><a class="reference internal" href="#">hts.plate_layout package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-hts.plate_layout.plate_layout">hts.plate_layout.plate_layout module</a></li>
-<li><a class="reference internal" href="#module-hts.plate_layout.plate_layout_io">hts.plate_layout.plate_layout_io module</a></li>
-<li><a class="reference internal" href="#module-hts.plate_layout">Module contents</a></li>
+<li><a class="reference internal" href="#hts-plate-layout-plate-layout-module">hts.plate_layout.plate_layout module</a></li>
+<li><a class="reference internal" href="#hts-plate-layout-plate-layout-io-module">hts.plate_layout.plate_layout_io module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
