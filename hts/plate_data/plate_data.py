@@ -7,9 +7,13 @@
 """
 
 import itertools
+import os
 import logging
+import pickle
 import string
+import sys
 
+from hts.plate_data import plate_data_io
 
 LOG = logging.getLogger(__name__)
 
@@ -55,9 +59,53 @@ class PlateData:
             if not hasattr(self, key):
                 setattr(self, key, value)
 
+    @classmethod
+    def create(cls, format, path, **kwargs):
+        """ Create ``PlateData`` instance.
 
-    def create(self, *args, **kwargs):
-        raise NotImplementedError('Implement create()')
+        Create ``PlateData`` instance.
+
+        Args:
+            path (str): Path to input file or directory
+            format (str):  Format of the input; translates to a method.
+
+        """
+
+        #import pdb; pdb.set_trace()
+
+        create_method = "create_{}".format(format)
+        try:
+            create_method = getattr(cls, create_method)
+        except:
+            raise NotImplementedError('Method {} is currently not implemented.'.format(create_method))
+
+        path_trunk, file = os.path.split(path)
+        LOG.debug("filename: {}".format(file))
+
+        if "name" in kwargs:
+            name = kwargs.pop("name")
+        else:
+            name = file
+
+        return create_method(path=path, name=name, **kwargs)
+
+    @classmethod
+    def create_csv(cls, path, name, **kwargs):
+        data = plate_data_io.read_csv(path, **kwargs)
+        return cls(name=name, data={name: data})
+
+    @classmethod
+    def create_excel(cls, path, name, **kwargs):
+        # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
+        tags = [path]
+        path = kwargs.pop("file")
+        data = plate_data_io.read_excel(path=path, tags=tags, **kwargs)
+        return cls(name=name, data=data)
+
+    @classmethod
+    def create_pickle(cls, path, **kwargs):
+        with open(path, 'rb') as fh:
+            return pickle.load(fh)
 
 
     def write(self, *args, **kwargs):

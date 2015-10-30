@@ -60,50 +60,15 @@ class Readout(plate_data.PlateData):
         #self.data = np.array([np.array([float(read) if read else np.nan for read in column]) for column in data])
 
 
-    def create(path, format=None, **kwargs):
-        """ Create ``Readout`` instance.
 
-        Create ``Readout`` instance.
+    def create_envision_csv(path, name, **kwargs):
+        readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path, **kwargs)
+        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
 
-        Args:
-            path (str): Path to input file or directory
-            format (str):  Format of the input file, at current not specified
 
-        .. todo:: Write checks for ``format`` and ``path``.
-        .. todo:: Implement
-        """
-
-        #import pdb; pdb.set_trace()
-        path_trunk, file = os.path.split(path)
-        LOG.debug("filename: {}".format(file))
-
-        if "name" in kwargs:
-            name = kwargs.pop("name")
-        else:
-            name = file
-
-        if format == 'csv':
-            readout_dict = readout_io.read_csv(path)
-            return Readout(name=name, data=readout_dict)
-        elif format == 'excel':
-            # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
-            tags = [path]
-            path = kwargs.pop("file")
-            readout_dict = readout_io.read_excel(path=path, tags=tags, **kwargs)
-            return Readout(name=name, data=readout_dict)
-        elif format == 'envision_csv':
-            readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path)
-            return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
-        elif format == 'insulin_csv':
-            readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path)
-            return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
-        if format == 'pickle':
-            with open(path, 'rb') as fh:
-                return pickle.load(fh)
-        else:
-            raise Exception("Format: {} is not implemented in "
-                            "Readout.create()".format(format))
-
+    def create_insulin_csv(path, name, **kwargs):
+        readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path, **kwargs)
+        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
 
 
     def write(self, format, path=None, return_string=None, *args):
@@ -119,7 +84,7 @@ class Readout(plate_data.PlateData):
         """
 
         if format == 'pickle':
-            with open(file, 'wb') as fh:
+            with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
         else:
             raise Exception('Format is unknown: {}'.format(format))

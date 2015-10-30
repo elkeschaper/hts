@@ -15,6 +15,7 @@ send_mail_upon_qc = False
     filenumber = 12593, 12594, 12595, 12596, 12597, 12598, 12599, 12600, 12601, 12602
     format = envision_csv
 
+
 ### What to do with the data
 [protocol]
     path = ../test_data/Protocols/protocol_config_siRNA_1.txt

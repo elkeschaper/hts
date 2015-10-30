@@ -42,7 +42,7 @@ class Run:
         raw_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?
         net_qc (``QualityControl``): ``QualityControl`` instance - NEEDED?
         experimenter (str): Name of the experimenter
-        experimenter (str): Mail adress of the experimenter
+        experimenter (str): Mail address of the experimenter
 
 
     ..todo:: Implement me :)
@@ -165,6 +165,14 @@ class Run:
 
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
+
+        # Data: may be all in one file (csv .xlxs), or in separated .csv files (default case, e.g. .csv)
+        # Data: In particular for readouts, there may be several sets of data (e.g. Readouts for different points in time.)
+
+        # Which data types contain several data sets?
+        multiple_datasets = [data_type for data_type in defined_data_types if isinstance(config[data_type][next(iter(config[data_type]))], configobj.Section)]
+
+
         data_types_plate_wise = [data_type for data_type in defined_data_types if eval(config[data_type].pop("is_defined_plate_wise")) == True]
         data_types_not_plate_wise = [data_type for data_type in defined_data_types if data_type not in data_types_plate_wise]
 
@@ -211,11 +219,13 @@ class Run:
         data_run_wise = {}
         for data_type in data_types_not_plate_wise:
             if data_type == "plate_layout":
+                #import pdb; pdb.set_trace()
                 data = plate_layout.PlateLayout.create(**config[data_type])
             else:
                 raise Exception("Reading in general info for data_type {} is not yet implemented."
                                 "".format(data_type))
 
+            # Understand: why is type(data) PlateData, and not PlateLayout here?
             for i_plate in plates:
                 i_plate.set_data(data_type, data)
 

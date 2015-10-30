@@ -159,13 +159,15 @@ class Plate:
         Set `self.meta_data`
         """
 
-        if data_type == "meta_data" and not type(data) == meta_data.MetaData:
+        #import pdb; pdb.set_trace()
+
+        if data_type == "meta_data" and not isinstance(data, meta_data.MetaData):
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
-        elif data_type == "plate_layout" and not type(data) == plate_layout.PlateLayout:
+        elif data_type == "plate_layout" and not isinstance(data, plate_layout.PlateLayout):
             raise Exception('data is not of type plate_layout.PlateLayout, but {}'.format(type(data)))
-        elif data_type == "data_issue" and not type(data) == data_issue.DataIssue:
+        elif data_type == "data_issue" and not isinstance(data, data_issue.DataIssue):
             raise Exception('data is not of type data_issue.DataIssue, but {}'.format(type(data)))
-        elif data_type == "readout" and not type(data) == readout.Readout:
+        elif data_type == "readout" and not isinstance(data, readout.Readout):
             raise Exception('data is not of type readout.Readout, but {}'.format(type(data)))
 
         setattr(self, data_type, data)

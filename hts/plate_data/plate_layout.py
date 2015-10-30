@@ -26,6 +26,12 @@ class PlateLayout(plate_data.PlateData):
     """ ``PlateLayout`` describes all information connected to the plate_data of a
     high throughput screen.
 
+    Vocabulary:
+    neg_k: negative control k
+    pos_k: positive control k
+    s_k: sample k
+    All other names may be used, but are not interpreted at current.
+
     Attributes:
         sample_replicate_count (str): (Explain!)
         layout_general_type (list of lists): The plate layout (explain!)
@@ -58,6 +64,12 @@ class PlateLayout(plate_data.PlateData):
         super().__init__(data=data, **kwargs)
 
 
+    @classmethod
+    def create_csv(cls, path, name, **kwargs):
+        data = plate_data_io.read_csv(path)
+        return cls(name=name, layout=data)
+
+
     def invert(self):
         """ Create an inverted ``PlateLayout`` instance.
 
@@ -68,32 +80,6 @@ class PlateLayout(plate_data.PlateData):
 
         inverted_layout = [[j for j in i[::-1]] for i in self.data["layout"][::-1]]
         return PlateLayout(name="{}_inverted".format(self.name), data={"layout": inverted_layout})
-
-
-
-    def create(path, format=None, **kwargs):
-        """ Create ``PlateLayout`` instance.
-
-        Create ``PlateLayout`` instance.
-
-        Args:
-            path (str): Path to input file or directory
-            format (str):  Format of the input file, at current not specified
-
-
-        .. todo:: Write checks for ``format`` and ``path``.
-        """
-
-        if format == 'csv':
-            layout = plate_data_io.read_csv(path)
-            path, file = os.path.split(path)
-            return PlateLayout(name=file, layout=layout)
-        elif format == 'pickle':
-            with open(path, 'rb') as fh:
-                return pickle.load(fh)
-        else:
-            raise Exception("Format: {} is not implemented in "
-                            "PlateLayout.create()".format(format))
 
 
     def write(self, format, path=None, return_string=None, *args):

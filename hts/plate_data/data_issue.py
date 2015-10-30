@@ -35,32 +35,6 @@ class DataIssue(plate_data.PlateData):
 
 
 
-    def create(path, format=None, **kwargs):
-        """ Create ``DataIssue`` instance.
-
-        Create ``DataIssue`` instance.
-
-        Args:
-            path (str): Path to input file or directory
-            format (str):  Format of the input file, at current not specified
-
-
-        .. todo:: Write checks for ``format`` and ``path``.
-        """
-
-        if format == 'csv':
-            data = plate_data_io.read_csv(path, remove_empty_row=False)
-            path, file = os.path.split(path)
-            return DataIssue(data={file: data})
-        elif format == 'pickle':
-            with open(path, 'rb') as fh:
-                return pickle.load(fh)
-        else:
-            raise Exception("Format: {} is not implemented in "
-                            "DataIssue.create()".format(format))
-
-
-
     def write(self, format, path=None, return_string=None, *args):
         """ Serialize and write ``DataIssue`` instances.
 
