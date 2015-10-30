@@ -60,7 +60,7 @@ class PlateData:
                 setattr(self, key, value)
 
     @classmethod
-    def create(cls, format, path, **kwargs):
+    def create(cls, formats, paths, configs=None, names=None, tags=None, **kwargs):
         """ Create ``PlateData`` instance.
 
         Create ``PlateData`` instance.
@@ -71,36 +71,45 @@ class PlateData:
 
         """
 
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
+        if not names:
+            names = [None]*len(formats)
+        if not tags:
+            tags = [None]*len(formats)
+        if not configs:
+            configs = [kwargs]*len(formats)
 
-        create_method = "create_{}".format(format)
-        try:
-            create_method = getattr(cls, create_method)
-        except:
-            raise NotImplementedError('Method {} is currently not implemented.'.format(create_method))
+        my_data_plate = None
+        for format, path, name, tag, config in zip(formats, paths, names, tags, configs):
+            import pdb; pdb.set_trace()
+            create_method = "create_{}".format(format)
+            try:
+                create_method = getattr(cls, create_method)
+            except:
+                raise NotImplementedError('Method {} is currently not implemented.'.format(create_method))
 
-        path_trunk, file = os.path.split(path)
-        LOG.debug("filename: {}".format(file))
+            if not name:
+                name = os.path.basename(path)
+            my_data_tmp = create_method(path=path, name=name, tag=tag, **config)
+            if not my_data_plate:
+                my_data_plate = my_data_tmp
+            else:
+                my_data_plate.add_data(my_data_tmp.data, tag=my_data_tmp.tag)
+        return my_data_plate
 
-        if "name" in kwargs:
-            name = kwargs.pop("name")
-        else:
-            name = file
-
-        return create_method(path=path, name=name, **kwargs)
 
     @classmethod
-    def create_csv(cls, path, name, **kwargs):
+    def create_csv(cls, path, name, tag=None, **kwargs):
         data = plate_data_io.read_csv(path, **kwargs)
-        return cls(name=name, data={name: data})
+        return cls(name=name, data={name: data}, tag=tag)
 
     @classmethod
-    def create_excel(cls, path, name, **kwargs):
+    def create_excel(cls, path, name, tag=None, **kwargs):
         # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
         tags = [path]
         path = kwargs.pop("file")
         data = plate_data_io.read_excel(path=path, tags=tags, **kwargs)
-        return cls(name=name, data=data)
+        return cls(name=name, data=data, tag=tag)
 
     @classmethod
     def create_pickle(cls, path, **kwargs):
@@ -112,7 +121,15 @@ class PlateData:
         raise NotImplementedError('Implement write()')
 
 
-    def add_data(self, data_tag, data):
+    def add_data(self, data, tag):
+
+        if any([i in data for i in self.data.keys()]):
+            LOG.warning("Overwriting data keys from {} to {}.".format(self.data.keys(), data.keys()))
+        self.data.update(data)
+        self.tags.append(tag)
+
+
+    def add_data_tag(self, data_tag, data):
 
         if data_tag in self.data:
             LOG.warning("data_tag {} already in self.data - overwriting".format(data_tag))

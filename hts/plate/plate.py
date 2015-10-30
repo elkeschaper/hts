@@ -127,20 +127,19 @@ class Plate:
             path (str): Path to input file or directory
             format (str):  Format of the input file, at current not specified
 
-        .. todo:: Write checks for ``format`` and ``path``.
-        .. todo:: Implement
         """
 
         if format == "config":
             data = {}
             if "meta_data" in kwargs:
-                data["meta_data"] = meta_data.MetaData.create(path=kwargs["meta_data"]["path"], **kwargs["meta_data"]["config"])
+                data["meta_data"] = meta_data.MetaData.create(**kwargs["meta_data"])
             if "plate_layout" in kwargs:
-                data["plate_layout"] = plate_layout.PlateLayout.create(path=kwargs["plate_layout"]["path"], **kwargs["plate_layout"]["config"])
+                data["plate_layout"] = plate_layout.PlateLayout.create(**kwargs["plate_layout"])
             if "data_issue" in kwargs:
-                data["data_issue"] = data_issue.DataIssue.create(path=kwargs["data_issue"]["path"], **kwargs["data_issue"]["config"])
+                data["data_issue"] = data_issue.DataIssue.create(**kwargs["data_issue"])
             if "readout" in kwargs:
-                data["readout"] = readout.Readout.create(path=kwargs["readout"]["path"], **kwargs["readout"]["config"])
+                import pdb; pdb.set_trace()
+                data["readout"] = readout.Readout.create(**kwargs["readout"])
             height = len(next(iter(next(iter(data.values())).data.values())))
             width = len(next(iter(next(iter(data.values())).data.values()))[0])
             name = next(iter(data.values())).name
@@ -310,7 +309,7 @@ class Plate:
 
         # ToDo: Add calculations for other values, as described by Eq. 5 or Eq. 6 in the Technote.
 
-        self.readout.add_data(data_tag=net_fret_key, data=netfret)
+        self.readout.add_data_tag(data_tag=net_fret_key, data=netfret)
 
 
     def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,

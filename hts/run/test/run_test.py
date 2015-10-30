@@ -9,6 +9,7 @@ from hts.protocol.protocol import Protocol
 TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_for_QC"
 TEST_RUN_CONFIG_INSULIN = "run_config_insulin_1.txt"
 TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
+TEST_RUN_CONFIG_SIRNA_MULTIPLE = "run_config_siRNA_2.txt"
 TEST_RUN_CONFIG_XLSX = "run_config_siRNA_Marc_2015_08_17_Multiflo_5plates.txt"
 
 
@@ -73,4 +74,9 @@ def test_do_qc_siRNA(path_run):
     test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA))
     test_qc = test_run.qc()
 
+
+@pytest.mark.no_external_software_required
+def test_do_qc_siRNA_multiple(path_run):
+    test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA_MULTIPLE))
+    test_qc = test_run.qc()
 

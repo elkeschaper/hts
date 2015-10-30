@@ -107,10 +107,12 @@ class Run:
         self.plates = collections.OrderedDict((plate.index, plate) for plate in self.plates.values())
 
         if self.protocol():
+            # Todo: Include check that plate layout is defined.
             self.preprocess()
 
 
-    def create(origin, path, format = None, dir = False):
+    @classmethod
+    def create(cls, origin, path, format = None, dir = False):
         """ Create ``Run`` instance.
 
         Create ``Run`` instance.
@@ -138,19 +140,20 @@ class Run:
 
 
         if origin == 'config':
-            return Run.create_from_config(path, file)
+            return cls.create_from_config(path, file)
         if origin == 'envision':
-            return Run.create_from_envision(path, file)
+            return cls.create_from_envision(path, file)
         elif origin == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise ValueError("The combination of origin: {} and format: {} is "
                             "not implemented in "
-                            "Run.create()".format(origin, format))
+                            "cls.create()".format(origin, format))
 
 
-    def create_from_config(path, file):
+    @classmethod
+    def create_from_config(cls, path, file):
         """ Read config and use data to create `Run` instance.
 
         Read config and use data to create `Run` instance.
@@ -161,75 +164,110 @@ class Run:
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
-
+        n_plate = int(config["n_plate"])
 
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
 
+        config_plate_wise = [{}]*n_plate
+        additional_data = {}
+        for data_type in defined_data_types:
+            config_local = config[data_type].copy()
+            if isinstance(config_local[next(iter(config_local))], configobj.Section):
+                # multiple = True
+                l_config_set = []
+                l_paths = []
+                l_tags = []
+                l_format = []
+                for local_set, config_set in config_local.items():
+                    config_set, paths, tags = cls.map_config_file_definition(config_set, n_plate=n_plate)
+                    l_config_set.append(config_set)
+                    l_paths.append(paths)
+                    l_tags.append(tags)
+                    l_format.append(config_set.pop("format"))
+                if all([len(paths) == 1 for paths in l_paths]):
+                    # One file for all plates
+                    if data_type == "plate_layout":
+                        data = plate_layout.PlateLayout.create(paths=l_paths, formats=l_format, tags=l_tags, configs=l_config_set)
+                    else:
+                        raise Exception("Reading in general info for data_type {} is not yet implemented."
+                                        "".format(data_type))
+                    additional_data[data_type] = data
+                elif all([len(paths) == n_plate for paths in l_paths]):
+                    # One file for every plate
+                    for i_plate in range(n_plate):
+                        #import pdb; pdb.set_trace()
+                        paths = [i[i_plate] for i in l_paths]
+                        tags = [i[i_plate] for i in l_tags]
+                        config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format, "configs": l_config_set}
+                else:
+                    raise Exception("Currently option for multiple plates per plate data with some being one per plate "
+                                    "and some one for all is not yet implemented.")
+            else:
+                # multiple = False
+                config_local, paths, tags = cls.map_config_file_definition(config_local, n_plate=n_plate)
+                format = config_local.pop("format")
+                if len(paths) == 1:
+                    if data_type == "plate_layout":
+                        data = plate_layout.PlateLayout.create(paths=paths, formats=[format], **config_local)
+                    else:
+                        raise Exception("Reading in general info for data_type {} is not yet implemented."
+                                        "".format(data_type))
+                    additional_data[data_type] = data
+                else:
+                    for i_plate, (i_path, tag) in enumerate(zip(paths, tags)):
+                        config_local.update({"paths": [i_path], "tags": [tag], "formats": [format]})
+                        config_plate_wise[i_plate][data_type] = config_local.copy()
+
+        # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
+
+        plates = [plate.Plate.create(format="config", **config_plate) for config_plate in config_plate_wise]
+        for data_type, data in additional_data.items():
+            for i_plate in plates:
+                i_plate.add_data(data_type, data)
+
         # Data: may be all in one file (csv .xlxs), or in separated .csv files (default case, e.g. .csv)
         # Data: In particular for readouts, there may be several sets of data (e.g. Readouts for different points in time.)
 
-        # Which data types contain several data sets?
-        multiple_datasets = [data_type for data_type in defined_data_types if isinstance(config[data_type][next(iter(config[data_type]))], configobj.Section)]
+        #if len(data_types_plate_wise) == 0:
+        #    raise Exception("No plate wise information was defined in Run config.")
 
-
-        data_types_plate_wise = [data_type for data_type in defined_data_types if eval(config[data_type].pop("is_defined_plate_wise")) == True]
-        data_types_not_plate_wise = [data_type for data_type in defined_data_types if data_type not in data_types_plate_wise]
-
-        ## 1. Create `Plate` instances from plate_wise information.
-
-        if len(data_types_plate_wise) == 0:
-            raise Exception("No plate wise information was defined in Run config.")
-
-        config_type_wise = {}
-        n_files = {}
-        for data_type in data_types_plate_wise:
-            # ToDo: Plate data can also be located in a single file (e.g. one excel file with a sheet for every plate.)
-            # Plate data is located in multiple files.
-            config_local = config[data_type]
-            # Either, a filename template and filenumbers (indices) are supplied, or the filenames are supplied directly:
-            config_file = {i: config_local.pop(i) for i in ["filenames", "path", "filename", "filenumber", "tags"] if i in config_local}
-            if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
-                l_files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
-            elif all(i in config_file for i in ["path", "filename", "filenumber"]):
-                l_files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
-            elif all(i in config_file for i in ["path", "tags"]):
-                # In reality, we are in this case only dealing with one file, in which the information for all plates is stored.
-                # For these cases, for now, we pass the path information in hidden as config["file"]
-                l_files = config_file["tags"]
-                config_local["file"] = config_file["path"]
-            config_type_wise[data_type] = {"files": l_files, "config": config_local}
-            n_files[data_type] = len(l_files)
 
         # Check if the number of files is equal for all data_types_plate_wise:
-        if len(set(n_files.values())) != 1:
-            raise Exception("The run configuration defines different numbers of plates for different datatypes: {}"
-                            "".format(n_files))
-        else:
-            n_files = next(iter(n_files.values()))
-
-        # Transform config_type_wise to per config_plate_wise:
-        config_plate_wise = {}
-        for i in range(n_files):
-            config_plate_wise[i] = {data_type: {"path": info["files"][i], "config": info["config"]} for data_type, info in config_type_wise.items()}
-
-        plates = [plate.Plate.create(format="config", **config) for i_plate, config in config_plate_wise.items()]
-
-        ## 2. If available, add general = not_plate_wise information to each plate
-        data_run_wise = {}
-        for data_type in data_types_not_plate_wise:
-            if data_type == "plate_layout":
-                #import pdb; pdb.set_trace()
-                data = plate_layout.PlateLayout.create(**config[data_type])
-            else:
-                raise Exception("Reading in general info for data_type {} is not yet implemented."
-                                "".format(data_type))
-
-            # Understand: why is type(data) PlateData, and not PlateLayout here?
-            for i_plate in plates:
-                i_plate.set_data(data_type, data)
 
         return Run(path=os.path.join(path, file), plates=plates, **config)
+
+
+    @classmethod
+    def map_config_file_definition(cls, config, n_plate):
+        """
+            Extract the files from the config file.
+        """
+
+        config_file = {i: config.pop(i) for i in ["filenames", "path", "filename", "filenumber", "tags"] if i in config}
+        tags = [i for i in range(n_plate)]
+        if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
+            files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
+        elif all(i in config_file for i in ["path", "filename", "filenumber"]):
+            files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
+            tags = config_file['filenumber']
+        elif all(i in config_file for i in ["path", "tags"]):
+            # In reality, we are in this case only dealing with one file, in which the information for all plates is stored.
+            # For these cases, for now, we pass the path information in hidden as config["file"]
+            files = config_file["tags"]
+            config["file"] = config_file["path"]
+        elif "path" in config_file:
+            # There is only one file defined. We assumed it is defined for all plates.
+            files = [config_file["path"]]
+            tags = [0]
+        else:
+            raise Exception("Not enough information given to decipher data files.")
+
+        if len(files) != n_plate and len(files) != 1:
+            raise Exception("The number of user defined files {} is not equal to "
+                            "the user defined n_plate {} nor 1.".format(len(files), n_plate))
+
+        return config, files, tags
 
 
     def create_from_envision(path, file):
@@ -446,19 +484,6 @@ class Run:
                 self._analysis[i_ana] = analysis_results
 
         return self._analysis
-
-
-    def plate_layout(self):
-        """ Return a plate_layout instance.
-
-        Return a plate_layout instance.
-
-        """
-
-        plate_layouts = [plate.plate_layout for plate in self.plates.values()]
-        if len(set(plate_layouts)) != 1:
-            LOG.warning("The plates may have different plate layouts")
-        return plate_layouts[0]
 
 
     def protocol(self, path = None, format = None):

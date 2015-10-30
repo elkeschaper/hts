@@ -61,14 +61,14 @@ class Readout(plate_data.PlateData):
 
 
 
-    def create_envision_csv(path, name, **kwargs):
+    def create_envision_csv(path, name, tag=None, **kwargs):
         readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path, **kwargs)
-        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info, tag=tag)
 
 
-    def create_insulin_csv(path, name, **kwargs):
+    def create_insulin_csv(path, name, tag=None, **kwargs):
         readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path, **kwargs)
-        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info)
+        return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info, tag=tag)
 
 
     def write(self, format, path=None, return_string=None, *args):

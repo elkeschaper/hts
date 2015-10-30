@@ -65,9 +65,9 @@ class PlateLayout(plate_data.PlateData):
 
 
     @classmethod
-    def create_csv(cls, path, name, **kwargs):
+    def create_csv(cls, path, name, tag=None, **kwargs):
         data = plate_data_io.read_csv(path)
-        return cls(name=name, layout=data)
+        return cls(name=name, layout=data, tag=tag)
 
 
     def invert(self):
