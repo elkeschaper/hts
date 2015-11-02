@@ -23,7 +23,7 @@ def path():
 
 @pytest.mark.no_external_software_required
 def test_read_plate_layout_siRNA(path):
-    test_plate_layout = plate_layout.PlateLayout.create(format="csv", path=os.path.join(path, TEST_LAYOUT_siRNA))
+    test_plate_layout = plate_layout.PlateLayout.create(formats=["csv"], paths=[os.path.join(path, TEST_LAYOUT_siRNA)])
     assert test_plate_layout.height == 16
     assert test_plate_layout.width == 24
     assert test_plate_layout.name == "plate_layout_siRNA_1.csv"
@@ -31,13 +31,13 @@ def test_read_plate_layout_siRNA(path):
 
 @pytest.mark.no_external_software_required
 def test_read_plate_layout_insulin(path):
-    test_plate_layout = plate_layout.PlateLayout.create(format="csv", path=os.path.join(path, TEST_LAYOUT_insulin))
+    test_plate_layout = plate_layout.PlateLayout.create(formats=["csv"], paths=[os.path.join(path, TEST_LAYOUT_insulin)])
     assert test_plate_layout.height == 16
     assert test_plate_layout.width == 24
 
 
 @pytest.mark.no_external_software_required
 def test_read_read_plate_layout_dpia(path):
-    test_plate_layout = plate_layout.PlateLayout.create(format="csv", path=os.path.join(path, TEST_LAYOUT_dpia))
+    test_plate_layout = plate_layout.PlateLayout.create(formats=["csv"], paths=[os.path.join(path, TEST_LAYOUT_dpia)])
     assert test_plate_layout.height == 16
     assert test_plate_layout.width == 24

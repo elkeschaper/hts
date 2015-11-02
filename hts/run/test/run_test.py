@@ -59,7 +59,7 @@ def test_read_run_from_config_insulin(path_run):
     assert len(test_plate.readout.data) == 481
     test_protocol = test_run.protocol()
     assert type(test_protocol) == Protocol
-    test_plate_layout = test_run.plate_layout()
+    test_plate_layout = test_run.plates["1"].plate_layout
     assert type(test_plate_layout) == PlateLayout
 
 

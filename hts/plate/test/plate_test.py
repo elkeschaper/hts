@@ -54,7 +54,7 @@ def test_create_from_readout(path):
 @pytest.mark.no_external_software_required
 def test_create_from_insulin_csv(path_raw):
 
-    config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_INSULIN), "config": {"format": "insulin_csv"}}}
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_INSULIN)], "formats": ["insulin_csv"]}}
     test_plate = plate.Plate.create(format="config", **config)
 
     assert test_plate.name == ntpath.basename(TEST_FILE_INSULIN)
@@ -66,8 +66,8 @@ def test_create_from_insulin_csv(path_raw):
 @pytest.mark.no_external_software_required
 def test_filter_wells(path, path_raw):
 
-    config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
-              "plate_layout": {"path": os.path.join(path, TEST_PLATELAYOUT), "config": {"format": "csv"}}
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_SIRNA)], "formats": ["envision_csv"]},
+              "plate_layout": {"paths": [os.path.join(path, TEST_PLATELAYOUT)], "formats": ["csv"]}
               }
     test_plate = plate.Plate.create(format="config", **config)
 
@@ -80,8 +80,8 @@ def test_filter_wells(path, path_raw):
 @pytest.mark.no_external_software_required
 def test_calculate_net_fret(path, path_raw):
 
-    config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
-              "plate_layout": {"path": os.path.join(path, TEST_PLATELAYOUT), "config": {"format": "csv"}}
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_SIRNA)], "formats": ["envision_csv"]},
+              "plate_layout": {"paths": [os.path.join(path, TEST_PLATELAYOUT)], "formats": ["csv"]}
               }
     test_plate = plate.Plate.create(format="config", **config)
 
@@ -93,8 +93,8 @@ def test_calculate_net_fret(path, path_raw):
 @pytest.mark.no_external_software_required
 def test_calculate_data_issue_realtime_glo(path, path_raw):
 
-    config = {"readout": {"path": os.path.join(path_raw, TEST_FILE_SIRNA), "config": {"format": "envision_csv"}},
-              "plate_layout": {"path": os.path.join(path, TEST_PLATELAYOUT), "config": {"format": "csv"}}
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_SIRNA)], "formats": ["envision_csv"]},
+              "plate_layout": {"paths": [os.path.join(path, TEST_PLATELAYOUT)], "formats": ["csv"]}
               }
     test_plate = plate.Plate.create(format="config", **config)
 

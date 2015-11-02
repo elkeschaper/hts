@@ -9,6 +9,7 @@
 import ast
 import collections
 import configobj
+import copy
 import logging
 import os
 import pickle
@@ -169,7 +170,7 @@ class Run:
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
 
-        config_plate_wise = [{}]*n_plate
+        config_plate_wise = [{} for _ in range(n_plate)]
         additional_data = {}
         for data_type in defined_data_types:
             config_local = config[data_type].copy()
@@ -196,7 +197,6 @@ class Run:
                 elif all([len(paths) == n_plate for paths in l_paths]):
                     # One file for every plate
                     for i_plate in range(n_plate):
-                        #import pdb; pdb.set_trace()
                         paths = [i[i_plate] for i in l_paths]
                         tags = [i[i_plate] for i in l_tags]
                         config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format, "configs": l_config_set}
@@ -217,14 +217,13 @@ class Run:
                 else:
                     for i_plate, (i_path, tag) in enumerate(zip(paths, tags)):
                         config_local.update({"paths": [i_path], "tags": [tag], "formats": [format]})
-                        config_plate_wise[i_plate][data_type] = config_local.copy()
+                        config_plate_wise[i_plate][data_type] = copy.deepcopy(config_local) # For current shallow dicts, config_local.copy() is ok.
 
         # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
-
         plates = [plate.Plate.create(format="config", **config_plate) for config_plate in config_plate_wise]
         for data_type, data in additional_data.items():
             for i_plate in plates:
-                i_plate.add_data(data_type, data)
+                i_plate.add_data(data_type, data, force=True)
 
         # Data: may be all in one file (csv .xlxs), or in separated .csv files (default case, e.g. .csv)
         # Data: In particular for readouts, there may be several sets of data (e.g. Readouts for different points in time.)
@@ -287,7 +286,7 @@ class Run:
 
         plates = []
         for i_file in file:
-            config = {"readout": {"path": os.path.join(path, i_file), "config": {"format": "envision_csv"}}}
+            config = {"readout": {"paths": [os.path.join(path, i_file)], "formats": ["envision_csv"]}}
             plates.append(plate.Plate.create(format="config", **config))
 
         return Run(path=path, plates=plates)

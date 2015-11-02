@@ -138,7 +138,6 @@ class Plate:
             if "data_issue" in kwargs:
                 data["data_issue"] = data_issue.DataIssue.create(**kwargs["data_issue"])
             if "readout" in kwargs:
-                import pdb; pdb.set_trace()
                 data["readout"] = readout.Readout.create(**kwargs["readout"])
             height = len(next(iter(next(iter(data.values())).data.values())))
             width = len(next(iter(next(iter(data.values())).data.values()))[0])
@@ -152,13 +151,11 @@ class Plate:
                             "Plate.create()".format(format))
 
 
-    def set_data(self, data_type, data):
-        """ Set `self.meta_data`
+    def add_data(self, data_type, data, force=False, tag=None):
+        """ Add `data` of `data_type` to `self.meta_data`
 
-        Set `self.meta_data`
+        Add `data` of `data_type` to `self.meta_data`
         """
-
-        #import pdb; pdb.set_trace()
 
         if data_type == "meta_data" and not isinstance(data, meta_data.MetaData):
             raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
@@ -169,8 +166,10 @@ class Plate:
         elif data_type == "readout" and not isinstance(data, readout.Readout):
             raise Exception('data is not of type readout.Readout, but {}'.format(type(data)))
 
-        setattr(self, data_type, data)
-
+        if force or not hasattr(self, data_type) or not isinstance(getattr(self, data_type), plate_data.PlateData):
+            setattr(self, data_type, data)
+        else:
+            getattr(self, data_type).add_data(data=data, tag=tag)
 
 
     def write(self, format, path=None, return_string=None, *args):
@@ -309,7 +308,7 @@ class Plate:
 
         # ToDo: Add calculations for other values, as described by Eq. 5 or Eq. 6 in the Technote.
 
-        self.readout.add_data_tag(data_tag=net_fret_key, data=netfret)
+        self.readout.add_data(data={net_fret_key: netfret}, tag=net_fret_key)
 
 
     def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,
@@ -361,4 +360,4 @@ class Plate:
                                           data_issue_key + "_zscore": z_score},
                                     name=data_issue_key)
 
-        self.set_data(data_type="data_issue", data=data)
+        self.add_data(data_type="data_issue", data=data)

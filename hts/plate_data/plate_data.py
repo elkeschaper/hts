@@ -25,6 +25,8 @@ class PlateData:
 
     """ ``PlateData`` describes arbitrary data for all wells in a plate.
 
+    The keys of the the data dicts are referred to as "data_tag".
+
     Attributes:
         width (int): Width of the plate
         height (int): Height of the plate
@@ -55,6 +57,9 @@ class PlateData:
         if "name" in kwargs:
             self.name = kwargs.pop("name")
 
+        if "tag" in kwargs:
+            self.tags = [kwargs.pop("tag")]
+
         for key, value in kwargs.items():
             if not hasattr(self, key):
                 setattr(self, key, value)
@@ -71,7 +76,6 @@ class PlateData:
 
         """
 
-        import pdb; pdb.set_trace()
         if not names:
             names = [None]*len(formats)
         if not tags:
@@ -81,7 +85,6 @@ class PlateData:
 
         my_data_plate = None
         for format, path, name, tag, config in zip(formats, paths, names, tags, configs):
-            import pdb; pdb.set_trace()
             create_method = "create_{}".format(format)
             try:
                 create_method = getattr(cls, create_method)
@@ -94,7 +97,7 @@ class PlateData:
             if not my_data_plate:
                 my_data_plate = my_data_tmp
             else:
-                my_data_plate.add_data(my_data_tmp.data, tag=my_data_tmp.tag)
+                my_data_plate.add_data(my_data_tmp.data, tag=tag)
         return my_data_plate
 
 
@@ -103,6 +106,7 @@ class PlateData:
         data = plate_data_io.read_csv(path, **kwargs)
         return cls(name=name, data={name: data}, tag=tag)
 
+
     @classmethod
     def create_excel(cls, path, name, tag=None, **kwargs):
         # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
@@ -110,6 +114,7 @@ class PlateData:
         path = kwargs.pop("file")
         data = plate_data_io.read_excel(path=path, tags=tags, **kwargs)
         return cls(name=name, data=data, tag=tag)
+
 
     @classmethod
     def create_pickle(cls, path, **kwargs):
@@ -121,20 +126,17 @@ class PlateData:
         raise NotImplementedError('Implement write()')
 
 
-    def add_data(self, data, tag):
+    def add_data(self, data, tag=None):
 
         if any([i in data for i in self.data.keys()]):
             LOG.warning("Overwriting data keys from {} to {}.".format(self.data.keys(), data.keys()))
+
         self.data.update(data)
-        self.tags.append(tag)
 
-
-    def add_data_tag(self, data_tag, data):
-
-        if data_tag in self.data:
-            LOG.warning("data_tag {} already in self.data - overwriting".format(data_tag))
-
-        self.data[data_tag] = data
+        if tag:
+            self.tags += [tag]*len(data)
+        else:
+            LOG.warning("No tags were supplied.")
 
 
     def get_data(self, data_tag):
