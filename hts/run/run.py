@@ -186,7 +186,7 @@ class Run:
                     l_paths.append(paths)
                     l_tags.append(tags)
                     l_format.append(config_set.pop("format"))
-                if all([len(paths) == 1 for paths in l_paths]):
+                if all([len(paths) == 1 for paths in l_paths]) and n_plate != 1:
                     # One file for all plates
                     if data_type == "plate_layout":
                         data = plate_layout.PlateLayout.create(paths=l_paths, formats=l_format, tags=l_tags, configs=l_config_set)
@@ -207,7 +207,7 @@ class Run:
                 # multiple = False
                 config_local, paths, tags = cls.map_config_file_definition(config_local, n_plate=n_plate)
                 format = config_local.pop("format")
-                if len(paths) == 1:
+                if len(paths) == 1 and n_plate != 1:
                     if data_type == "plate_layout":
                         data = plate_layout.PlateLayout.create(paths=paths, formats=[format], **config_local)
                     else:
