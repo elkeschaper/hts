@@ -1,13 +1,13 @@
 # Description: This is a protocol for testing purposes.
-type = insulin
-format = csv
+name = insulin
 
+[Insulin first steps]
+    tags = preprocessing,
+    method = calculate_net_signal
 
-[preprocessing]
-
-
-[qc]
-    type = matplotlib
+[Insulin quality control]
+    tags = qc,
+    method = matplotlib
     [[1: Heat map run wise]]
         method = heat_map_multiple
         [[[filter]]]
@@ -21,5 +21,7 @@ format = csv
             subset = 0, 1059
 
 
-[analysis]
+[Insulin analysis]
+    tags = analysis,
+    method = matplotlib
     methods = lag_time, progeny

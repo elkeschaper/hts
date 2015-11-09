@@ -1,15 +1,16 @@
 # Description: This is a generic protocol for testing purposes.
-type = generic_test
-format = csv
+name = generic_test
 
-[preprocessing]
-    [[calculate_net_fret]]
-        donor_channel = 2
-        acceptor_channel = 1
-        net_fret_key = net_fret
+[Hey, let's calculate net fret]
+    tags = preprocessing,
+    method = calculate_net_fret
+    donor_channel = 2
+    acceptor_channel = 1
+    net_fret_key = net_fret
 
-[qc]
-    type = knitr
+[What about some quality control?]
+    tags = qc,
+    method = knitr
     qc_helper_methods_path = /path/to/QC_methods.R
     [[Plate layout]]
         method = plate_layout
@@ -107,10 +108,16 @@ format = csv
                 is_negated = False
 
 
-[analysis]
-    [[1]]
-        [[[methods]]]
-            [[[[perform_xyz]]]]
-        [[[filter]]]
-            type = run_wise
-            tag = net_fret
+[Data analysis main]
+    tags = analysis, all
+    method = perform_xyz
+    [[filter]]
+        type = run_wise
+        tag = net_fret
+
+[Data analysis second]
+    tags = analysis, part
+    method = perform_xyz
+    [[filter]]
+        type = plate_wise
+        tag = net_fret

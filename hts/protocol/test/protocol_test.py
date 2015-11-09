@@ -1,4 +1,3 @@
-import configobj
 import os
 import pytest
 
@@ -28,21 +27,25 @@ def path():
 @pytest.mark.no_external_software_required
 def test_protocol_generic(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG), format="config")
-    assert test_protocol.name == TEST_PROTOCOL_CONFIG
-    assert test_protocol.type == "generic_test"
-    assert test_protocol.format == "csv"
-    assert type(test_protocol.preprocessing) == configobj.Section
-    assert type(test_protocol.analysis) == configobj.Section
-    assert type(test_protocol.qc) == dict
-    assert "qc_methods" in test_protocol.qc
-    assert "type" in test_protocol.qc
+    assert test_protocol.file == TEST_PROTOCOL_CONFIG
+    assert test_protocol.name == "generic_test"
+    assert type(test_protocol.tasks) == list
+    assert type(test_protocol.tasks[0]) == protocol.ProtocolTask
+    assert len(test_protocol.tasks) == 4
+
+    # Test ProtocolTask
+    assert test_protocol.tasks[0].name == "Hey, let's calculate net fret"
+    assert test_protocol.tasks[0].tags == ['preprocessing']
+    assert test_protocol.tasks[0].type == 'preprocessing'
+    assert test_protocol.tasks[0].method == 'calculate_net_fret'
+    assert test_protocol.tasks[0].config == {'donor_channel': '2', 'acceptor_channel': '1', 'net_fret_key': 'net_fret'}
 
 
 @pytest.mark.no_external_software_required
 def test_protocol_insulin(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
-    assert test_protocol.name == TEST_PROTOCOL_CONFIG_insulin
-    assert test_protocol.type == "insulin"
-    assert test_protocol.format == "csv"
-    assert "qc_methods" in test_protocol.qc
-    assert len(test_protocol.qc["qc_methods"]) == 2
+    assert test_protocol.file == TEST_PROTOCOL_CONFIG_insulin
+    assert test_protocol.name == "insulin"
+    assert type(test_protocol.tasks) == list
+    assert type(test_protocol.tasks[0]) == protocol.ProtocolTask
+    assert len(test_protocol.tasks) == 3
