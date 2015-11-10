@@ -48,9 +48,12 @@ class PlateData:
         return data
 
 
-    def __init__(self, data, **kwargs):
+    def __init__(self, data, type=None, **kwargs):
 
-        self.data = data
+        if type:
+            self.data = {"{}_{}".format(type, i) :j for i,j in data.items()}
+        else:
+            self.data = data
         self.height = len(next(iter(self.data.values())))
         self.width = len(next(iter(self.data.values()))[0])
 
@@ -65,7 +68,7 @@ class PlateData:
                 setattr(self, key, value)
 
     @classmethod
-    def create(cls, formats, paths, configs=None, names=None, tags=None, **kwargs):
+    def create(cls, formats, paths, configs=None, names=None, tags=None, types=None, **kwargs):
         """ Create ``PlateData`` instance.
 
         Create ``PlateData`` instance.
@@ -82,9 +85,11 @@ class PlateData:
             tags = [None]*len(formats)
         if not configs:
             configs = [kwargs]*len(formats)
+        if not types:
+            types = [kwargs]*len(formats)
 
         my_data_plate = None
-        for format, path, name, tag, config in zip(formats, paths, names, tags, configs):
+        for format, path, name, tag, config, type in zip(formats, paths, names, tags, configs, types):
             create_method = "create_{}".format(format)
             try:
                 create_method = getattr(cls, create_method)
@@ -93,7 +98,7 @@ class PlateData:
 
             if not name:
                 name = os.path.basename(path)
-            my_data_tmp = create_method(path=path, name=name, tag=tag, **config)
+            my_data_tmp = create_method(path=path, name=name, tag=tag, type=type, **config)
             if not my_data_plate:
                 my_data_plate = my_data_tmp
             else:
@@ -102,18 +107,18 @@ class PlateData:
 
 
     @classmethod
-    def create_csv(cls, path, name, tag=None, **kwargs):
+    def create_csv(cls, path, name, tag=None, type=None, **kwargs):
         data = plate_data_io.read_csv(path, **kwargs)
-        return cls(name=name, data={name: data}, tag=tag)
+        return cls(name=name, data={name: data}, tag=tag, type=type)
 
 
     @classmethod
-    def create_excel(cls, path, name, tag=None, **kwargs):
+    def create_excel(cls, path, name, tag=None, type=None, **kwargs):
         # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
         tags = [path]
         path = kwargs.pop("file")
         data = plate_data_io.read_excel(path=path, tags=tags, **kwargs)
-        return cls(name=name, data=data, tag=tag)
+        return cls(name=name, data=data, tag=tag, type=type)
 
 
     @classmethod

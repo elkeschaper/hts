@@ -76,7 +76,11 @@ def test_do_qc_siRNA(path_run):
 
 
 @pytest.mark.no_external_software_required
-def test_do_qc_siRNA_multiple(path_run):
+def test_load_siRNA_multiple(path_run):
     test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA_MULTIPLE))
+
+    assert len(test_run.plates) == 10
+    assert len(test_run.plates["1"].readout.data) == 5
+
     test_qc = test_run.qc()
 

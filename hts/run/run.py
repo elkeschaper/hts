@@ -174,7 +174,7 @@ class Run:
         for data_type in defined_data_types:
             config_local = config[data_type].copy()
             if isinstance(config_local[next(iter(config_local))], configobj.Section):
-                # multiple = True
+                # Multiple files for each plate are defined.
                 l_config_set = []
                 l_paths = []
                 l_tags = []
@@ -186,7 +186,7 @@ class Run:
                     l_tags.append(tags)
                     l_format.append(config_set.pop("format"))
                 if all([len(paths) == 1 for paths in l_paths]) and n_plate != 1:
-                    # One file for all plates
+                    # Per datatype, one file for all plates
                     if data_type == "plate_layout":
                         data = plate_layout.PlateLayout.create(paths=l_paths, formats=l_format, tags=l_tags, configs=l_config_set)
                     else:
@@ -194,16 +194,16 @@ class Run:
                                         "".format(data_type))
                     additional_data[data_type] = data
                 elif all([len(paths) == n_plate for paths in l_paths]):
-                    # One file for every plate
+                    # Per datatype, one file for every plate
                     for i_plate in range(n_plate):
                         paths = [i[i_plate] for i in l_paths]
                         tags = [i[i_plate] for i in l_tags]
-                        config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format, "configs": l_config_set}
+                        config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format, "configs": l_config_set, "types": list(config_local.keys())}
                 else:
                     raise Exception("Currently option for multiple plates per plate data with some being one per plate "
                                     "and some one for all is not yet implemented.")
             else:
-                # multiple = False
+                # Only a single file for each plate is defined.
                 config_local, paths, tags = cls.map_config_file_definition(config_local, n_plate=n_plate)
                 format = config_local.pop("format")
                 if len(paths) == 1 and n_plate != 1:
