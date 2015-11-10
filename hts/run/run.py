@@ -292,21 +292,6 @@ class Run:
         return Run(path=path, plates=plates)
 
 
-    def create_qc_report(self, path):
-        """ Create quality control report (.pdf) in path.
-
-        Create quality control report (.pdf) in path.
-
-        Args:
-            path (str): Path to result quality control report file
-
-        .. todo:: Write checks if the path exists.
-        """
-
-        self.run_qc()
-        # Create pdf
-
-
     def filter(self, plate_wise_filter_args):
         """ Filter run data according to plate wise filter arguments.
 
@@ -316,7 +301,7 @@ class Run:
             plate_wise_filter_args (dict of str: filter_args): A dictionary with the filter arguments for each plate.
 
         Returns:
-            np.array
+            list of floats
         """
 
         data = [self.plates[plate].filter(**filter_args) for plate, filter_args in plate_wise_filter_args.items()]
@@ -374,8 +359,7 @@ class Run:
 
         Args:
 
-        .. todo:: Create QC for different plate subsets (e.g. raw/net).
-        .. todo:: Use function to get to plate data instead of attributes?
+        .. todo:: qc() and analysis() as pretty similar. Perhaps, refactoring/merging may be useful.
         """
 
         if hasattr(self, '_qc'):
@@ -389,8 +373,8 @@ class Run:
             methods_from_protocol = {i:j for i,j in task.config.items() if isinstance(j, configobj.Section)}
             meta_data_from_protocol = {i:j for i,j in task.config.items() if not isinstance(j, configobj.Section)}
             # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
-            if "qc" in self.meta_data:
-                qc_meta_data = dict(meta_data_from_protocol, **self.meta_data["qc"])
+            if task.name in self.meta_data:
+                qc_meta_data = dict(meta_data_from_protocol, **self.meta_data[task.name])
             else:
                 qc_meta_data = meta_data_from_protocol
             self._qc[task.name] = data_tasks.perform_task(run=self,
@@ -405,11 +389,11 @@ class Run:
 
 
     def analysis(self):
-        """ Perform analysis and save the results
+        """ Perform analysis and save the results.
 
-        Perform analysis and save the results
-
-        .. todo:: Use function to get to plate data instead of attributes?
+        Perform analysis and save the results. Parameters are taken from the protocol and the run config. Each
+        ProtocolTask tagged with "analysis" is run. Each ProtocolTask may be run multiple times, if several dicts
+        are defined for it (this could be either in protocol, or in the run config.)
         """
 
         if hasattr(self, '_analysis'):
@@ -420,9 +404,9 @@ class Run:
         for task in tasks:
             LOG.info(task.name)
             LOG.info(task.type)
-            # Merge the data about the task from the Run config and the Protocol config:
-            # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
 
+            # Merge the data about the task from the Run config and the Protocol config:
+            # This will work Python 3.5 onwards:  {**task.config, **analysis_config_run}
             subtasks = {i:j for i,j in self.meta_data[task.name].items() if isinstance(j, configobj.Section)}
             analysis_config_run = {i:j for i,j in self.meta_data[task.name].items() if not isinstance(j, configobj.Section)}
             analysis_config_meta = dict(task.config, **analysis_config_run)

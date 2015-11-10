@@ -20,5 +20,5 @@ n_plate = 10
     path = ../test_data/Protocols/protocol_config_siRNA_1.txt
     format = config
 
-[qc]
+[siRNA: Create a QC Knitr document]
     qc_result_path = ../test_data/QC/siRNA_1
