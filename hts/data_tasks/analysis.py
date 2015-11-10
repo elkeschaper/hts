@@ -13,7 +13,7 @@ import os
 import sys
 
 from fit.model import Model
-from fit.model_dpia_linear_ml import ModelDPIAML
+#from fit.model_dpia_linear_ml import ModelDPIAML
 
 from hts.plate import plate
 from hts.plate_data import readout
