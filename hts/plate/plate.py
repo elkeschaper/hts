@@ -216,6 +216,9 @@ class Plate:
             (list of x), where x are of type `value_type`, if `value_type` is set.
         """
 
+        #if value_data_tag == "net_fret":
+        #    import pdb; pdb.set_trace()
+
         condition_plate_data = getattr(self, condition_data_type)
         value_plate_data = getattr(self, value_data_type)
 

@@ -4,7 +4,7 @@ import pytest
 from hts.run.run import Run
 
 # Test file names
-TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
+TEST_RUN_CONFIG_DPIA = "run_config_dPIA_1.txt"
 
 
 notfixed = pytest.mark.notfixed
@@ -24,8 +24,6 @@ def path_raw_data():
 
 
 @pytest.mark.no_external_software_required
-def test_calculate_net_fret(path_run):
-    test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA))
-    test_run.preprocess()
-    assert len(test_run.plates['12593'].readout.data) == 3
-    assert "net_fret" in test_run.plates['12593'].readout.data
+def test_fit_prions(path_run):
+    test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_DPIA))
+    test_run.analysis()

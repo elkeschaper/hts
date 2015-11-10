@@ -15,7 +15,6 @@ import os
 import pickle
 import re
 
-from hts.analysis import analysis
 from hts.data_tasks import data_tasks
 from hts.run import run_io
 from hts.plate import plate
@@ -308,57 +307,20 @@ class Run:
         # Create pdf
 
 
-    def filter(self, type, tag, subset=None):
-        """ Filter run data according to type and tag.
+    def filter(self, plate_wise_filter_args):
+        """ Filter run data according to plate wise filter arguments.
 
-        Filter run data according to type and tag.
+        Filter run data according to plate wise filter arguments. The values for each plates are concatenated.
 
         Args:
-            type (str): Either per "run_wise" or per "plate_wise".
-            tags (str): Defines either the plate (within the plate),
-                or the plate (within the run).
-            subset (list of str): Defines which plates/plate_readouts shall be included.
+            plate_wise_filter_args (dict of str: filter_args): A dictionary with the filter arguments for each plate.
 
         Returns:
-            Readout or Plate (for multiple Readouts)
+            np.array
         """
-        #import pdb; pdb.set_trace()
-        #if subset:
-        #    subset = ast.literal_eval(subset)
 
-        if type == 'run_wise':
-            # Return plates across a run.
-            if tag != '':
-                if not subset:
-                    return {index:plate.get_readout(tag) for index, plate in self.plates.items()}
-                else:
-                    return {index:plate.get_readout(tag) for index, plate in self.plates.items() if index in subset}
-            else:
-                result = {}
-                for tag in list(self.plates.values)[0].read_outs.keys():
-                    if not subset:
-                        result[tag] =  {index:plate.get_readout(tag) for index, plate in self.plates.items()}
-                    else:
-                        result[tag] = {index:plate.get_readout(tag) for index, plate in self.plates.items() if index in subset}
-                return result
-        elif type == 'plate_wise':
-            # Return plates across a plate.
-            if tag != '':
-                if not subset:
-                    return self.plates[tag].read_outs
-                else:
-                    return {i:readout for i,readout in self.plates[tag].read_outs.items() if i in subset}
-            else:
-                result = {}
-                for tag in self.plates.keys():
-                    if not subset:
-                        result[tag] =  self.plates[tag].read_outs
-                    else:
-                        result[tag] =  {i:readout for i,readout in self.plates[tag].read_outs.items() if i in subset}
-                return result
-        else:
-            raise Exception("The type: {} is not implemented in "
-                            "Run.filter()".format(type))
+        data = [self.plates[plate].filter(**filter_args) for plate, filter_args in plate_wise_filter_args.items()]
+        return [item for sublist in data for item in sublist]
 
 
     def preprocess(self):
@@ -422,6 +384,8 @@ class Run:
         self._qc = {}
         tasks = self.protocol().get_tasks_by_tag("qc")
         for task in tasks:
+            LOG.info(task.name)
+            LOG.info(task.type)
             methods_from_protocol = {i:j for i,j in task.config.items() if isinstance(j, configobj.Section)}
             meta_data_from_protocol = {i:j for i,j in task.config.items() if not isinstance(j, configobj.Section)}
             # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
@@ -445,24 +409,30 @@ class Run:
 
         Perform analysis and save the results
 
-        Args:
-
+        .. todo:: Use function to get to plate data instead of attributes?
         """
 
         if hasattr(self, '_analysis'):
             return self._analysis
-        else:
-            self._analysis = {}
-            for i_ana, protocol_analysis_param in self.protocol().analysis.items():
-                LOG.info(i_ana)
-                LOG.info(protocol_analysis_param)
-                subset = self.filter(**protocol_analysis_param['filter'])
-                #import pdb; pdb.set_trace()
-                if protocol_analysis_param['filter']['tag'] == '':
-                    analysis_results = {i: analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=j, plate_layout=self.plate_layout(), **self.meta_data['meta']) for i,j in subset.items()}
-                else:
-                    analysis_results = analysis.perform_analysis(methods=protocol_analysis_param['methods'], data=subset, plate_layout=self.plate_layout(), **self.meta_data['meta'])
-                self._analysis[i_ana] = analysis_results
+
+        self._analysis = {}
+        tasks = self.protocol().get_tasks_by_tag("analysis")
+        for task in tasks:
+            LOG.info(task.name)
+            LOG.info(task.type)
+            # Merge the data about the task from the Run config and the Protocol config:
+            # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
+
+            subtasks = {i:j for i,j in self.meta_data[task.name].items() if isinstance(j, configobj.Section)}
+            analysis_config_run = {i:j for i,j in self.meta_data[task.name].items() if not isinstance(j, configobj.Section)}
+            analysis_config_meta = dict(task.config, **analysis_config_run)
+
+            analysis_results = {}
+            for subtask_name, subtask_config in subtasks.items():
+                analysis_config = dict(analysis_config_meta, **subtask_config)
+                analysis_results[subtask_name] = data_tasks.perform_task(run=self, tag=subtask_name, task_name=task.method, **analysis_config)
+
+            self._analysis[task.name] = analysis_results
 
         return self._analysis
 
