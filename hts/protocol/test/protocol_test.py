@@ -45,7 +45,7 @@ def test_protocol_generic(path):
 def test_protocol_insulin(path):
     test_protocol = protocol.Protocol.create(os.path.join(path, TEST_PROTOCOL_CONFIG_insulin), format="config")
     assert test_protocol.file == TEST_PROTOCOL_CONFIG_insulin
-    assert test_protocol.name == "insulin"
+    assert test_protocol.name == "insulin_1"
     assert type(test_protocol.tasks) == list
     assert type(test_protocol.tasks[0]) == protocol.ProtocolTask
     assert len(test_protocol.tasks) == 3

@@ -98,6 +98,7 @@ def test_calculate_data_issue_realtime_glo(path, path_raw):
               }
     test_plate = plate.Plate.create(format="config", **config)
 
+    # In real real-time glo experiments, wild-type untreated is used as control.
     test_plate.calculate_data_issue_cell_viability_real_time_glo(real_time_glo_measurement="1", normal_well="neg_1")
     assert type(test_plate.data_issue) == data_issue.DataIssue
     assert type(test_plate.data_issue.data["realtime-glo_pvalue"]) == numpy.ndarray

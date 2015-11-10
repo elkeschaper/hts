@@ -10,7 +10,7 @@ name = generic_test
 
 [What about some quality control?]
     tags = qc,
-    method = knitr
+    method = qc_knitr.create_report
     qc_helper_methods_path = /path/to/QC_methods.R
     [[Plate layout]]
         method = plate_layout

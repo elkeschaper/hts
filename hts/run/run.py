@@ -16,7 +16,7 @@ import pickle
 import re
 
 from hts.analysis import analysis
-from hts.qc import qc_knitr, qc_matplotlib
+from hts.data_tasks import data_tasks
 from hts.run import run_io
 from hts.plate import plate
 from hts.plate_data import plate_layout
@@ -269,7 +269,8 @@ class Run:
         return config, files, tags
 
 
-    def create_from_envision(path, file):
+    @classmethod
+    def create_from_envision(cls, path, file):
         """ Read envision data and create `Run` instance.
 
         Read envision data and create `Run` instance.
@@ -374,29 +375,6 @@ class Run:
             LOG.info("preprocessing is not defined in protocol: {}".format(self.protocol().name))
 
 
-    def get_qc_config(self):
-        """
-            Extract qc info from protocol and run.
-        """
-
-        if hasattr(self.protocol(), "qc"):
-            protocol_qc = self.protocol().qc
-        else:
-            protocol_qc = {}
-        if "qc" in self.meta_data:
-            run_qc = self.meta_data["qc"]
-        else:
-            run_qc = {}
-
-        if len(set(protocol_qc.keys()).intersection(run_qc.keys())) != 0:
-            LOG.warning("Some QC keys were defined both in the protocol config"
-                "[{}] and the run config [{}]".format(str(protocol_qc.keys()),
-                                                      str(run_qc.keys())))
-
-        # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
-        return dict(protocol_qc, **run_qc) # This only works if keys are strings.
-
-
     def get_run_meta_data(self):
         """
             Extract relevant meta data for qc and analysis reports.
@@ -406,7 +384,7 @@ class Run:
 
         # You could try to flatten the dict automagically to increase elegance:
         # http://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
-        meta_data_order = ["protocol_name", "protocol_config", "experimenter", "experimenter_mail", "run_config"]
+        meta_data_order = ["protocol_name", "protocol_file", "experimenter", "experimenter_mail", "run_config"]
         meta_data = {}
         for i, j in self.meta_data.items():
             if i in ["qc"]:
@@ -417,7 +395,7 @@ class Run:
             else:
                 meta_data[i] = j
         meta_data["protocol_name"] = self.protocol().name
-        meta_data["protocol_config"] = self.protocol().path
+        meta_data["protocol_file"] = self.protocol().file
         meta_data["run_config"] = self.path
         meta_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i,j in meta_data.items()}
 
@@ -440,18 +418,22 @@ class Run:
 
         if hasattr(self, '_qc'):
             return self._qc
-        else:
-            type = self.protocol().qc.pop("type", None)
-            if type == 'knitr':
-                qc_method = qc_knitr
-            elif type == "matplotlib":
-                qc_method = qc_matplotlib
-            else:
-                raise ValueError("The qc_type {} is currently not implemented.".format(type))
 
-            # For all analysis needing data, add data... e.g.: the qc should write down the needed data for R automagically...
-            qc_results = qc_method.report_qc(run=self, meta_data=self.get_run_meta_data(), **self.get_qc_config())
-            self._qc = qc_results
+        self._qc = {}
+        tasks = self.protocol().get_tasks_by_tag("qc")
+        for task in tasks:
+            methods_from_protocol = {i:j for i,j in task.config.items() if isinstance(j, configobj.Section)}
+            meta_data_from_protocol = {i:j for i,j in task.config.items() if not isinstance(j, configobj.Section)}
+            # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
+            if "qc" in self.meta_data:
+                qc_meta_data = dict(meta_data_from_protocol, **self.meta_data["qc"])
+            else:
+                qc_meta_data = meta_data_from_protocol
+            self._qc[task.name] = data_tasks.perform_task(run=self,
+                                                          task_name=task.method,
+                                                          qc_methods=methods_from_protocol,
+                                                          meta_data=self.get_run_meta_data(),
+                                                          **qc_meta_data)
 
         if "send_mail_upon_qc" in self.meta_data and self.meta_data["send_mail_upon_qc"].lower() == "true":
             send_mail(email_to = [self.meta_data['experimenter_mail']], body = "QC report for Run config '{}' is prepared.".format(self.path))

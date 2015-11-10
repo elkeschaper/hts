@@ -19,10 +19,18 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def report_qc(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, knit_html = True, *args, **kwargs):
+def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, knit_html = True, *args, **kwargs):
     """
     Run QC tasks, and combine the result to a report.
 
+    Args:
+        run (run.Run): Run instance
+        qc_result_path (str):  Path to the resulting qc report file.
+        qc_helper_methods_path (str): Path to an R file with additional functionality assumed in the QC methods.
+        qc_methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
+                dictionary containing the description (function name, filters, ... for the qc method.)
+        meta_data (list of tuples): List of tuples used as content for a table in the qc report.
+        knit_html (Boolean):
     """
 
     qc_result_path = os.path.realpath(qc_result_path)

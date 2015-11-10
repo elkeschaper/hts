@@ -4,7 +4,7 @@ import pytest
 
 from hts.plate_data import readout
 from hts.plate import plate
-from hts.qc import qc_detect_data_issues, qc_knitr, qc_matplotlib
+from hts.data_tasks import qc_detect_data_issues, qc_knitr, qc_matplotlib
 from hts.run import run
 
 # Test file names
@@ -35,7 +35,7 @@ def test_qc_knitr_report(path):
     test_qc_result_path = os.path.join(path, "QC", "qc_test")
     test_qc_helper_methods_path = os.path.join(os.path.abspath('.'), "qc", "qc_helper_methods.R")
     test_qc_methods = {}
-    qc_knitr.report_qc(run=test_run,
+    qc_knitr.create_report(run=test_run,
                        qc_result_path=test_qc_result_path,
                        qc_helper_methods_path=test_qc_helper_methods_path,
                        qc_methods=test_qc_methods,

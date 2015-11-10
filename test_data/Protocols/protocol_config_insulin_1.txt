@@ -1,5 +1,5 @@
 # Description: This is a protocol for testing purposes.
-name = insulin
+name = insulin_1
 
 [Insulin first steps]
     tags = preprocessing,
@@ -7,7 +7,7 @@ name = insulin
 
 [Insulin quality control]
     tags = qc,
-    method = matplotlib
+    method = qc_matplotlib.create_report
     [[1: Heat map run wise]]
         method = heat_map_multiple
         [[[filter]]]

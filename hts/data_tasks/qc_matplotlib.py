@@ -30,7 +30,7 @@ PATH = '/Users/elkeschaper/Downloads/'
 
 
 
-def report_qc(*args, **kwargs):
+def create_report(*args, **kwargs):
     """
     This methods is expected by run.Run .
     Todo: Needs implementation if Matplotlib reports are required.
@@ -38,17 +38,6 @@ def report_qc(*args, **kwargs):
 
     return None
 
-def perform_qc(methods, data, *args, **kwargs):
-    local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
-    #import pdb; pdb.set_trace()
-    if not (type(data) == readout.Readout or type(data) == plate.Plate):
-        if type(data) == dict:
-            data = plate.Plate(read_outs = data)
-        else:
-            data = readout.Readout(data)
-    results = [i(data, **param) for i, param in local_methods.items()]
-    ### ADD: combine results (e.g. for R add data printout)
-    return results
 
 ################ Readout wise methods ####################
 

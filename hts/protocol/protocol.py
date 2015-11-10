@@ -52,7 +52,7 @@ class Protocol:
         """
 
         if not os.path.isfile(path):
-            LOG.warning("The supplied protocol file {} does not exist.".format(path))
+            raise Exception("The supplied protocol file {} does not exist.".format(path))
 
         if format == 'config':
             config = configobj.ConfigObj(path, stringify=True)
@@ -71,6 +71,11 @@ class Protocol:
         else:
             raise Exception("Format: {} is not implemented in "
                             "Protocol.create()".format(format))
+
+
+    def get_tasks_by_tag(self, tag):
+
+        return [task for task in self.tasks if tag in task.tags]
 
 
     def write(self, format, path=None, return_string=None, *args):
@@ -138,6 +143,7 @@ class ProtocolTask:
             raise Exception("config must be of type configobj.Section, not {}".format(type(config)))
 
         if not "tags" in config:
+            import pdb; pdb.set_trace()
             raise Exception("tags must be defined in config")
         tags = [i.lower() for i in config.pop("tags")]
 
