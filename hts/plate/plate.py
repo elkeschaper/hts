@@ -272,7 +272,9 @@ class Plate:
         """
 
         if net_fret_key in self.readout.data:
-            raise ValueError("The net_fret_key {} is already in self.readout.data.".format(net_fret_key))
+            LOG.warning("The net_fret_key {} is already in self.readout.data. "
+                        "Skipping recalculation".format(net_fret_key))
+            return
 
         mean_donor_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
                                                        condition=lambda x: x==fluorophore_donor,
@@ -310,6 +312,10 @@ class Plate:
 
         self.readout.add_data(data={net_fret_key: netfret}, tag=net_fret_key)
 
+
+    def calculate_net_signal(self):
+        LOG.warning("I'm current not implemented.")
+        return
 
     def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,
                                                           data_issue_key="realtime-glo", threshold_level=0.05):

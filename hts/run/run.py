@@ -367,12 +367,12 @@ class Run:
         Perform data preprocessing.
 
         """
-        if hasattr(self.protocol(), 'preprocessing'):
-            for i_method_name, kwargs in self.protocol().preprocessing.items():
-                for i_plate in self.plates.values():
-                    i_plate.preprocess(i_method_name, **kwargs)
+        tasks = self.protocol().get_tasks_by_tag("preprocessing")
+        for task in tasks:
+            for i_plate in self.plates.values():
+                i_plate.preprocess(task.method, **task.config)
         else:
-            LOG.info("preprocessing is not defined in protocol: {}".format(self.protocol().name))
+            LOG.info("No preprocessing tasks defined in protocol: {}".format(self.protocol().name))
 
 
     def get_run_meta_data(self):
