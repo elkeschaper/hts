@@ -20,24 +20,6 @@ from hts.plate_data import readout
 
 LOG = logging.getLogger(__name__)
 
-def perform_analysis(methods, data, *args, **kwargs):
-
-    try:
-        path = kwargs.pop("analysis_result_path")
-    except:
-        LOG.warning("analysis_result_path is not defined.")
-        path = ""
-
-    local_methods = {getattr(sys.modules[__name__], method_name): methods[method_name] for method_name in methods.keys()}
-    #import pdb; pdb.set_trace()
-    if not (type(data) == readout.Readout or type(data) == plate.Plate):
-        if type(data) == dict:
-            data = plate.Plate(read_outs = data)
-        else:
-            data = readout.Readout(data)
-    results = [i(data, path=path, *args, **kwargs) for i, param in local_methods.items()]
-    ### ADD: combine results (e.g. for R add data printout)
-    return results
 
 ################ Readout wise methods ####################
 
