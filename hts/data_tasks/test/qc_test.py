@@ -16,8 +16,8 @@ TEST_DATA =  {TEST_PLATE_DATA_NAME: TEST_PLATE, TEST_PLATE_DATA_NAME2: TEST_PLAT
 TEST_PLATE_NAME = "test_plate"
 
 TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
+TEST_RUN_CONFIG_GLO = "run_config_siRNA_2.txt"
 
-TEST_DATA_FOLDER_GLO = os.path.join("Raw_data", "RealTime-Glo")
 TEST_DATA_ISSUE_OUTPUT = os.path.join("Data_issues", "RealTime-Glo", "test.csv")
 
 notfixed = pytest.mark.notfixed
@@ -58,11 +58,17 @@ def test_create_basic_heatmap(path):
 @pytest.mark.no_external_software_required
 def test_create_data_issue_file_glo(path):
 
-    test_run = run.Run.create(origin="envision", format="csv", dir=True,
-                          path=os.path.join(path, TEST_DATA_FOLDER_GLO))
+    test_run = run.Run.create(origin="config", path=os.path.join(path, "Runs", TEST_RUN_CONFIG_GLO))
     assert type(test_run) == run.Run
-    assert len(test_run.plates) == 2
+    assert len(test_run.plates) == 10
 
-    test_issues = qc_detect_data_issues.detect_low_cell_viability(run=test_run, result_path=os.path.join(path, TEST_DATA_ISSUE_OUTPUT))
+    TEST_SAMPLE_TYPE = "realtime-glo_1"
+    TEST_CONTROL_READOUT_TAG = "neg"
+    TEST_SAMPLE_READOUT_TAG = "sample"
+    test_issues = qc_detect_data_issues.detect_low_cell_viability(run=test_run,
+                                                                  path=os.path.join(path, TEST_DATA_ISSUE_OUTPUT),
+                                                                  sample_type=TEST_SAMPLE_TYPE,
+                                                                  control_readout_tag=TEST_CONTROL_READOUT_TAG,
+                                                                  sample_readout_tag=TEST_SAMPLE_READOUT_TAG)
     assert type(test_issues) == dict
 
