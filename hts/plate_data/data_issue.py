@@ -34,8 +34,25 @@ class DataIssue(plate_data.PlateData):
         super().__init__(data=data, **kwargs)
 
 
+    @classmethod
+    def create_well_list(cls, well_list, width, height, data_tag, **kwargs):
+        """
 
-    def write(self, format, path=None, return_string=None, *args):
+        Args:
+            well_list (list of tuple):  List of wells with data issues, given as coordinate tuples (rowi, columni)
+            width (int): Width of the well plate
+            height (int): Height of the well plate
+            data_tag (str): Tag of the created data
+        """
+
+        data = [[True for i in range(width)] for row in range(height)]
+        for well in well_list:
+            data[well[0]][well[1]] = False
+
+        return cls(data={data_tag: data}, **kwargs)
+
+
+    def write(self, format, path=None, tag=None, *args):
         """ Serialize and write ``DataIssue`` instances.
 
         Serialize ``DataIssue`` instance using the stated ``format``.
@@ -50,11 +67,9 @@ class DataIssue(plate_data.PlateData):
         if format == 'pickle':
             with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
+        if format == "csv":
+            with open(path, 'w') as fh:
+                for row in self.data[tag]:
+                    fh.write(",".join([str(datum) for datum in row]) + "\n")
         else:
             raise Exception('Format is unknown: {}'.format(format))
-
-        if path:
-            with open(path, 'w') as fh:
-                fh.write(output)
-        if return_string:
-            return output

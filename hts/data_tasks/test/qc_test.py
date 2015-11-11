@@ -18,8 +18,6 @@ TEST_PLATE_NAME = "test_plate"
 TEST_RUN_CONFIG_SIRNA = "run_config_siRNA_1.txt"
 TEST_RUN_CONFIG_GLO = "run_config_siRNA_2.txt"
 
-TEST_DATA_ISSUE_OUTPUT = os.path.join("Data_issues", "RealTime-Glo", "test.csv")
-
 notfixed = pytest.mark.notfixed
 
 @pytest.fixture
@@ -62,13 +60,18 @@ def test_create_data_issue_file_glo(path):
     assert type(test_run) == run.Run
     assert len(test_run.plates) == 10
 
-    TEST_SAMPLE_TYPE = "realtime-glo_1"
-    TEST_CONTROL_READOUT_TAG = "neg"
-    TEST_SAMPLE_READOUT_TAG = "sample"
-    test_issues = qc_detect_data_issues.detect_low_cell_viability(run=test_run,
-                                                                  path=os.path.join(path, TEST_DATA_ISSUE_OUTPUT),
-                                                                  sample_type=TEST_SAMPLE_TYPE,
-                                                                  control_readout_tag=TEST_CONTROL_READOUT_TAG,
-                                                                  sample_readout_tag=TEST_SAMPLE_READOUT_TAG)
-    assert type(test_issues) == dict
+    TEST_GLO_READOUT = "realtime-glo_1"
+    TEST_GLO_CONTROL_SAMPLE_TYPE = "pos"
+    TEST_GLO_SAMPLE_SAMPLE_TYPE = ["s"]
 
+    TEST_DATAISSUE_TAG = "realtime-glo"
+    TEST_DATA_ISSUE_OUTPUT = os.path.join("Data_issues", "RealTime-Glo")
+    TEST_DATAISSUE_FILE = os.path.join(path, TEST_DATA_ISSUE_OUTPUT)
+
+    test_issues = qc_detect_data_issues.detect_low_cell_viability(run=test_run,
+                                                                  control_readout_tag=TEST_GLO_READOUT,
+                                                                  control_sample_type=TEST_GLO_CONTROL_SAMPLE_TYPE,
+                                                                  controlled_sample_types=TEST_GLO_SAMPLE_SAMPLE_TYPE,
+                                                                  data_issue_tag=TEST_DATAISSUE_TAG,
+                                                                  path=TEST_DATAISSUE_FILE)
+    assert type(test_issues) == dict
