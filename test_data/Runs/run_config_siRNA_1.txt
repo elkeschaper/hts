@@ -1,7 +1,7 @@
 experimenter = John Doe
 experimenter_mail = john.doe@mighty.university.edu
 send_mail_upon_qc = False
-n_plate = 10
+plate_names = 12593, 12594, 12595, 12596, 12597, 12598, 12599, 12600, 12601, 12602
 
 ### Data
 [plate_layout]

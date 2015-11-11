@@ -118,7 +118,7 @@ class Plate:
 
 
 
-    def create(format, **kwargs):
+    def create(format, name=None, **kwargs):
         """ Create ``Plate`` instance.
 
         Create ``Plate`` instance.
@@ -141,7 +141,8 @@ class Plate:
                 data["readout"] = readout.Readout.create(**kwargs["readout"])
             height = len(next(iter(next(iter(data.values())).data.values())))
             width = len(next(iter(next(iter(data.values())).data.values()))[0])
-            name = next(iter(data.values())).name
+            if not name:
+                name = next(iter(data.values())).name
             return Plate(data=data, height=height, width=width, name=name)
         elif format == 'pickle':
             with open(kwargs["path"], 'rb') as fh:

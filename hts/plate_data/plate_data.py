@@ -67,6 +67,7 @@ class PlateData:
             if not hasattr(self, key):
                 setattr(self, key, value)
 
+
     @classmethod
     def create(cls, formats, paths, configs=None, names=None, tags=None, types=None, **kwargs):
         """ Create ``PlateData`` instance.
@@ -86,7 +87,7 @@ class PlateData:
         if not configs:
             configs = [kwargs]*len(formats)
         if not types:
-            types = [kwargs]*len(formats)
+            types = [None]*len(formats)
 
         my_data_plate = None
         for format, path, name, tag, config, type in zip(formats, paths, names, tags, configs, types):

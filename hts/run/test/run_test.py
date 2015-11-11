@@ -80,7 +80,7 @@ def test_load_siRNA_multiple(path_run):
     test_run = Run.create(origin="config", path=os.path.join(path_run, TEST_RUN_CONFIG_SIRNA_MULTIPLE))
 
     assert len(test_run.plates) == 10
-    assert len(test_run.plates["1"].readout.data) == 5
+    assert len(test_run.plates["a"].readout.data) == 5
 
     test_qc = test_run.qc()
 

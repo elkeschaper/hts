@@ -88,23 +88,7 @@ class Run:
         #        setattr(self, key, value)
         self.meta_data = kwargs
 
-        # Extract plate numbering for multiple plates and set index for each plate.
-        self.plate_tag_numbers = [re.findall("(\d+)", i) for i in self.plates.keys()]
-
-        plate_tag_numbers_t = [list(i) for i in zip(*self.plate_tag_numbers)]
-        for i in plate_tag_numbers_t:
-            if len(set(i)) == len(self.plates):
-                plate_indices = i
-                break
-        else:
-            raise Exception("No plate numbering is informative: {}. {}. Please check if the files have useful names"
-                            "from which a numbering could be derived. Otherwise, change the implementation ;) "
-                            "".format(list(self.plates.keys()), plate_tag_numbers_t))
-
-        # Set index for each plate.
-        for i_plate, plate_index in zip(list(self.plates.keys()), plate_indices):
-            self.plates[i_plate].index = plate_index
-        self.plates = collections.OrderedDict((plate.index, plate) for plate in self.plates.values())
+        self.plates = collections.OrderedDict((plate.name, plate) for plate in self.plates.values())
 
         if self.protocol():
             # Todo: Include check that plate layout is defined.
@@ -164,12 +148,13 @@ class Run:
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
-        n_plate = int(config["n_plate"])
+        plate_names = config["plate_names"]
+        n_plate = len(plate_names)
 
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
 
-        config_plate_wise = [{} for _ in range(n_plate)]
+        config_plate_wise = [{} for _ in plate_names]
         additional_data = {}
         for data_type in defined_data_types:
             config_local = config[data_type].copy()
@@ -219,7 +204,7 @@ class Run:
                         config_plate_wise[i_plate][data_type] = copy.deepcopy(config_local) # For current shallow dicts, config_local.copy() is ok.
 
         # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
-        plates = [plate.Plate.create(format="config", **config_plate) for config_plate in config_plate_wise]
+        plates = [plate.Plate.create(format="config", name=plate_name, **config_plate) for config_plate, plate_name in zip(config_plate_wise, plate_names)]
         for data_type, data in additional_data.items():
             for i_plate in plates:
                 i_plate.add_data(data_type, data, force=True)
