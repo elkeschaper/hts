@@ -355,8 +355,8 @@ class Run:
         for task in tasks:
             LOG.info(task.name)
             LOG.info(task.type)
-            methods_from_protocol = {i:j for i,j in task.config.items() if isinstance(j, configobj.Section)}
-            meta_data_from_protocol = {i:j for i,j in task.config.items() if not isinstance(j, configobj.Section)}
+            methods_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if isinstance(j, configobj.Section)])
+            meta_data_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if not isinstance(j, configobj.Section)])
             # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
             if task.name in self.meta_data:
                 qc_meta_data = dict(meta_data_from_protocol, **self.meta_data[task.name])
