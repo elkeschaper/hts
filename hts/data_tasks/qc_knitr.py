@@ -313,6 +313,26 @@ print(outDf)'''
 
 
 
+
+def dynamics():
+
+    description = '''
+Plot the (dynamical) change across readouts.'''
+
+    calculation = '''
+d_summary = ddply(d, .(y_type, sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary$y_time = as.numeric(gsub("\\D", "", d_summary$y_type))
+
+p = ggplot(d_summary, aes(x=y_time, y=y_mean, color=sample, group=sample))
+p = p + geom_point(size=2) + geom_line()
+#p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
+p = p + facet_wrap( ~ x3_plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
+beautifier(p)'''
+
+    return description, calculation
+
+
+
 def heat_map():
 
     description = '''
@@ -424,7 +444,9 @@ def ssmd():
 SSMD (Definition according to [wikipedia](https://en.wikipedia.org/wiki/Strictly_standardized_mean_difference "Wikipedia: SSMD"))
 $$ \\rm{ssmd} = \\frac{\mu_\\rm{pos} - \mu_\\rm{neg}}{\\sigma_\\rm{pos}^2 + \\sigma_\\rm{neg}^2}, $$
 where pos is the positive control, and neg are positive is the negative control.
-The displayed cut-off values assume a moderate control. Strong controls require smaller ssmd values.'''
+
+Warning: The displayed cut-off values assume a moderate control. Strong controls require smaller (more strict) ssmd values.
+Also, the displayed cut-off values hold for negative controls with higher signal than the corresponding positive controls.  If this is not given, the displayed cut-off values ought to be multiplied by -1.'''
 
     calculation = '''
 d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
@@ -451,7 +473,7 @@ p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
 print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
@@ -494,7 +516,7 @@ p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
 print(d_qc_score[with(d_qc_score, order(neg, x3_plate_name)), ])
@@ -534,7 +556,7 @@ p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
 print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
@@ -550,7 +572,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)'''
 
     return description, calculation
@@ -563,7 +585,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample_type)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)'''
 
     return description, calculation
