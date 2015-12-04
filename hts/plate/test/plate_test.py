@@ -105,3 +105,12 @@ def test_calculate_data_issue_realtime_glo(path, path_raw):
     assert type(test_plate.data_issue.data["realtime-glo_zscore"]) == numpy.ndarray
     assert type(test_plate.data_issue.data["realtime-glo_qc"]) == list
 
+
+@pytest.mark.no_external_software_required
+def test_model_as_gaussian_process(path, path_raw):
+
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_SIRNA)], "formats": ["envision_csv"]},
+              "plate_layout": {"paths": [os.path.join(path, TEST_PLATELAYOUT)], "formats": ["csv"]}
+              }
+    test_plate = plate.Plate.create(format="config", **config)
+    test_plate.model_as_gaussian_process(data_tag_readout="1", sample_key="pos")

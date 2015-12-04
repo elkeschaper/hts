@@ -7,6 +7,7 @@
 """
 
 import ast
+import GPy
 import itertools
 import logging
 import numpy as np
@@ -371,3 +372,55 @@ class Plate:
                                     name=data_issue_key)
 
         self.add_data(data_type="data_issue", data=data)
+
+
+    def model_as_gaussian_process(self, data_tag_readout, sample_key, plate_key="net-fret",
+                                  kernel_type='rbf',
+                                  n_max_iterations=1000, **kwargs):
+        """ Model data as a gaussian process. Predict data for the entire plate. Compare predictions and real values.
+
+
+        Args:
+            plate_key (str):  The key for self.readout.data where the ``Readout`` instance is stored.
+            sample_key (str):  The sample for which the gaussian process will be modeled according to the
+                                position in self.plate_layout.data.
+
+        """
+
+
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_key)
+        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
+
+        X = np.array(sampled_wells)
+        #X1 = np.array([i[0] for i in sampled_wells])
+        #X2 = np.array([i[1] for i in sampled_wells])
+        #X = np.vstack((X1, X2))
+
+        Y = np.array(values)
+        Y -= Y.mean()
+        Y /= Y.std()
+        Y = np.array([Y])
+
+        if kernel_type == 'linear':
+            kernel = GPy.kern.Linear(input_dim=X.shape[1], ARD=1)
+        elif kernel_type == 'rbf_inv':
+            kernel = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=1)
+        elif kernel_type == 'rbf':
+            kernel = GPy.kern.RBF(input_dim=X.shape[1], ARD=1)
+        else:
+            raise ValueError("Kernel {} is currently not implemented".format(kernel_type))
+
+        kernel += GPy.kern.White(input_dim=X.shape[1]) # + GPy.kern.Bias(input_dim=X.shape[0])
+
+        import pdb; pdb.set_trace()
+        m = GPy.models.GPRegression(X, Y, kernel)
+        # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
+        # m.set_prior('.*lengthscale',len_prior)
+
+        m.optimize(optimizer='scg', max_iters=n_max_iterations)
+
+        if plot:
+            m.kern.plot_ARD()
+            pylab.show()
+
+        return m
