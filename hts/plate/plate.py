@@ -13,6 +13,7 @@ import logging
 import numpy as np
 import os
 import pickle
+import pylab
 import re
 import scipy.stats
 import string
@@ -374,16 +375,20 @@ class Plate:
         self.add_data(data_type="data_issue", data=data)
 
 
-    def model_as_gaussian_process(self, data_tag_readout, sample_key, plate_key="net-fret",
-                                  kernel_type='rbf',
-                                  n_max_iterations=1000, **kwargs):
+
+
+    def model_as_gaussian_process(self, data_tag_readout, sample_key,
+                                  kernel_type='m32',
+                                  n_max_iterations=1000,
+                                  plot=False,
+                                  **kwargs):
         """ Model data as a gaussian process. Predict data for the entire plate. Compare predictions and real values.
 
 
         Args:
-            plate_key (str):  The key for self.readout.data where the ``Readout`` instance is stored.
+            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
             sample_key (str):  The sample for which the gaussian process will be modeled according to the
-                                position in self.plate_layout.data.
+                                position in self.plate_layout.data. E.g. for positive controls "pos"
 
         """
 
@@ -391,36 +396,85 @@ class Plate:
         sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_key)
         values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
 
+        n_samples = len(sampled_wells)
+
+        # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
         X = np.array(sampled_wells)
         #X1 = np.array([i[0] for i in sampled_wells])
         #X2 = np.array([i[1] for i in sampled_wells])
         #X = np.vstack((X1, X2))
 
         Y = np.array(values)
-        Y -= Y.mean()
-        Y /= Y.std()
-        Y = np.array([Y])
+        Y_mean = Y.mean()
+        Y_std = Y.std()
+
+        Y = Y.reshape((n_samples,1))
+        Y_norm = Y - Y_mean
+        Y_norm /= Y_std
 
         if kernel_type == 'linear':
-            kernel = GPy.kern.Linear(input_dim=X.shape[1], ARD=1)
+            kernel = GPy.kern.Linear(input_dim=X.shape[1], ARD=2)
         elif kernel_type == 'rbf_inv':
-            kernel = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=1)
+            kernel = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=2)
         elif kernel_type == 'rbf':
-            kernel = GPy.kern.RBF(input_dim=X.shape[1], ARD=1)
+            kernel = GPy.kern.RBF(input_dim=X.shape[1])
+        elif kernel_type == 'm32':
+            kernel = GPy.kern.Matern32(input_dim=X.shape[1])
         else:
             raise ValueError("Kernel {} is currently not implemented".format(kernel_type))
 
         kernel += GPy.kern.White(input_dim=X.shape[1]) # + GPy.kern.Bias(input_dim=X.shape[0])
 
-        import pdb; pdb.set_trace()
-        m = GPy.models.GPRegression(X, Y, kernel)
+        m = GPy.models.GPRegression(X, Y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
         # m.set_prior('.*lengthscale',len_prior)
 
-        m.optimize(optimizer='scg', max_iters=n_max_iterations)
+        #m.optimize(optimizer='scg', max_iters=n_max_iterations)
+
+        LOG.info(m)
+
+        #   GP_regression.           |  value  |  constraints  |  priors
+        # sum.rbf.variance         |    1.0  |      +ve      |
+        # sum.rbf.lengthscale      |    1.0  |      +ve      |
+        # sum.white.variance       |    1.0  |      +ve      |
+        # Gaussian_noise.variance  |    1.0  |      +ve      |
+
+        ## It is not clear whether you should really perform this optimisation - perhaps you know the best length scale ?
+        m.optimize(max_f_eval = n_max_iterations)
+
+        LOG.info(m)
 
         if plot:
             m.kern.plot_ARD()
+            m.plot()
             pylab.show()
 
-        return m
+        #Y_predicted_mean, Y_predicted_var = m.predict(X)
+        #f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
+        #Y_predicted_abs = Y_predicted_mean * Y_std + Y_mean
+        #Y_error = Y_norm - Y_predicted_mean
+        #Y_error_abs = Y - Y_predicted_abs
+
+        all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: 1==1)
+        X_all = np.array(all_wells)
+
+        Y_all_predicted_mean, Y_all_predicted_var  = m.predict(X_all)
+        Y_all_predicted_mean_abs = Y_all_predicted_mean * Y_std + Y_mean
+
+        return Y_all_predicted_mean_abs, Y_all_predicted_var
+
+
+    def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
+
+        wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
+        values = self.readout.get_values(wells=wells, data_tag=data_tag_readout) # value_type=float
+        values = np.array(values).reshape((len(values),1))
+        diff = data_predictions - values
+
+        if sample_key:
+            specific_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_key)
+            if len(specific_wells) == 0:
+                raise Exception("sample_key: {} does not define any wells.".format(sample_key))
+            diff = np.array([diff[wells.index(well)] for well in specific_wells])
+
+        return np.linalg.norm(diff)
