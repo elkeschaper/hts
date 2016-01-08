@@ -64,7 +64,7 @@ def test_create_from_insulin_csv(path_raw):
     assert test_plate.name == ntpath.basename(TEST_FILE_INSULIN)
     assert type(test_plate.readout) == readout.Readout
     assert len(test_plate.readout.data) == 481
-    assert type(test_plate.readout.data[0]) == numpy.ndarray
+    assert type(test_plate.readout.data[0]) == np.ndarray
 
 
 @pytest.mark.no_external_software_required
@@ -105,8 +105,8 @@ def test_calculate_data_issue_realtime_glo(path, path_raw):
     # In real real-time glo experiments, wild-type untreated is used as control.
     test_plate.calculate_data_issue_cell_viability_real_time_glo(real_time_glo_measurement="1", normal_well="neg_1")
     assert type(test_plate.data_issue) == data_issue.DataIssue
-    assert type(test_plate.data_issue.data["realtime-glo_pvalue"]) == numpy.ndarray
-    assert type(test_plate.data_issue.data["realtime-glo_zscore"]) == numpy.ndarray
+    assert type(test_plate.data_issue.data["realtime-glo_pvalue"]) == np.ndarray
+    assert type(test_plate.data_issue.data["realtime-glo_zscore"]) == np.ndarray
     assert type(test_plate.data_issue.data["realtime-glo_qc"]) == list
 
 
@@ -168,3 +168,21 @@ def test_model_as_gaussian_process_from_simulated_data(path, path_raw):
 
     test_error = test_plate.evaluate_well_value_prediction(data_predictions=test_predictions_mean_abs, data_tag_readout=test_plate_name, sample_key="neg")
     assert abs(test_error - 1.5) < 0.1
+
+
+def test_control_normalization(path, path_raw):
+
+
+    config = {"readout": {"paths": [os.path.join(path_raw, TEST_FILE_SIRNA)], "formats": ["envision_csv"]},
+              "plate_layout": {"paths": [os.path.join(path, TEST_PLATELAYOUT)], "formats": ["csv"]}
+              }
+    test_plate = plate.Plate.create(format="config", **config)
+    test_plate.calculate_net_fret(donor_channel="2", acceptor_channel="1")
+
+    test_plate.calculate_control_normalized_signal(data_tag_readout="net_fret",
+                                                   negative_control_key="neg_1",
+                                                   positive_control_key="pos")
+
+    assert "net_fret_normalized_by_controls" in test_plate.readout.data
+    assert "net_fret_pvalue_vs_neg_control" in test_plate.readout.data
+    assert type(test_plate.readout.data["net_fret_normalized_by_controls"]) == np.ndarray

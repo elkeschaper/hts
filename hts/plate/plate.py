@@ -356,8 +356,6 @@ class Plate:
 
         # First, calculate the critical value of the distribution.
 
-
-
         mu_normal = np.mean(normal_rtglo)
         sigma_normal = np.std(normal_rtglo)
         z_score = (self.readout.get_data(real_time_glo_measurement) - mu_normal)/sigma_normal
@@ -460,14 +458,23 @@ class Plate:
 
         Y_all_predicted_mean, Y_all_predicted_var  = m.predict(X_all)
         Y_all_predicted_mean_abs = Y_all_predicted_mean * Y_std + Y_mean
+        Y_all_predicted_sd_abs = np.sqrt(Y_all_predicted_var) * Y_std
 
-        return Y_all_predicted_mean_abs, Y_all_predicted_var
+        Y_all_predicted_mean_abs = [i for j in Y_all_predicted_mean_abs for i in j]
+        Y_all_predicted_mean_abs = np.array([Y_all_predicted_mean_abs[row*24:(row+1)*24] for row in range(self.height)])
+        Y_all_predicted_sd_abs = [i for j in Y_all_predicted_sd_abs for i in j]
+        Y_all_predicted_sd_abs = np.array([Y_all_predicted_sd_abs[row*24:(row+1)*24] for row in range(self.height)])
+
+        return Y_all_predicted_mean_abs, Y_all_predicted_sd_abs
 
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
 
         wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
         values = self.readout.get_values(wells=wells, data_tag=data_tag_readout) # value_type=float
+
+        #### This needs to be debugged, as data_predictions now come in a different format.
+        raise Exception("Needs debugging.")
         values = np.array(values).reshape((len(values),1))
         diff = data_predictions - values
 
@@ -478,3 +485,82 @@ class Plate:
             diff = np.array([diff[wells.index(well)] for well in specific_wells])
 
         return np.linalg.norm(diff)
+
+
+    def calculate_control_normalized_signal(self,
+                                            data_tag_readout,
+                                            negative_control_key,
+                                            positive_control_key,
+                                            data_tag_normalized_readout=None,
+                                            local=True,
+                                            **kwargs):
+        """ Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
+
+        Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
+
+        The normalization is calculated as:
+        .. math::
+
+        y' = \frac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }
+
+        For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).
+        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the averge control values across the plate.
+
+        WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to
+        show lower mean values. [Otherwise, we would have to introduce a boolean "pos_control_lower_than_neg_control."]
+
+        Args:
+            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
+            negative_control_key (str):  The name of the negative control in the plate layout.
+            positive_control_key (str):  The name of the positive control in the plate layout.
+            data_tag_readout (str):  The key for self.readout.data where the normalized readouts will be stored.
+            local (Bool): If True, use Gaussian processes to locally predict the control distributions. Else, use
+                          plate-wise control distributions.
+
+        """
+
+        if not data_tag_normalized_readout:
+            data_tag_normalized_readout = "{}_normalized_by_controls".format(data_tag_readout)
+
+
+        all_readouts = self.readout.get_data(data_tag_readout)
+
+        if not local:
+            # Normalize by "global" plate averages of negative and positive controls.
+            nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==negative_control_key)
+            nc_values = self.readout.get_values(wells=nc_wells, data_tag=data_tag_readout)
+            data_nc_mean = np.mean(nc_values)
+            data_nc_std = np.std(nc_values)
+
+            pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==positive_control_key)
+            pc_values = self.readout.get_values(wells=pc_wells, data_tag=data_tag_readout)
+            data_pc_mean = np.mean(pc_values)
+
+            LOG.debug("Normalize globally with mean negative control: {} "
+                      "and mean negative control: {}.".format(data_nc_mean, data_pc_mean))
+        else:
+            # Normalize by "local" predictions of negative and positive control distributions (extracted with Gaussian
+            # processes.)
+
+            # Calculate predicted values for mean and std: negative control.
+            data_nc_mean, data_nc_std = \
+                self.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=negative_control_key, **kwargs)
+
+            # Calculate predicted values for mean and std: positive control.
+            data_pc_mean, data_pc_std = \
+                self.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=positive_control_key, **kwargs)
+
+
+        # Calculate the normalised data
+        normalized_data = (all_readouts - data_nc_mean)/abs(data_nc_mean - data_pc_mean)
+
+        # Calculate the p-Value of all data points compared to the negative control.
+        # Inspired by:
+        # http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic
+
+        LOG.warning("Make sure that the local data_nc_std has the same interpretation as the global data_nc_std.")
+        p_value_neg = scipy.stats.norm(data_nc_mean, data_nc_std).cdf(all_readouts)
+
+        self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
+                                    "{}_pvalue_vs_neg_control".format(data_tag_readout): p_value_neg},
+                              tag=data_tag_normalized_readout)
