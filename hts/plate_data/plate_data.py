@@ -172,6 +172,8 @@ class PlateData:
             raise Exception("data_tag {} not in self.data {}".format(data_tag, self.data.keys()))
 
         well_coordinates = [cc for cc in itertools.product(range(self.height), range(self.width)) if condition(data[cc[0]][cc[1]])]
+        if len(well_coordinates) == 0:
+            LOG.warning("Under the applied condition (e.g. names for the plate layout), no wells are chosen")
 
         return well_coordinates
 
