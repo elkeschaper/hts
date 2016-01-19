@@ -96,7 +96,7 @@ class Run:
 
 
     @classmethod
-    def create(cls, origin, path, format = None, dir = False):
+    def create(cls, origin, path, format=None, dir=False):
         """ Create ``Run`` instance.
 
         Create ``Run`` instance.
@@ -277,20 +277,21 @@ class Run:
         return Run(path=path, plates=plates)
 
 
-    def filter(self, plate_wise_filter_args):
-        """ Filter run data according to plate wise filter arguments.
+    def filter(self, **kwargs):
+        """ Filter run data according to filter keyword arguments.
 
-        Filter run data according to plate wise filter arguments. The values for each plates are concatenated.
+        Filter run data according to filter arguments. The values for each plates are concatenated.
 
         Args:
-            plate_wise_filter_args (dict of str: filter_args): A dictionary with the filter arguments for each plate.
+            kwargs: Keyword arguments for filtering.
 
         Returns:
             list of floats
         """
 
-        data = [self.plates[plate].filter(**filter_args) for plate, filter_args in plate_wise_filter_args.items()]
-        return [item for sublist in data for item in sublist]
+        data = [plate.filter(**kwargs) for plate in self.plates.values()]
+        #return [item for sublist in data for item in sublist]
+        return data
 
 
     def preprocess(self):

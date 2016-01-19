@@ -201,7 +201,9 @@ class Plate:
 
 
 
-    def filter(self, condition_data_type, condition_data_tag, condition, value_data_type, value_data_tag, value_type=None):
+    def filter(self, value_data_type, value_data_tag, value_type=None,
+               condition_data_type=None, condition_data_tag=None, condition=None,
+               return_list=True):
         """
 
         Get list of values for defined `wells` of the data tagged with `data_tag`.
@@ -214,19 +216,33 @@ class Plate:
             value_data_type (str): Reference to PlateData instance from which (for filtered wells) the values are retrieved.
             value_data_tag (str): Data tag for value_data_type.
             value_type (str): The type of the return values.
+            return_list (bool): Returns a flattened list of all values
 
         Returns:
             (list of x), where x are of type `value_type`, if `value_type` is set.
+
+        ..todo: rename method from filter to get_data
         """
 
-        #if value_data_tag == "net_fret":
-        #    import pdb; pdb.set_trace()
-
-        condition_plate_data = getattr(self, condition_data_type)
         value_plate_data = getattr(self, value_data_type)
 
-        wells = condition_plate_data.get_wells(data_tag=condition_data_tag, condition=condition)
-        values = value_plate_data.get_values(wells=wells, data_tag=value_data_tag, value_type=value_type)
+        if condition_data_type:
+            condition_plate_data = getattr(self, condition_data_type)
+            wells = condition_plate_data.get_wells(data_tag=condition_data_tag, condition=condition)
+            if return_list:
+                return value_plate_data.get_values(wells=wells, data_tag=value_data_tag, value_type=value_type)
+            else:
+                raise Exception("Not implemented.")
+                # ToDo: Return matrix of values, with None for wells that do not fulfill the condition, and
+                # the value otherwise.
+
+        else:
+            data = value_plate_data.data[value_data_tag]
+            if return_list:
+                return [item for sublist in data for item in sublist]
+            else:
+                return data
+
 
         return values
 
@@ -374,11 +390,14 @@ class Plate:
 
 
 
+    def map_coordinates(self, coordinates_list):
+        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
+        return [(i[1], self.height-i[0]+1) for i in coordinates_list]
 
     def model_as_gaussian_process(self, data_tag_readout, sample_key,
                                   kernel_type='m32',
                                   n_max_iterations=1000,
-                                  plot=False,
+                                  plot_kwargs=False,
                                   **kwargs):
         """ Model data as a gaussian process. Predict data for the entire plate. Compare predictions and real values.
 
@@ -395,6 +414,9 @@ class Plate:
         values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
 
         n_samples = len(sampled_wells)
+
+        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
+        sampled_wells = self.map_coordinates(sampled_wells)
 
         # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
         X = np.array(sampled_wells)
@@ -442,9 +464,12 @@ class Plate:
 
         LOG.info(m)
 
-        if plot:
-            m.kern.plot_ARD()
-            m.plot()
+        if plot_kwargs:
+            #m.kern.plot_ARD()
+            # Plot the posterior of the GP
+            m.plot_data()
+            m.plot_f()
+            m.plot(**plot_kwargs)
             pylab.show()
 
         #Y_predicted_mean, Y_predicted_var = m.predict(X)
@@ -453,13 +478,15 @@ class Plate:
         #Y_error = Y_norm - Y_predicted_mean
         #Y_error_abs = Y - Y_predicted_abs
 
-        all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: 1==1)
+        all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
+        all_wells = self.map_coordinates(all_wells)
         X_all = np.array(all_wells)
 
         Y_all_predicted_mean, Y_all_predicted_var  = m.predict(X_all)
         Y_all_predicted_mean_abs = Y_all_predicted_mean * Y_std + Y_mean
         Y_all_predicted_sd_abs = np.sqrt(Y_all_predicted_var) * Y_std
 
+        # Are you absolutely sure you got the mapping back to list of lists right?
         Y_all_predicted_mean_abs = [i for j in Y_all_predicted_mean_abs for i in j]
         Y_all_predicted_mean_abs = np.array([Y_all_predicted_mean_abs[row*24:(row+1)*24] for row in range(self.height)])
         Y_all_predicted_sd_abs = [i for j in Y_all_predicted_sd_abs for i in j]
