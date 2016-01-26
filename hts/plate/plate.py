@@ -395,9 +395,10 @@ class Plate:
         return [(i[1], self.height-i[0]+1) for i in coordinates_list]
 
     def model_as_gaussian_process(self, data_tag_readout, sample_key,
-                                  kernel_type='m32',
+                                  kernels=None,
                                   n_max_iterations=1000,
                                   plot_kwargs=False,
+                                  return_model=False,
                                   **kwargs):
         """ Model data as a gaussian process. Predict data for the entire plate. Compare predictions and real values.
 
@@ -432,18 +433,30 @@ class Plate:
         Y_norm = Y - Y_mean
         Y_norm /= Y_std
 
-        if kernel_type == 'linear':
-            kernel = GPy.kern.Linear(input_dim=X.shape[1], ARD=2)
-        elif kernel_type == 'rbf_inv':
-            kernel = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=2)
-        elif kernel_type == 'rbf':
-            kernel = GPy.kern.RBF(input_dim=X.shape[1])
-        elif kernel_type == 'm32':
-            kernel = GPy.kern.Matern32(input_dim=X.shape[1])
-        else:
-            raise ValueError("Kernel {} is currently not implemented".format(kernel_type))
+        if not kernels:
+            kernels = ["rbf", "white_noise"]
 
-        kernel += GPy.kern.White(input_dim=X.shape[1]) # + GPy.kern.Bias(input_dim=X.shape[0])
+        kernel = None
+        for kernel_type in kernels:
+            if kernel_type == 'linear':
+                kernel_tmp = GPy.kern.Linear(input_dim=X.shape[1], ARD=2)
+            elif kernel_type == 'rbf_inv':
+                kernel_tmp = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=2)
+            elif kernel_type == 'rbf':
+                kernel_tmp = GPy.kern.RBF(input_dim=X.shape[1])
+            elif kernel_type == 'm32':
+                kernel_tmp = GPy.kern.Matern32(input_dim=X.shape[1])
+            elif kernel_type == "white_noise":
+                kernel_tmp = GPy.kern.White(input_dim=X.shape[1])
+            elif kernel_type == "bias":
+                kernel_tmp = GPy.kern.Bias(input_dim=X.shape[0])
+            else:
+                raise ValueError("Kernel {} is currently not implemented".format(kernel_type))
+            if kernel:
+                kernel += kernel_tmp
+            else:
+                kernel = kernel_tmp
+
 
         m = GPy.models.GPRegression(X, Y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
@@ -471,6 +484,9 @@ class Plate:
             m.plot_f()
             m.plot(**plot_kwargs)
             pylab.show()
+
+        if return_model:
+            return m
 
         #Y_predicted_mean, Y_predicted_var = m.predict(X)
         #f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
