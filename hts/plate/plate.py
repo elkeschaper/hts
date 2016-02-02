@@ -394,24 +394,52 @@ class Plate:
         # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
         return [(i[1], self.height-i[0]+1) for i in coordinates_list]
 
-    def model_as_gaussian_process(self, data_tag_readout, sample_key,
-                                  kernels=None,
-                                  n_max_iterations=1000,
-                                  plot_kwargs=False,
-                                  return_model=False,
-                                  **kwargs):
-        """ Model data as a gaussian process. Predict data for the entire plate. Compare predictions and real values.
 
+    def create_gaussian_process_kernel(self, dimension, kernel=None, kernels=None):
+        """ Create a gaussian process kernel from kernel string names.
+
+        Args:
+            dimension (int):  The expected Kernel dimension
+            kernel (str):  A previous kernel. More kernel features are added to this previous kernel.
+            kernels (dict): Dict of kernel_names: kernel_kwargs. E.g., kernels: {"rbf": None, "white_noise": None}
+
+        """
+        if not kernels:
+            kernels = {"RBF": {}, "White": {}}
+
+        for kernel_type, kernel_kwargs in kernels.items():
+            # Currently available kernels:
+            # ['Add', 'BasisFuncKernel', 'Bias', 'Brownian', 'ChangePointBasisFuncKernel', 'Coregionalize', 'Cosine', 'DEtime', 'DiffGenomeKern', 'DomainKernel', 'EQ_ODE2', 'ExpQuad', 'Exponential', 'Fixed', 'Hierarchical', 'IndependentOutputs', 'Kern', 'Linear', 'LinearFull', 'LinearSlopeBasisFuncKernel', 'LogisticBasisFuncKernel', 'MLP', 'Matern32', 'Matern52', 'ODE_UY', 'ODE_UYC', 'ODE_st', 'ODE_t', 'OU', 'PeriodicExponential', 'PeriodicMatern32', 'PeriodicMatern52', 'Poly', 'Prod', 'RBF', 'RatQuad', 'Spline', 'SplitKern', 'StdPeriodic', 'TruncLinear', 'TruncLinear_inf', 'White'
+            try:
+                kernel_tmp = getattr(GPy.kern, kernel_type)
+            except:
+                raise ValueError("Possible error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
+            try:
+                kernel_tmp = kernel_tmp(input_dim=dimension, **kernel_kwargs)
+            except:
+                raise ValueError("Please check you kernel kwargs, and the input dimensions of the data.")
+            if kernel:
+                kernel += kernel_tmp
+            else:
+                kernel = kernel_tmp
+
+        return kernel
+
+
+    def model_as_gaussian_process(self, data_tag_readout, sample_tag,
+                                   n_max_iterations=1000,
+                                   plot_kwargs=False,
+                                   kernels=None):
+        """ Model data as a gaussian process. Return the Gaussian process model, and mean and std of the input data for
+        renormalization.
 
         Args:
             data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
-            sample_key (str):  The sample for which the gaussian process will be modeled according to the
+            sample_tag (str):  The sample for which the gaussian process will be modeled according to the
                                 position in self.plate_layout.data. E.g. for positive controls "pos"
-
         """
 
-
-        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_key)
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_tag)
         values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
 
         n_samples = len(sampled_wells)
@@ -421,56 +449,25 @@ class Plate:
 
         # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
         X = np.array(sampled_wells)
-        #X1 = np.array([i[0] for i in sampled_wells])
-        #X2 = np.array([i[1] for i in sampled_wells])
-        #X = np.vstack((X1, X2))
 
-        Y = np.array(values)
-        Y_mean = Y.mean()
-        Y_std = Y.std()
+        # Standardize data.
+        y = np.array(values)
+        y_mean = y.mean()
+        y_std = y.std()
 
-        Y = Y.reshape((n_samples,1))
-        Y_norm = Y - Y_mean
-        Y_norm /= Y_std
+        y = y.reshape((n_samples,1))
+        y_norm = y - y_mean
+        y_norm /= y_std
 
-        if not kernels:
-            kernels = ["rbf", "white_noise"]
+        kernel = self.create_gaussian_process_kernel(dimension=X.shape[1], kernel=None, kernels=kernels)
 
-        kernel = None
-        for kernel_type in kernels:
-            if kernel_type == 'linear':
-                kernel_tmp = GPy.kern.Linear(input_dim=X.shape[1], ARD=2)
-            elif kernel_type == 'rbf_inv':
-                kernel_tmp = GPy.kern.RBF_inv(input_dim=X.shape[1], ARD=2)
-            elif kernel_type == 'rbf':
-                kernel_tmp = GPy.kern.RBF(input_dim=X.shape[1])
-            elif kernel_type == 'm32':
-                kernel_tmp = GPy.kern.Matern32(input_dim=X.shape[1])
-            elif kernel_type == "white_noise":
-                kernel_tmp = GPy.kern.White(input_dim=X.shape[1])
-            elif kernel_type == "bias":
-                kernel_tmp = GPy.kern.Bias(input_dim=X.shape[0])
-            else:
-                raise ValueError("Kernel {} is currently not implemented".format(kernel_type))
-            if kernel:
-                kernel += kernel_tmp
-            else:
-                kernel = kernel_tmp
-
-
-        m = GPy.models.GPRegression(X, Y_norm, kernel)
+        m = GPy.models.GPRegression(X, y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
         # m.set_prior('.*lengthscale',len_prior)
 
         #m.optimize(optimizer='scg', max_iters=n_max_iterations)
 
         LOG.info(m)
-
-        #   GP_regression.           |  value  |  constraints  |  priors
-        # sum.rbf.variance         |    1.0  |      +ve      |
-        # sum.rbf.lengthscale      |    1.0  |      +ve      |
-        # sum.white.variance       |    1.0  |      +ve      |
-        # Gaussian_noise.variance  |    1.0  |      +ve      |
 
         ## It is not clear whether you should really perform this optimisation - perhaps you know the best length scale ?
         m.optimize(max_f_eval = n_max_iterations)
@@ -485,33 +482,71 @@ class Plate:
             m.plot(**plot_kwargs)
             pylab.show()
 
-        if return_model:
-            return m
+        return m, y_mean, y_std
 
-        #Y_predicted_mean, Y_predicted_var = m.predict(X)
-        #f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
-        #Y_predicted_abs = Y_predicted_mean * Y_std + Y_mean
-        #Y_error = Y_norm - Y_predicted_mean
-        #Y_error_abs = Y - Y_predicted_abs
+    def predict_from_gaussian_process(self, model, data_tag_readout, y_mean=0, y_std=1, sample_key=None):
+        """ Predict data for Gaussian process model `model`
 
-        all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
-        all_wells = self.map_coordinates(all_wells)
-        X_all = np.array(all_wells)
+        Args:
+            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
+            sample_key (str):  The sample for which the gaussian process will be predicted according to the
+                                position in self.plate_layout.data. E.g. for positive controls "pos". If not assigned,
+                                predictions for whole plate will be returned.
+        """
+        if sample_key:
+            raise Exception("Not yet implemented")
+        else:
+            all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
+            all_wells = self.map_coordinates(all_wells)
+            x_all = np.array(all_wells)
 
-        Y_all_predicted_mean, Y_all_predicted_var  = m.predict(X_all)
-        Y_all_predicted_mean_abs = Y_all_predicted_mean * Y_std + Y_mean
-        Y_all_predicted_sd_abs = np.sqrt(Y_all_predicted_var) * Y_std
+        y_predicted_mean, y_predicted_var  = model.predict(x_all)
+        y_predicted_mean_abs = y_predicted_mean * y_std + y_mean
+        y_predicted_sd_abs = np.sqrt(y_predicted_var) * y_std
 
         # Are you absolutely sure you got the mapping back to list of lists right?
-        Y_all_predicted_mean_abs = [i for j in Y_all_predicted_mean_abs for i in j]
-        Y_all_predicted_mean_abs = np.array([Y_all_predicted_mean_abs[row*24:(row+1)*24] for row in range(self.height)])
-        Y_all_predicted_sd_abs = [i for j in Y_all_predicted_sd_abs for i in j]
-        Y_all_predicted_sd_abs = np.array([Y_all_predicted_sd_abs[row*24:(row+1)*24] for row in range(self.height)])
+        y_predicted_mean_abs = [i for j in y_predicted_mean_abs for i in j]
+        y_predicted_mean_abs = np.array([y_predicted_mean_abs[row*self.width:(row+1)*self.width] for row in range(self.height)])
+        y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
+        y_predicted_sd_abs = np.array([y_predicted_sd_abs[row*self.width:(row+1)*self.width] for row in range(self.height)])
 
-        return Y_all_predicted_mean_abs, Y_all_predicted_sd_abs
+        return y_predicted_mean_abs, y_predicted_sd_abs
+
+
+    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, **kwargs):
+
+        """ Model data as a gaussian process. Predict data for the entire plate. [Compare predictions and real values.]
+
+        Args:
+            data_tag_readout (str): The key for self.readout.data where the ``Readout`` instance is stored.
+            sample_tag_input (str): The sample for which the gaussian process will be predicted according to the
+                                    position in self.plate_layout.data. E.g. for positive controls "pos".
+                                    If not assigned, predictions for whole plate will be returned.
+        """
+
+        m, y_mean, y_std = self.model_as_gaussian_process(data_tag_readout, sample_tag_input, **kwargs)
+        y_predicted_mean_abs, y_predicted_sd_abs = self.predict_from_gaussian_process(model=m,
+                                                                                      data_tag_readout=data_tag_readout,
+                                                                                      y_mean=y_mean,
+                                                                                      y_std=y_std)
+
+        return y_predicted_mean_abs, y_predicted_sd_abs
+
 
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
+        """
+        Calculate mean squared prediction error.
+
+       ToDo: Debug
+        """
+
+        #y_predicted_mean, y_predicted_var = m.predict(X)
+        #f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
+        #y_predicted_abs = y_predicted_mean * y_std + y_mean
+        #y_error = y_norm - y_predicted_mean
+        #y_error_abs = y - y_predicted_abs
+
 
         wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
         values = self.readout.get_values(wells=wells, data_tag=data_tag_readout) # value_type=float
@@ -587,11 +622,11 @@ class Plate:
 
             # Calculate predicted values for mean and std: negative control.
             data_nc_mean, data_nc_std = \
-                self.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=negative_control_key, **kwargs)
+                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=negative_control_key, **kwargs)
 
             # Calculate predicted values for mean and std: positive control.
             data_pc_mean, data_pc_std = \
-                self.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=positive_control_key, **kwargs)
+                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=positive_control_key, **kwargs)
 
 
         # Calculate the normalised data
@@ -607,3 +642,18 @@ class Plate:
         self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
                                     "{}_pvalue_vs_neg_control".format(data_tag_readout): p_value_neg},
                               tag=data_tag_normalized_readout)
+
+
+def calculate_BIC_Gaussian_process_model(model):
+
+    """
+    Calculate the Bayesian Information Criterion (BIC) for a (trained) GPy `model`.
+    https://en.wikipedia.org/wiki/Bayesian_information_criterion
+
+
+    ToDo: Check that model.log_likelihood() and model._size_transformed() are the correct inputs.
+    ToDo: Check that len(model.X) is always the sample size.
+    """
+
+    # model._size_transformed() is the number of optimisation parameters, model.size the total number of parameters.
+    return - 2 * model.log_likelihood() + len(model.X) * model._size_transformed()

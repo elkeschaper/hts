@@ -74,7 +74,7 @@ def heat_map_single(run, data_tag,  result_file=None, *args, **kwargs):
 
 
 
-def heat_map_single_gaussian_process_model(run, data_tag_readout, sample_key, plate_tag, magnification=5, *args, **kwargs):
+def heat_map_single_gaussian_process_model(run, data_tag_readout, sample_tag, plate_tag, magnification=5, *args, **kwargs):
     """ Create a heat_map for multiple readouts
 
     Create a heat_map for multiple readouts
@@ -92,9 +92,9 @@ model_as_gaussian_process(self, data_tag_readout, sample_key,
 
 
     plate = run.plates[plate_tag]
-    m = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=sample_key, return_model=True, **kwargs)
-    y_mean, y_var  = m.predict(x_wells)
-    y_predicted_as_matrix = y_mean.reshape(magnification*run.width,magnification*run.height).transpose()
+    m, y_mean, y_std = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_tag=sample_tag, **kwargs)
+    y_predicted_mean, y_predicted_var = m.predict(x_wells)
+    y_predicted_as_matrix = y_predicted_mean.reshape(magnification*run.width,magnification*run.height).transpose()
 
     fig = plt.figure()
 
@@ -106,7 +106,7 @@ model_as_gaussian_process(self, data_tag_readout, sample_key,
     plt.show()
 
 
-def slice_single_gaussian_process_model(run, data_tag_readout, sample_key, plate_tag, slice=5, **kwargs):
+def slice_single_gaussian_process_model(run, data_tag_readout, sample_tag, plate_tag, slice=5, **kwargs):
     """ Create a heat_map for multiple readouts
 
     Create a heat_map for multiple readouts
@@ -117,7 +117,7 @@ def slice_single_gaussian_process_model(run, data_tag_readout, sample_key, plate
     """
 
     plate = run.plates[plate_tag]
-    m = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=sample_key, return_model=True, **kwargs)
+    m, y_mean, y_std = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_tag=sample_tag, **kwargs)
 
     m.plot(fixed_inputs=[(1,slice)], plot_data=False)
 
@@ -182,17 +182,10 @@ def heat_map_multiple(run, data_tag, result_file=None, n_plates_max=10, *args, *
 
 
 
-def heat_map_multiple_gaussian_process_model(run, data_tag_readout, sample_key, result_file=None, magnification=5, n_plates_max=10, *args, **kwargs):
+def heat_map_multiple_gaussian_process_model(run, data_tag_readout, sample_tag, result_file=None, magnification=5, n_plates_max=10, *args, **kwargs):
     """ Create a heat_map for multiple readouts
 
     Create a heat_map for multiple readouts
-
-
-model_as_gaussian_process(self, data_tag_readout, sample_key,
-                                  kernel_type='m32',
-                                  n_max_iterations=1000,
-                                  plot_kwargs=False,
-
     """
 
     wells_high_resolution = list(itertools.product(np.arange(0,run.width,1/magnification), np.arange(0,run.height,1/magnification)))
@@ -208,9 +201,9 @@ model_as_gaussian_process(self, data_tag_readout, sample_key,
     data = []
     for plate_tag in plate_tags:
         plate = run.plates[plate_tag]
-        m = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=sample_key, return_model=True, **kwargs)
-        y_mean, y_var  = m.predict(x_wells)
-        y_predicted_as_matrix = y_mean.reshape(magnification*run.width,magnification*run.height).transpose()
+        m, y_mean, y_std = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_tag=sample_tag, **kwargs)
+        y_predicted_mean, y_predicted_var = m.predict(x_wells)
+        y_predicted_as_matrix = y_predicted_mean.reshape(magnification*run.width,magnification*run.height).transpose()
         data.append(y_predicted_as_matrix)
 
 
@@ -247,7 +240,7 @@ model_as_gaussian_process(self, data_tag_readout, sample_key,
 
 
 
-def slice_multiple_gaussian_process_model(run, data_tag_readout, sample_key, result_file=None, slice=5, n_plates_max=10, *args, **kwargs):
+def slice_multiple_gaussian_process_model(run, data_tag_readout, sample_tag, result_file=None, slice=5, n_plates_max=10, *args, **kwargs):
     """ Create a heat_map for multiple readouts
 
     Create a heat_map for multiple readouts
@@ -269,7 +262,7 @@ def slice_multiple_gaussian_process_model(run, data_tag_readout, sample_key, res
     models = []
     for plate_tag in plate_tags:
         plate = run.plates[plate_tag]
-        m = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_key=sample_key, return_model=True, **kwargs)
+        m, y_mean, y_std = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_tag=sample_tag, **kwargs)
         models.append(m)
 
     GPy.plotting.change_plotting_library('plotly')
