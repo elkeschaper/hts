@@ -415,7 +415,10 @@ class Plate:
             except:
                 raise ValueError("Possible error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
             try:
-                kernel_tmp = kernel_tmp(input_dim=dimension, **kernel_kwargs)
+                kernel_tmp = kernel_tmp(input_dim=dimension)
+                for parameter, property in kernel_kwargs.items():
+                    # e.g. kernel_tmp.variance.constrain_positive(4) would require kernel_kwargs = {"variance": ("constrain_positive", "4")}
+                    getattr(getattr(kernel_tmp, parameter), property[0])(property[1])
             except:
                 raise ValueError("Please check you kernel kwargs, and the input dimensions of the data.")
             if kernel:
@@ -656,4 +659,5 @@ def calculate_BIC_Gaussian_process_model(model):
     """
 
     # model._size_transformed() is the number of optimisation parameters, model.size the total number of parameters.
-    return - 2 * model.log_likelihood() + len(model.X) * model._size_transformed()
+    # model.log_likelihood() is the natural logarithm of the marginal likelihood of the Gaussian process.
+    return - 2 * model.log_likelihood() + len(model.X) * np.log(model._size_transformed())

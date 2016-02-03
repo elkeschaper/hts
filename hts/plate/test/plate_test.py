@@ -180,7 +180,8 @@ def test_calculate_BIC_for_gaussian_process_models(path, path_raw):
     test_readout = create_simulate_test_readout(h=h, w=w, plate_name=TEST_PLATE_NAME)
     test_plate_layout = plate_layout.PlateLayout.create(formats=["csv"], paths=[os.path.join(path, TEST_PLATELAYOUT_GPY)])
     test_plate = plate.Plate(data={"readout": test_readout, "plate_layout": test_plate_layout}, height=test_readout.height, width=test_readout.width, name=TEST_PLATE_NAME)
-    m, y_mean, y_std = test_plate.model_as_gaussian_process(data_tag_readout=TEST_PLATE_NAME, sample_tag="pos")
+    test_kernels = {"RBF": {"lengthscale": ("constrain_fixed", "4")}}
+    m, y_mean, y_std = test_plate.model_as_gaussian_process(data_tag_readout=TEST_PLATE_NAME, sample_tag="pos", kernels=test_kernels)
 
     test_BIC = plate.calculate_BIC_Gaussian_process_model(m)
     assert type(test_BIC) == np.float64
