@@ -18,6 +18,7 @@ import re
 import scipy.stats
 import string
 
+from hts.plate import prediction
 from hts.plate_data import plate_data, data_issue, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
@@ -389,50 +390,68 @@ class Plate:
         self.add_data(data_type="data_issue", data=data)
 
 
+    #### Prediction functions
+
+
+    def cross_validate_predictions(self, data_tag_readout, sample_tag, method_name, **kwargs):
+        """ Cross validate sample value predictions for sample type `sample_tag` and readout `data_tag_readout`,
+        using prediction method `method_name`.
+
+        Args:
+            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
+            sample_tag (str):  The sample for which the gaussian process will be modeled according to the
+                                position in self.plate_layout.data. E.g. for positive controls "pos"
+            method_name (str): The prediction method. E.g. gp for Gaussian processes.
+        """
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_tag)
+        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
+
+        if method_name == "gp":
+            prediction_method = prediction.predict_with_gaussian_process
+
+        x, y, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=False)
+
+        return prediction.cross_validate_predictions(x, y, prediction_method, **kwargs)
+
 
     def map_coordinates(self, coordinates_list):
         # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
         return [(i[1], self.height-i[0]+1) for i in coordinates_list]
 
 
-    def create_gaussian_process_kernel(self, dimension, kernel=None, kernels=None):
-        """ Create a gaussian process kernel from kernel string names.
+    def convert_values(self, wells, values, normalize=False):
 
-        Args:
-            dimension (int):  The expected Kernel dimension
-            kernel (str):  A previous kernel. More kernel features are added to this previous kernel.
-            kernels (dict): Dict of kernel_names: kernel_kwargs. E.g., kernels: {"rbf": None, "white_noise": None}
+        n_samples = len(wells)
 
-        """
-        if not kernels:
-            kernels = {"RBF": {}, "White": {}}
+        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
+        sampled_wells = self.map_coordinates(wells)
 
-        for kernel_type, kernel_kwargs in kernels.items():
-            # Currently available kernels:
-            # ['Add', 'BasisFuncKernel', 'Bias', 'Brownian', 'ChangePointBasisFuncKernel', 'Coregionalize', 'Cosine', 'DEtime', 'DiffGenomeKern', 'DomainKernel', 'EQ_ODE2', 'ExpQuad', 'Exponential', 'Fixed', 'Hierarchical', 'IndependentOutputs', 'Kern', 'Linear', 'LinearFull', 'LinearSlopeBasisFuncKernel', 'LogisticBasisFuncKernel', 'MLP', 'Matern32', 'Matern52', 'ODE_UY', 'ODE_UYC', 'ODE_st', 'ODE_t', 'OU', 'PeriodicExponential', 'PeriodicMatern32', 'PeriodicMatern52', 'Poly', 'Prod', 'RBF', 'RatQuad', 'Spline', 'SplitKern', 'StdPeriodic', 'TruncLinear', 'TruncLinear_inf', 'White'
-            try:
-                kernel_tmp = getattr(GPy.kern, kernel_type)
-            except:
-                raise ValueError("Possible error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
-            try:
-                kernel_tmp = kernel_tmp(input_dim=dimension)
-                for parameter, property in kernel_kwargs.items():
-                    # e.g. kernel_tmp.variance.constrain_positive(4) would require kernel_kwargs = {"variance": ("constrain_positive", "4")}
-                    getattr(getattr(kernel_tmp, parameter), property[0])(property[1])
-            except:
-                raise ValueError("Please check you kernel kwargs, and the input dimensions of the data.")
-            if kernel:
-                kernel += kernel_tmp
-            else:
-                kernel = kernel_tmp
+        # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
+        x = np.array(sampled_wells)
+        y = np.array(values)
 
-        return kernel
+        y_mean = y.mean()
+        y_std = y.std()
+
+        y = y.reshape((n_samples,1))
+
+        if normalize:
+            y_norm = y - y_mean
+            y_norm /= y_std
+            y = y_norm
+
+        return x, y, y_mean, y_std
+
+
+
+    #### Prediction functions - Gaussian processes
 
 
     def model_as_gaussian_process(self, data_tag_readout, sample_tag,
-                                   n_max_iterations=1000,
-                                   plot_kwargs=False,
-                                   kernels=None):
+                                  n_max_iterations=10000,
+                                  plot_kwargs=False,
+                                  kernels=None,
+                                  optimization_method='bfgs'):
         """ Model data as a gaussian process. Return the Gaussian process model, and mean and std of the input data for
         renormalization.
 
@@ -440,40 +459,24 @@ class Plate:
             data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
             sample_tag (str):  The sample for which the gaussian process will be modeled according to the
                                 position in self.plate_layout.data. E.g. for positive controls "pos"
+            optimization_method (str): The GPy optimization method. E.g. bfgs, scg, tnc
         """
 
         sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_tag)
         values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
 
-        n_samples = len(sampled_wells)
+        x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
 
-        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
-        sampled_wells = self.map_coordinates(sampled_wells)
+        kernel = prediction.create_gaussian_process_kernel(dimension=x.shape[1], kernel=None, kernels=kernels)
 
-        # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
-        X = np.array(sampled_wells)
-
-        # Standardize data.
-        y = np.array(values)
-        y_mean = y.mean()
-        y_std = y.std()
-
-        y = y.reshape((n_samples,1))
-        y_norm = y - y_mean
-        y_norm /= y_std
-
-        kernel = self.create_gaussian_process_kernel(dimension=X.shape[1], kernel=None, kernels=kernels)
-
-        m = GPy.models.GPRegression(X, y_norm, kernel)
+        m = GPy.models.GPRegression(x, y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
         # m.set_prior('.*lengthscale',len_prior)
-
-        #m.optimize(optimizer='scg', max_iters=n_max_iterations)
 
         LOG.info(m)
 
         ## It is not clear whether you should really perform this optimisation - perhaps you know the best length scale ?
-        m.optimize(max_f_eval = n_max_iterations)
+        m.optimize(optimization_method, max_f_eval=n_max_iterations)
 
         LOG.info(m)
 
@@ -647,17 +650,4 @@ class Plate:
                               tag=data_tag_normalized_readout)
 
 
-def calculate_BIC_Gaussian_process_model(model):
 
-    """
-    Calculate the Bayesian Information Criterion (BIC) for a (trained) GPy `model`.
-    https://en.wikipedia.org/wiki/Bayesian_information_criterion
-
-
-    ToDo: Check that model.log_likelihood() and model._size_transformed() are the correct inputs.
-    ToDo: Check that len(model.X) is always the sample size.
-    """
-
-    # model._size_transformed() is the number of optimisation parameters, model.size the total number of parameters.
-    # model.log_likelihood() is the natural logarithm of the marginal likelihood of the Gaussian process.
-    return - 2 * model.log_likelihood() + len(model.X) * np.log(model._size_transformed())
