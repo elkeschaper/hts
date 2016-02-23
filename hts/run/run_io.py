@@ -6,6 +6,7 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
+import collections
 import csv
 import itertools
 import logging
@@ -13,8 +14,91 @@ import os
 import re
 
 from hts.plate import plate
+from hts.plate_data import plate_data, readout
 
 LOG = logging.getLogger(__name__)
+
+
+################################## READ RUN DATA  #########################
+
+def convert_well_id_format(well, read="letternumber"):
+
+    if read=="letternumber":
+        p = re.compile("([A-Za-z]+)(\d+)")
+        match = p.match(well)
+        row = match.group(1)
+        column = str(int(match.group(2)))
+        well_id = plate.TRANSLATE_HUMANREADABLE_COORDINATE[(row, column)]
+
+    return well_id
+
+
+def read_csv(file, column_plate_name, column_well, columns_readout, columns_meta, width, height, delimiter=",", remove_empty_row=True):
+    """Read run data file in csv format, with one row for each well.
+
+    E.g.:
+    Plate ID,Well ID,Compound,,Data_0,Data_1,signal
+    XYZ005,A001,Glucose,,4444,5555,0.3
+
+    Attributes:
+        file (str): The path to the file.
+        column_plate_name (str): The column with plate name information.
+        column_well (str): The column with well coordinate information.
+        columns_readouts (list of str): Columns with readout data.
+        columns_metas (list of str): Columns with meta data.
+    """
+
+    data = collections.defaultdict(dict)
+
+    with open(file, 'r') as fh:
+        reader = csv.reader(fh, delimiter=delimiter)
+        header = next(reader)
+
+        try:
+            column_id_plate_name = header.index(column_plate_name)
+            column_id_well = header.index(column_well)
+            columns_id_readouts = [header.index(i) for i in columns_readout]
+            columns_id_metas = [header.index(i) for i in columns_meta]
+        except:
+            raise Exception('Please check column_plate_name {}, column_well {}, and columns_save {}. No match '
+                            'in the header {} found.'.format(column_plate_name, column_well, columns_readout, columns_meta, header))
+
+        for line in reader:
+            if remove_empty_row and (line == [] or set(line) == {''}):
+                continue
+            if len(header) != len(line):
+                raise Exception('Header and rows in {} are not of the same length:\nHeader: {}\nRow: {}'.format(file, header, line))
+            data[line[column_id_plate_name]][convert_well_id_format(line[column_id_well])] = [line[i] for i in columns_id_readouts + columns_id_metas]
+
+
+    # Convert well-wise to plate-wise data and create PlateData and Plate Objects
+    plates = []
+    for plate_name, plate_data_unstructured in data.items():
+        if len(plate_data_unstructured) != width * height:
+            LOG.error('Plate "{}" is ignored: {} instead of {} wells.'.format(plate_name, len(plate_data_unstructured), width * height))
+            continue
+        plate_data_structured = {}
+        # Shape readout data
+        readout_data = {}
+        for column_name in columns_readout:
+            try:
+                readout_data[column_name] = [[plate_data_unstructured[(row, column)].pop(0) for column in range(width)] for row in range(height)]
+            except:
+                import pdb; pdb.set_trace()
+        plate_data_structured["readout"] = readout.Readout(readout_data)
+        # Shape meta data
+        meta_data = {}
+        for column_name in columns_meta:
+            meta_data[column_name] = [[plate_data_unstructured[(row, column)].pop(0) for column in range(width)] for row in range(height)]
+        plate_data_structured["meta_data"] = plate_data.PlateData(meta_data)
+
+        plates.append(plate.Plate(data=plate_data_structured, name=plate_name, width=width, height=height))
+
+    LOG.info("Number of plates: {}, height: {}, width: {}".format(len(data), 11, 66))
+    return plates
+
+
+
 
 ################################## WRITE RUN DATA  #########################
 

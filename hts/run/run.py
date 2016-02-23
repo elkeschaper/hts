@@ -63,7 +63,7 @@ class Run:
         return run
 
 
-    def __init__(self, plates, path = None, **kwargs):
+    def __init__(self, plates, path=None, **kwargs):
 
         self.path = path
         self.plates = collections.OrderedDict((plate.name, plate) for plate in plates)
@@ -96,7 +96,7 @@ class Run:
 
 
     @classmethod
-    def create(cls, origin, path, format=None, dir=False):
+    def create(cls, origin, path, format=None, dir=False, **kwargs):
         """ Create ``Run`` instance.
 
         Create ``Run`` instance.
@@ -127,6 +127,8 @@ class Run:
             return cls.create_from_config(path, file)
         if origin == 'envision':
             return cls.create_from_envision(path, file)
+        if origin == 'csv':
+            return cls.create_from_csv_file(path, file, **kwargs)
         elif origin == 'pickle':
             with open(file, 'rb') as fh:
                 return pickle.load(fh)
@@ -154,6 +156,7 @@ class Run:
         defined_data_types = [data_type for data_type in KNOWN_DATA_TYPES if data_type in config]
         LOG.info(defined_data_types)
 
+        plates = None
         config_plate_wise = [{} for _ in plate_names]
         additional_data = {}
         for data_type in defined_data_types:
@@ -194,17 +197,22 @@ class Run:
                 if len(paths) == 1 and n_plate != 1:
                     if data_type == "plate_layout":
                         data = plate_layout.PlateLayout.create(paths=paths, formats=[format], **config_local)
+                        additional_data[data_type] = data
+                    elif data_type == "readout" and format == "csv_one_well_per_row":
+                        width = int(config_local.pop("width"))
+                        height = int(config_local.pop("height"))
+                        plates = run_io.read_csv(file=paths[0], width=width, height=height, **config_local)
                     else:
                         raise Exception("Reading in general info for data_type {} is not yet implemented."
                                         "".format(data_type))
-                    additional_data[data_type] = data
                 else:
                     for i_plate, (i_path, tag) in enumerate(zip(paths, tags)):
                         config_local.update({"paths": [i_path], "tags": [tag], "formats": [format]})
                         config_plate_wise[i_plate][data_type] = copy.deepcopy(config_local) # For current shallow dicts, config_local.copy() is ok.
 
-        # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
-        plates = [plate.Plate.create(format="config", name=plate_name, **config_plate) for config_plate, plate_name in zip(config_plate_wise, plate_names)]
+        if not plates:
+            # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
+            plates = [plate.Plate.create(format="config", name=plate_name, **config_plate) for config_plate, plate_name in zip(config_plate_wise, plate_names)]
         for data_type, data in additional_data.items():
             for i_plate in plates:
                 i_plate.add_data(data_type, data, force=True)
@@ -275,6 +283,23 @@ class Run:
             plates.append(plate.Plate.create(format="config", **config))
 
         return Run(path=path, plates=plates)
+
+
+    @classmethod
+    def create_from_csv_file(cls, path, file, **kwargs):
+        """ Read csv data and create `Run` instance.
+
+        Read csv data and create `Run` instance.
+
+        Args:
+            path (str): Path to input csv file
+            file (str): Filename of csv file
+
+        """
+
+        plates = run_io.read_csv(file=os.path.join(path, file), **kwargs)
+        return Run(path=path, plates=plates)
+
 
 
     def filter(self, **kwargs):
