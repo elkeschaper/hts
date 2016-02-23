@@ -68,9 +68,10 @@ def create_gaussian_process_kernel(dimension, kernel=None, kernels=None):
         # ToDo: Add ARD to the kernel parameters, such that e.g. lengthscales can differ across the plates.
     """
     if not kernels:
-        kernels = {"RBF": {}, "White": {}}
+        kernels = [("RBF", {}, {}), ("White", {}, {})]
 
-    for kernel_type, kernel_kwargs in kernels.items():
+    for kernel_kwargs in kernels:
+        kernel_type, kernel_info, kernel_constraints = kernel_kwargs
         # Currently available kernels:
         # ['Add', 'BasisFuncKernel', 'Bias', 'Brownian', 'ChangePointBasisFuncKernel', 'Coregionalize', 'Cosine', 'DEtime', 'DiffGenomeKern', 'DomainKernel', 'EQ_ODE2', 'ExpQuad', 'Exponential', 'Fixed', 'Hierarchical', 'IndependentOutputs', 'Kern', 'Linear', 'LinearFull', 'LinearSlopeBasisFuncKernel', 'LogisticBasisFuncKernel', 'MLP', 'Matern32', 'Matern52', 'ODE_UY', 'ODE_UYC', 'ODE_st', 'ODE_t', 'OU', 'PeriodicExponential', 'PeriodicMatern32', 'PeriodicMatern52', 'Poly', 'Prod', 'RBF', 'RatQuad', 'Spline', 'SplitKern', 'StdPeriodic', 'TruncLinear', 'TruncLinear_inf', 'White'
         try:
@@ -78,8 +79,8 @@ def create_gaussian_process_kernel(dimension, kernel=None, kernels=None):
         except:
             raise ValueError("Possible error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
         try:
-            kernel_tmp = kernel_tmp(input_dim=dimension)
-            for parameter, property in kernel_kwargs.items():
+            kernel_tmp = kernel_tmp(input_dim=dimension, **kernel_info)
+            for parameter, property in kernel_constraints.items():
                 # e.g. kernel_tmp.variance.constrain_positive(4) would require kernel_kwargs = {"variance": ("constrain_positive", "4")}
                 getattr(getattr(kernel_tmp, parameter), property[0])(property[1])
         except:
