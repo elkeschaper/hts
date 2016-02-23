@@ -37,41 +37,29 @@ def create_report(*args, **kwargs):
 ################ Readout wise methods ####################
 
 
-def heat_map_single(run, data_tag,  result_file=None, *args, **kwargs):
+def heat_map_single(run, data_tag, plate_tag, **kwargs):
     """ Create a heat_map for a single plate
 
     Create a heat_map for a single plate
-
-    ..todo:: Share code between heat_map_single and heat_map_multiple
     """
 
+    plate = run.plates[plate_tag]
+    data = plate.filter(value_data_type="readout", value_data_tag=data_tag, return_list=False, **kwargs)
 
-    fig, ax = plt.subplots()
+    # Invert all columns (to comply with naming standards in HTS).
+    # Unfortunately, simply inverting the y-axis did not seem to work.
+    #data = data[::-1]
+    data = np.array(data)
 
-    im = ax.pcolormesh(np_data, vmin=np_data.min(), vmax=np_data.max()) # cmap='RdBu'
-    fig.colorbar(im)
+    fig = plt.figure()
+    plt.pcolor(data)
+    plt.colorbar()
+    ax = plt.gca()
+    ax.set_ylim(ax.get_ylim()[::-1])
+    ax.set_aspect('equal')
 
-    # put the major ticks at the middle of each cell
-    ax.set_xticks(np.arange(np_data.shape[1]) + 0.5, minor=False)
-    ax.set_yticks(np.arange(np_data.shape[0]) + 0.5, minor=False)
-
-    # Invert the y-axis such that the data is displayed as it appears on the plate.
-    ax.invert_yaxis()
-    ax.xaxis.tick_top()
-
-    ax.set_xticklabels(data.axes['x'], minor=False)
-    ax.set_yticklabels(data.axes['y'], minor=False)
-
-    if result_file:
-        pp = PdfPages(result_file)
-        pp.savefig(fig, dpi=20, bbox_inches='tight')
-        pp.close()
-
-    fig.clear()
-
-    return ax
-
-
+    #fig.set_size_inches(5, 4, forward=True)
+    plt.show()
 
 
 def heat_map_single_gaussian_process_model(run, data_tag_readout, sample_tag, plate_tag, magnification=5, *args, **kwargs):
@@ -101,7 +89,7 @@ model_as_gaussian_process(self, data_tag_readout, sample_key,
     # im is of type matplotlib.image.AxesImage
     plt.imshow(y_predicted_as_matrix)
     plt.colorbar()
-
+    plt.gca().invert_yaxis()
     fig.set_size_inches(5, 4, forward=True)
     plt.show()
 
