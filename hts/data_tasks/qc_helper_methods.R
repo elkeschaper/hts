@@ -18,6 +18,7 @@ data$x1 = factor(data$x1, levels = min(data$x1):max(data$x1))
 data$tmp = data[,column]
 p = ggplot(data, aes(x= x1, y= x2, fill=tmp), environment = environment()) 
 p = p + geom_raster() + scale_fill_gradientn(colours = colors, name = column)
+p = p + coord_fixed(ratio=1)
 p = beautifier(p)
 if (save == TRUE) {
 ggsave(paste(pathImages, label, '_',column,'_x1x2.pdf', sep=''), width=12, height=8, dpi = 300)
@@ -31,6 +32,7 @@ data$x1 = factor(data$x1, levels = min(data$x1):max(data$x1))
 data$tmp = data[,column]
 p = ggplot(data, aes(x= x1, y= x2, fill=tmp), environment = environment()) + facet_wrap(~x3)
 p = p + geom_raster() + scale_fill_gradientn(colours = colors, name = column)
+p = p + coord_fixed(ratio=1)
 p = beautifier(p)
 if (save == TRUE) {
 ggsave(paste(pathImages, column, '_x1x2x3.pdf', sep=''), width=12, height=8, dpi = 300)
