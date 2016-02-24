@@ -136,7 +136,7 @@ def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, 
     header ="""
 ---
 title: "QC report"
-author: "Neuropathology USZ & Vital-IT, Swiss Institute of Bioinformatics"
+author: "Vital-IT, Swiss Institute of Bioinformatics"
 date: "{}"
 output: "{}"
 ---
@@ -176,11 +176,15 @@ path = "{0}"
 
 ################ wrap knitr chunk ###################
 
-def wrap_knitr_chunk(chunk, chunk_name, echo=False, evaluate=True, message=False, warning=False, **kwargs):
-
+def wrap_knitr_chunk(chunk, chunk_name, echo=False, evaluate=True, message=False, warning=False, options=""):
+    """
+        Instead of explicitly defining echo, evaluate and so on, it may be advised to implicitly provide all Knitr chunk
+         options as a string in "options"
+         In the same regard, one could rename "verbosity" to "options"/"knitr_chunk_options"
+    """
     parameter_mapping = {"echo": echo, "eval": evaluate, "message": message, "warning": warning}
-    parameters = ["{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i,j in parameter_mapping.items()]
-    return "```{{r {1}, {2}, {3}, {4}, {5}}}\n{0}\n```\n".format(chunk, chunk_name, *parameters)
+    parameters = {i: "{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i,j in parameter_mapping.items()}
+    return "```{{r {1}, {echo}, {eval}, {message}, {warning}, {options}}}\n{0}\n```\n".format(chunk, chunk_name, options=options, **parameters)
 
 
 ################ Data subsetting #####################
