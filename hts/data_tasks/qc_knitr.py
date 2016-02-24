@@ -1,4 +1,4 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper
 
 """
     :synopsis: ``quality_control`` implementes all methods connected to the
@@ -76,7 +76,7 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
             verbosity = {}
 
         # Later on, you can make this line more complicated.
-        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, **verbosity)
+        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **verbosity)
         qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
 
     #import pdb; pdb.set_trace()
@@ -159,7 +159,7 @@ output: "{}"
 source("{}")
 library(reshape2)
 require(gridExtra)""".format(qc_helper_methods_path)
-    environment="\n" + wrap_knitr_chunk(chunk=environment_commands, echo=False, evaluate=True)
+    environment="\n" + wrap_knitr_chunk(chunk=environment_commands, chunk_name="set_environment", echo=False, evaluate=True)
 
 
     data_loader_commands="""
@@ -168,7 +168,7 @@ path = "{0}"
 {1} = read.csv(path, sep=",", header = TRUE)
 {1}$x3_plate_name = factor({1}$x3_plate_name, levels = c("{2}"))
 """.format(path_knitr_data, original_data_frame, '","'.join(x3_plate_names))
-    data_loader="\n" + wrap_knitr_chunk(chunk=data_loader_commands, echo=False, evaluate=True)
+    data_loader="\n" + wrap_knitr_chunk(chunk=data_loader_commands, chunk_name="load_data", echo=False, evaluate=True)
 
     return header, environment, data_loader
 
@@ -176,11 +176,11 @@ path = "{0}"
 
 ################ wrap knitr chunk ###################
 
-def wrap_knitr_chunk(chunk, echo=False, evaluate=True, message=False, warning=False, **kwargs):
+def wrap_knitr_chunk(chunk, chunk_name, echo=False, evaluate=True, message=False, warning=False, **kwargs):
 
     parameter_mapping = {"echo": echo, "eval": evaluate, "message": message, "warning": warning}
     parameters = ["{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i,j in parameter_mapping.items()]
-    return "```{{r, {1}, {2}, {3}, {4}}}\n{0}\n```\n".format(chunk, *parameters)
+    return "```{{r {1}, {2}, {3}, {4}, {5}}}\n{0}\n```\n".format(chunk, chunk_name, *parameters)
 
 
 ################ Data subsetting #####################
