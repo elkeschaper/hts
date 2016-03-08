@@ -62,21 +62,24 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
             qc_subset = ""
             LOG.info("No key 'filter' in i_qc_characteristics: {}".format(i_qc_characteristics))
         # 2. Create QC code
-        qc_description, qc_calculation = perform_qc(qc_method_name)
+        if "options" in i_qc_characteristics:
+            qc_description, qc_calculation = perform_qc(qc_method_name, **i_qc_characteristics["options"])
+        else:
+            qc_description, qc_calculation = perform_qc(qc_method_name)
         # 3. Apply filter
         if "threshold" in i_qc_characteristics:
             qc_decision = evaluate_qc(qc_result, i_qc_characteristics['threshold'])
             chunk = "\n".join([qc_subset, qc_calculation, qc_decision])
         else:
             chunk = "\n".join([qc_subset, qc_calculation])
-        # 4. Choose how verbose Knitr is:
-        if "verbosity" in i_qc_characteristics:
-            verbosity = i_qc_characteristics['verbosity']
+        # 4. Choose Knitr options. E.g. choose how verbose Knitr is:
+        if "knitr_options" in i_qc_characteristics:
+            knitr_options = i_qc_characteristics['knitr_options']
         else:
-            verbosity = {}
+            knitr_options = {}
 
         # Later on, you can make this line more complicated.
-        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **verbosity)
+        wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **knitr_options)
         qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
 
     #import pdb; pdb.set_trace()
@@ -282,14 +285,14 @@ grid.arrange(p, p2, ncol=2)'''
 
 
 
-def compare_plate_replicates():
+def compare_plate_replicates(r1=1, r2=2):
 
-    description = '''
-Plot replicate values against each other.'''
+    description = """
+Plot replicate values {r1} and {r2} against each other.""".format(r1=r1, r2=r2)
 
-    calculation = '''
-d_tmp_1 = subset(d, sample_replicate == 1)
-d_tmp_2 = subset(d, sample_replicate == 2)
+    calculation = """
+d_tmp_1 = subset(d, sample_replicate == {r1})
+d_tmp_2 = subset(d, sample_replicate == {r2})
 d_tmp_1$y_replicate_1 = d_tmp_1$y
 d_tmp_1$y_replicate_2 = d_tmp_2$y
 
@@ -298,20 +301,21 @@ p = p + geom_point(size = 0.8, color = "brown", alpha = 0.3)
 p = p + geom_smooth(method=lm,   # Add linear regression lines
                 se=FALSE,    # Don't add shaded confidence region
                 fullrange=T, colour="grey")
-p = p + facet_wrap( ~x3_plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~x3_plate_name, ncol=3) + scale_colour_brewer(palette="Set1")
+p = p + coord_fixed(ratio=1)
 #plot.new()
 #legend('topleft', legend = lm_eqn(lm(y_replicate_1 ~ y_replicate_2, d_tmp_1)), bty = 'n') # Problem printing.
 beautifier(p)
 
-myLm <- function( formula, df ){
+myLm <- function( formula, df ){lb}
    mod <- lm(formula, data=df)
    lmOut <- data.frame(t(mod$coefficients))
    names(lmOut) <- c("intercept","slope")
    lmOut$r2 = summary(mod)$r.squared
    return(lmOut)
-}
+{rb}
 outDf <- ddply(d_tmp_1, "x3_plate_name", function(df)  myLm(y_replicate_1 ~ y_replicate_2, df))
-print(outDf)'''
+print(outDf)""".format(r1=r1, r2=r2, lb="{", rb="}")
 
     return description, calculation
 
