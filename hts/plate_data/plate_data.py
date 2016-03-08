@@ -62,6 +62,8 @@ class PlateData:
 
         if "tag" in kwargs:
             self.tags = [kwargs.pop("tag")]
+        else:
+            self.tags = []
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
