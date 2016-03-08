@@ -233,7 +233,12 @@ class Plate:
             if return_list:
                 return value_plate_data.get_values(wells=wells, data_tag=value_data_tag, value_type=value_type)
             else:
-                raise Exception("Not implemented.")
+                data = np.empty([self.height, self.width])
+                data[:] = np.NAN
+                for well in wells:
+                    value = value_plate_data.get_values(wells=[well], data_tag=value_data_tag, value_type=value_type)
+                    data[well[0], well[1]] = value[0]
+                return data
                 # ToDo: Return matrix of values, with None for wells that do not fulfill the condition, and
                 # the value otherwise.
 
@@ -450,6 +455,7 @@ class Plate:
     def model_as_gaussian_process(self, data_tag_readout, sample_tag,
                                   n_max_iterations=10000,
                                   plot_kwargs=False,
+                                  kernel=None,
                                   kernels=None,
                                   optimization_method='bfgs'):
         """ Model data as a gaussian process. Return the Gaussian process model, and mean and std of the input data for
@@ -467,7 +473,8 @@ class Plate:
 
         x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
 
-        kernel = prediction.create_gaussian_process_kernel(dimension=x.shape[1], kernel=None, kernels=kernels)
+        if not kernel and kernels:
+            kernel = prediction.create_gaussian_process_kernel(dimension=x.shape[1], kernel=None, kernels=kernels)
 
         m = GPy.models.GPRegression(x, y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
@@ -490,14 +497,15 @@ class Plate:
 
         return m, y_mean, y_std
 
-    def predict_from_gaussian_process(self, model, data_tag_readout, y_mean=0, y_std=1, sample_key=None):
+    def predict_from_gaussian_process(self, model, y_mean=0, y_std=1, sample_key=None, data_tag_prediction=None):
         """ Predict data for Gaussian process model `model`
 
         Args:
-            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
             sample_key (str):  The sample for which the gaussian process will be predicted according to the
                                 position in self.plate_layout.data. E.g. for positive controls "pos". If not assigned,
                                 predictions for whole plate will be returned.
+            data_tag_prediction (str): If data_tag_prediction is set to a string, the data will be saved as a readout
+                                with tag *data_tag_prediction*.
         """
         if sample_key:
             raise Exception("Not yet implemented")
@@ -516,10 +524,14 @@ class Plate:
         y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
         y_predicted_sd_abs = np.array([y_predicted_sd_abs[row*self.width:(row+1)*self.width] for row in range(self.height)])
 
+
+        if data_tag_prediction:
+            self.readout.add_data(data={data_tag_prediction: y_predicted_mean_abs}, tag=data_tag_prediction)
+
         return y_predicted_mean_abs, y_predicted_sd_abs
 
 
-    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, **kwargs):
+    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, data_tag_prediction=None, **kwargs):
 
         """ Model data as a gaussian process. Predict data for the entire plate. [Compare predictions and real values.]
 
@@ -532,11 +544,12 @@ class Plate:
 
         m, y_mean, y_std = self.model_as_gaussian_process(data_tag_readout, sample_tag_input, **kwargs)
         y_predicted_mean_abs, y_predicted_sd_abs = self.predict_from_gaussian_process(model=m,
-                                                                                      data_tag_readout=data_tag_readout,
                                                                                       y_mean=y_mean,
-                                                                                      y_std=y_std)
+                                                                                      y_std=y_std,
+                                                                                      data_tag_prediction=data_tag_prediction)
 
-        return y_predicted_mean_abs, y_predicted_sd_abs
+
+        return m, y_predicted_mean_abs, y_predicted_sd_abs
 
 
 
