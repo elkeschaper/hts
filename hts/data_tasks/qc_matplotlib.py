@@ -49,7 +49,11 @@ def heat_map_single(run, data_tag, plate_tag, **kwargs):
     # Invert all columns (to comply with naming standards in HTS).
     # Unfortunately, simply inverting the y-axis did not seem to work.
     #data = data[::-1]
-    data = np.array(data)
+
+    if not type(data) == np.ndarray:
+        data = np.array(data)
+
+    data = np.ma.array(data, mask=np.isnan(data))
 
     fig = plt.figure()
     plt.pcolor(data)
