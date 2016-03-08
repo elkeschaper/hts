@@ -151,3 +151,44 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
 
 
     return "\n".join([delimiter.join([str(j) for j in i]) for i in all_data])
+
+
+def write_csv(run_data, readouts=None, plate_name="Plate ID", well_name="Well ID", plate_layout_name="sample type", delimiter=","):
+    """Write run data file in csv format, with one row for each well.
+
+    E.g.:
+    Plate ID,Well ID,Compound,,Data_0,Data_1,signal
+    XYZ005,A001,Glucose,,4444,5555,0.3
+
+    Attributes:
+        readouts (list of str): Which readouts will be printed. If not indicated, all readouts are printed.
+        plate_name (str): The name of the plate name column
+        well_name (str): The name of the well name column
+        plate_layout_name (str): The name of the plate layout column
+    """
+
+    if readouts==None:
+        plate = next (iter (dict.values()))
+        readouts = list(plate.readout.data.keys())
+
+    column_name = [plate_name, well_name, plate_layout_name] + readouts
+
+    all_data = [column_name]
+    # Iterate over plates
+    for iPlate_index, iPlate in run_data.plates.items():
+        # Plates can have different layouts.
+        plate_layout_container = iPlate.plate_layout
+        plate_layout = plate_layout_container.data["layout"]
+        layout_general_type = plate_layout_container.data["layout_general_type"]
+        # Iterate over the x axis ("width") and the y axis ("height")
+        for i_row, i_col in itertools.product(range(iPlate.height), range(iPlate.width)):
+            h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
+            h_coordinate_fraunhofer = "{0}{1:03d}".format(h_coordinate[0], int(h_coordinate[2]))
+            # Iterate over readouts in plates (raw and preprocessed)
+            readout_data = [iPlate.readout.data[i][i_row][i_col] if i in iPlate.readout.data else None for i in readouts]
+            all_data.append([iPlate_index,
+                             h_coordinate_fraunhofer,
+                             plate_layout[i_row][i_col]
+                             ] + readout_data)
+
+    return "\n".join([delimiter.join([str(j) for j in i]) for i in all_data])
