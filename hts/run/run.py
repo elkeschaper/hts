@@ -452,7 +452,7 @@ class Run:
         return self._protocol
 
 
-    def write(self, format, path=None, return_string=None, *args):
+    def write(self, format, path=None, return_string=None, **kwargs):
         """ Serialize and write ``Run`` instances.
 
         Serialize ``Run`` instance using the stated ``format``.
@@ -469,6 +469,8 @@ class Run:
                 pickle.dump(self, fh)
         elif format == 'csv':
             output = run_io.serialize_run_for_r(self)
+        elif format == 'csv_one_well_per_row':
+            output = run_io.write_csv(self, **kwargs)
         else:
             raise Exception('Format is unknown: {}'.format(format))
 
