@@ -22,23 +22,24 @@ from hts.plate import prediction
 from hts.plate_data import plate_data, data_issue, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
-LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
+LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in
+                                          itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
 MAX_WIDTH = 48
 MAX_HEIGHT = 32
-TRANSLATE_HUMANREADABLE_COORDINATE = {(LETTERS[cc[0]], str(cc[1]+1)): cc for cc in itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
-TRANSLATE_COORDINATE_HUMANREADABLE = {cc: (LETTERS[cc[0]], str(cc[0]+1), str(cc[1]+1)) for cc in itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
+TRANSLATE_HUMANREADABLE_COORDINATE = {(LETTERS[cc[0]], str(cc[1] + 1)): cc for cc in
+                                      itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
+TRANSLATE_COORDINATE_HUMANREADABLE = {cc: (LETTERS[cc[0]], str(cc[0] + 1), str(cc[1] + 1)) for cc in
+                                      itertools.product(range(MAX_HEIGHT), range(MAX_WIDTH))}
 LOG = logging.getLogger(__name__)
 
 
 ## TODO: Instead of creating a matrix for both coordinates, simply create a list each to safe memory.
 
 def translate_coordinate_humanreadable(coordinate):
-
     return TRANSLATE_COORDINATE_HUMANREADABLE[coordinate]
 
 
 def translate_humanreadable_coordinate(humanreadable):
-
     pattern = re.compile('([a-zA-Z]+)0*(\d+)')
     match = re.match(pattern, humanreadable)
     if not match:
@@ -49,7 +50,6 @@ def translate_humanreadable_coordinate(humanreadable):
 
 
 class Plate:
-
     """ ``Plate`` describes all information connected to the readout_dict
     of a high throughput screen. This could be either several readouts of a
     plate, or the same plate across several plates.
@@ -73,15 +73,15 @@ class Plate:
             name = "<not named>"
         try:
             readout_dict = ("<Plate instance>\nname: {}\nread_outs: {}"
-                    "\nNumber of read_outs: {}\nwidth: {}\nheight: {}".format(name,
-                    str(self.readout.data.keys()), len(self.readout.data),
-                    self.width, self.height))
+                            "\nNumber of read_outs: {}\nwidth: {}\nheight: {}".format(name,
+                                                                                      str(self.readout.data.keys()),
+                                                                                      len(self.readout.data),
+                                                                                      self.width, self.height))
         except:
             readout_dict = "<Plate instance>"
             LOG.warning("Could not create string of Plate instance.")
 
         return readout_dict
-
 
     def __init__(self, data, name, **kwargs):
 
@@ -92,7 +92,8 @@ class Plate:
         for data_type in KNOWN_DATA_TYPES:
             if data_type in data:
                 if not isinstance(data[data_type], plate_data.PlateData):
-                    raise Exception("type of {} data is {}, not plate_data.PlateData.".format(data_type, type(data[data_type])))
+                    raise Exception(
+                        "type of {} data is {}, not plate_data.PlateData.".format(data_type, type(data[data_type])))
                 setattr(self, data_type, data[data_type])
             else:
                 setattr(self, data_type, None)
@@ -118,8 +119,6 @@ class Plate:
                     "".format(plate_heights, plate_widths))
 
         """
-
-
 
     def create(format, name=None, **kwargs):
         """ Create ``Plate`` instance.
@@ -154,7 +153,6 @@ class Plate:
             raise Exception("Format: {} is not implemented in "
                             "Plate.create()".format(format))
 
-
     def add_data(self, data_type, data, force=False, tag=None):
         """ Add `data` of `data_type` to `self.meta_data`
 
@@ -174,7 +172,6 @@ class Plate:
             setattr(self, data_type, data)
         else:
             getattr(self, data_type).add_data(data=data, tag=tag)
-
 
     def write(self, format, path=None, return_string=None, *args):
         """ Serialize and write ``Plate`` instances.
@@ -199,8 +196,6 @@ class Plate:
                 fh.write(output)
         if return_string:
             return output
-
-
 
     def filter(self, value_data_type, value_data_tag, value_type=None,
                condition_data_type=None, condition_data_tag=None, condition=None,
@@ -249,22 +244,84 @@ class Plate:
             else:
                 return data
 
-
         return values
-
 
     #### Preprocessing functions
 
     def preprocess(self, methodname, **kwargs):
 
-            method = getattr(self, methodname)
-            method(**kwargs)
+        method = getattr(self, methodname)
+        method(**kwargs)
+
+
+    def calculate_linearly_normalized_signal(self, unnormalized_key, low, high, normalized_key):
+        """ Linearly normalize the data
+
+        .. math::
+        normalized__i = \frac{ x_{unnormalized_i} - \hat{x_{low}} } {  \hat{x_{high}} - \hat{x_{low}} }
+
+        x_low are all wells (according to the plate layout) with low values for normalization.
+        x_high are all wells (according to the plate layout) with low values for normalization.
+
+        Args:
+            unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.
+            normalized_key (str):  The key for self.readout.data where the resulting normalized ``Readout`` instance will be stored.
+            x_low (list of str):  The list of names of all low fixtures in the plate layout (self.plate_data).
+            x_high (list of str): The list of names of the high fixture in the plate layout (self.plate_data).
+        """
+
+        if normalized_key in self.readout.data:
+            LOG.warning("The normalized_key {} is already in self.readout.data. "
+                        "Skipping recalculation".format(normalized_key))
+            return
+
+        low_data = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                condition=lambda x: x in low,
+                                value_data_type="readout",
+                                value_data_tag=unnormalized_key)
+
+        high_data = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                 condition=lambda x: x in high,
+                                 value_data_type="readout",
+                                 value_data_tag=unnormalized_key)
+
+        normalized_data = (self.readout.get_data(unnormalized_key) - np.mean(low_data)) / (
+            np.mean(high_data) - np.mean(low_data))
+
+        self.readout.add_data(data={normalized_key: normalized_data}, tag=normalized_key)
+
+
+    def calculate_normalization_by_division(self, unnormalized_key, normalizer_key, normalized_key):
+        """ Normalize the data by rtglo as a proxy for the relative cell number.
+
+        .. math::
+        rtglo_normalized_i = \frac{ x_{unnormalized_i} - \hat{x_{low}} } {  \hat{x_{high}} - \hat{x_{low}} }
+
+        x_low could for example be cell-less wells ("blank" or "buffer). Here, the RTGlo signal should be minimal.
+        x_high could be the wells were cells are expected to grow best, and grow homogenously across plates.
+
+        Args:
+            rtglo_key (str):  The key for self.readout.data where the rtglo ``Readout`` instance is stored.
+            unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.
+            normalized_key (str):  The key for self.readout.data where the resulting normalized ``Readout`` instance will be stored.
+            x_low (list of str):  The list of names of all low fixtures in the plate layout (self.plate_data).
+            x_high (str): The name of the high fixture in the plate layout (self.plate_data).
+        """
+
+        if normalized_key in self.readout.data:
+            LOG.warning("The normalized_key {} is already in self.readout.data. "
+                        "Skipping recalculation".format(normalized_key))
+            return
+
+        relative_data = 1 - self.readout.get_data(unnormalized_key) / self.readout.get_data(normalizer_key)
+
+        self.readout.add_data(data={normalized_key: relative_data}, tag=normalized_key)
 
 
     def calculate_net_fret(self, donor_channel, acceptor_channel,
-                            fluorophore_donor = "fluorophore_donor",
-                            fluorophore_acceptor = "fluorophore_acceptor",
-                            buffer = "buffer", net_fret_key = "net_fret"):
+                           fluorophore_donor="fluorophore_donor",
+                           fluorophore_acceptor="fluorophore_acceptor",
+                           buffer="buffer", net_fret_key="net_fret"):
         """ Calculate the net FRET signal for a donor acceptor FRET setup.
 
         Calculate the net FRET signal for a donor acceptor FRET setup.
@@ -305,45 +362,53 @@ class Plate:
             return
 
         mean_donor_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==fluorophore_donor,
+                                                       condition=lambda x: x == fluorophore_donor,
                                                        value_data_type="readout", value_data_tag=donor_channel))
-        mean_acceptor_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==fluorophore_acceptor,
-                                                       value_data_type="readout", value_data_tag=donor_channel))
+        mean_acceptor_donor_channel = np.mean(
+            self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                        condition=lambda x: x == fluorophore_acceptor,
+                        value_data_type="readout", value_data_tag=donor_channel))
         mean_buffer_donor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==buffer,
-                                                       value_data_type="readout", value_data_tag=donor_channel))
-        mean_donor_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==fluorophore_donor,
-                                                       value_data_type="readout", value_data_tag=acceptor_channel))
-        mean_acceptor_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==fluorophore_acceptor,
-                                                       value_data_type="readout", value_data_tag=acceptor_channel))
-        mean_buffer_acceptor_channel = np.mean(self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==buffer,
-                                                       value_data_type="readout", value_data_tag=acceptor_channel))
+                                                        condition=lambda x: x == buffer,
+                                                        value_data_type="readout", value_data_tag=donor_channel))
+        mean_donor_acceptor_channel = np.mean(
+            self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                        condition=lambda x: x == fluorophore_donor,
+                        value_data_type="readout", value_data_tag=acceptor_channel))
+        mean_acceptor_acceptor_channel = np.mean(
+            self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                        condition=lambda x: x == fluorophore_acceptor,
+                        value_data_type="readout", value_data_tag=acceptor_channel))
+        mean_buffer_acceptor_channel = np.mean(
+            self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                        condition=lambda x: x == buffer,
+                        value_data_type="readout", value_data_tag=acceptor_channel))
 
-        for i, value in enumerate([mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel, mean_donor_acceptor_channel, mean_acceptor_acceptor_channel, mean_buffer_acceptor_channel]):
+        for i, value in enumerate([mean_donor_donor_channel, mean_acceptor_donor_channel, mean_buffer_donor_channel,
+                                   mean_donor_acceptor_channel, mean_acceptor_acceptor_channel,
+                                   mean_buffer_acceptor_channel]):
             if np.isnan(value):
-                import pdb; pdb.set_trace()
-                raise ValueError("Calculation of variable {} resulted in {}. Check whether the plate layout is correctly assigned.".format(i, value))
+                import pdb;
+                pdb.set_trace()
+                raise ValueError(
+                    "Calculation of variable {} resulted in {}. Check whether the plate layout is correctly assigned.".format(
+                        i, value))
 
-        p = (mean_donor_acceptor_channel - mean_buffer_acceptor_channel) / (mean_donor_donor_channel - mean_buffer_donor_channel)
-
+        p = (mean_donor_acceptor_channel - mean_buffer_acceptor_channel) / (
+            mean_donor_donor_channel - mean_buffer_donor_channel)
 
         # Calculate the net FRET signal for the entire plate
         # See TechNote #TNPJ100.04 PROzyme
         # http://prozyme.com/pages/tech-notes
-        netfret = self.readout.get_data(acceptor_channel) - mean_acceptor_acceptor_channel - p*(self.readout.get_data(donor_channel) - mean_buffer_donor_channel)
+        netfret = self.readout.get_data(acceptor_channel) - mean_acceptor_acceptor_channel - p * (
+            self.readout.get_data(donor_channel) - mean_buffer_donor_channel)
 
         # ToDo: Add calculations for other values, as described by Eq. 5 or Eq. 6 in the Technote.
 
         self.readout.add_data(data={net_fret_key: netfret}, tag=net_fret_key)
 
 
-    def calculate_net_signal(self):
-        LOG.warning("I'm current not implemented.")
-        return
+
 
     def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,
                                                           data_issue_key="realtime-glo", threshold_level=0.05):
@@ -370,17 +435,16 @@ class Plate:
         if hasattr(self, "data_issue") and self.data_issue and data_issue_key in self.data_issue.data:
             raise ValueError("The data_issue_key {} is already in self.data_issue.data.".format(data_issue_key))
 
-
         normal_rtglo = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                                       condition=lambda x: x==normal_well,
-                                                       value_data_type="readout",
-                                                       value_data_tag=real_time_glo_measurement)
+                                   condition=lambda x: x == normal_well,
+                                   value_data_type="readout",
+                                   value_data_tag=real_time_glo_measurement)
 
         # First, calculate the critical value of the distribution.
 
         mu_normal = np.mean(normal_rtglo)
         sigma_normal = np.std(normal_rtglo)
-        z_score = (self.readout.get_data(real_time_glo_measurement) - mu_normal)/sigma_normal
+        z_score = (self.readout.get_data(real_time_glo_measurement) - mu_normal) / sigma_normal
         # p_value for one-sided test. For two-sided test, multiply by 2:
         p_value = scipy.stats.norm.sf(abs(z_score))
 
@@ -393,7 +457,6 @@ class Plate:
                                     name=data_issue_key)
 
         self.add_data(data_type="data_issue", data=data)
-
 
     #### Prediction functions
 
@@ -408,8 +471,8 @@ class Plate:
                                 position in self.plate_layout.data. E.g. for positive controls "pos"
             method_name (str): The prediction method. E.g. gp for Gaussian processes.
         """
-        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_tag)
-        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == sample_tag)
+        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout)  # value_type=float
 
         if method_name == "gp":
             prediction_method = prediction.predict_with_gaussian_process
@@ -418,11 +481,9 @@ class Plate:
 
         return prediction.cross_validate_predictions(x, y, prediction_method, **kwargs)
 
-
     def map_coordinates(self, coordinates_list):
         # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
-        return [(i[1], self.height-i[0]+1) for i in coordinates_list]
-
+        return [(i[1], self.height - i[0] + 1) for i in coordinates_list]
 
     def convert_values(self, wells, values, normalize=False):
 
@@ -438,7 +499,7 @@ class Plate:
         y_mean = y.mean()
         y_std = y.std()
 
-        y = y.reshape((n_samples,1))
+        y = y.reshape((n_samples, 1))
 
         if normalize:
             y_norm = y - y_mean
@@ -446,8 +507,6 @@ class Plate:
             y = y_norm
 
         return x, y, y_mean, y_std
-
-
 
     #### Prediction functions - Gaussian processes
 
@@ -468,8 +527,8 @@ class Plate:
             optimization_method (str): The GPy optimization method. E.g. bfgs, scg, tnc
         """
 
-        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_tag)
-        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout) # value_type=float
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == sample_tag)
+        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout)  # value_type=float
 
         x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
 
@@ -488,7 +547,7 @@ class Plate:
         LOG.info(m)
 
         if plot_kwargs:
-            #m.kern.plot_ARD()
+            # m.kern.plot_ARD()
             # Plot the posterior of the GP
             m.plot_data()
             m.plot_f()
@@ -514,22 +573,22 @@ class Plate:
             all_wells = self.map_coordinates(all_wells)
             x_all = np.array(all_wells)
 
-        y_predicted_mean, y_predicted_var  = model.predict(x_all)
+        y_predicted_mean, y_predicted_var = model.predict(x_all)
         y_predicted_mean_abs = y_predicted_mean * y_std + y_mean
         y_predicted_sd_abs = np.sqrt(y_predicted_var) * y_std
 
         # Are you absolutely sure you got the mapping back to list of lists right?
         y_predicted_mean_abs = [i for j in y_predicted_mean_abs for i in j]
-        y_predicted_mean_abs = np.array([y_predicted_mean_abs[row*self.width:(row+1)*self.width] for row in range(self.height)])
+        y_predicted_mean_abs = np.array(
+            [y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
         y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
-        y_predicted_sd_abs = np.array([y_predicted_sd_abs[row*self.width:(row+1)*self.width] for row in range(self.height)])
-
+        y_predicted_sd_abs = np.array(
+            [y_predicted_sd_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
 
         if data_tag_prediction:
             self.readout.add_data(data={data_tag_prediction: y_predicted_mean_abs}, tag=data_tag_prediction)
 
         return y_predicted_mean_abs, y_predicted_sd_abs
-
 
     def apply_gaussian_process(self, data_tag_readout, sample_tag_input, data_tag_prediction=None, **kwargs):
 
@@ -548,10 +607,7 @@ class Plate:
                                                                                       y_std=y_std,
                                                                                       data_tag_prediction=data_tag_prediction)
 
-
         return m, y_predicted_mean_abs, y_predicted_sd_abs
-
-
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
         """
@@ -560,35 +616,37 @@ class Plate:
        ToDo: Debug
         """
 
-        #y_predicted_mean, y_predicted_var = m.predict(X)
-        #f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
-        #y_predicted_abs = y_predicted_mean * y_std + y_mean
-        #y_error = y_norm - y_predicted_mean
-        #y_error_abs = y - y_predicted_abs
+        # y_predicted_mean, y_predicted_var = m.predict(X)
+        # f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)
+        # y_predicted_abs = y_predicted_mean * y_std + y_mean
+        # y_error = y_norm - y_predicted_mean
+        # y_error_abs = y - y_predicted_abs
 
 
         wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
-        values = self.readout.get_values(wells=wells, data_tag=data_tag_readout) # value_type=float
+        values = self.readout.get_values(wells=wells, data_tag=data_tag_readout)  # value_type=float
 
         #### This needs to be debugged, as data_predictions now come in a different format.
         raise Exception("Needs debugging.")
-        values = np.array(values).reshape((len(values),1))
+        values = np.array(values).reshape((len(values), 1))
         diff = data_predictions - values
 
         if sample_key:
-            specific_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==sample_key)
+            specific_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == sample_key)
             if len(specific_wells) == 0:
                 raise Exception("sample_key: {} does not define any wells.".format(sample_key))
             diff = np.array([diff[wells.index(well)] for well in specific_wells])
 
         return np.linalg.norm(diff)
 
-
     def calculate_control_normalized_signal(self,
                                             data_tag_readout,
                                             negative_control_key,
                                             positive_control_key,
                                             data_tag_normalized_readout=None,
+                                            data_tag_pvalue_vs_neg_control=None,
+                                            data_tag_normalized_negative_control=None,
+                                            data_tag_normalized_positive_control=None,
                                             local=True,
                                             **kwargs):
         """ Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
@@ -601,7 +659,7 @@ class Plate:
         y' = \frac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }
 
         For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).
-        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the averge control values across the plate.
+        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the average control values across the plate.
 
         WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to
         show lower mean values. [Otherwise, we would have to introduce a boolean "pos_control_lower_than_neg_control."]
@@ -616,20 +674,28 @@ class Plate:
 
         """
 
-        if not data_tag_normalized_readout:
-            data_tag_normalized_readout = "{}_normalized_by_controls".format(data_tag_readout)
+        if data_tag_normalized_readout == None:
+            data_tag_normalized_readout = "{}_GP_normalized_by_controls".format(data_tag_readout)
 
+        if data_tag_pvalue_vs_neg_control == None:
+            data_tag_pvalue_vs_neg_control = "{}_GP_pvalue_vs_neg_control".format(data_tag_readout)
+
+        if data_tag_normalized_negative_control == None:
+            data_tag_normalized_negative_control = "{}_GP_normalized_neg".format(data_tag_readout)
+
+        if data_tag_normalized_positive_control == None:
+            data_tag_normalized_positive_control = "{}_GP_normalized_pos".format(data_tag_readout)
 
         all_readouts = self.readout.get_data(data_tag_readout)
 
         if not local:
             # Normalize by "global" plate averages of negative and positive controls.
-            nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==negative_control_key)
+            nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == negative_control_key)
             nc_values = self.readout.get_values(wells=nc_wells, data_tag=data_tag_readout)
             data_nc_mean = np.mean(nc_values)
             data_nc_std = np.std(nc_values)
 
-            pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x==positive_control_key)
+            pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == positive_control_key)
             pc_values = self.readout.get_values(wells=pc_wells, data_tag=data_tag_readout)
             data_pc_mean = np.mean(pc_values)
 
@@ -640,16 +706,21 @@ class Plate:
             # processes.)
 
             # Calculate predicted values for mean and std: negative control.
-            data_nc_mean, data_nc_std = \
-                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=negative_control_key, **kwargs)
+            m, data_nc_mean, data_nc_std = \
+                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=negative_control_key,
+                                            **kwargs)
 
             # Calculate predicted values for mean and std: positive control.
-            data_pc_mean, data_pc_std = \
-                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=positive_control_key, **kwargs)
-
+            m, data_pc_mean, data_pc_std = \
+                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=positive_control_key,
+                                            **kwargs)
 
         # Calculate the normalised data
-        normalized_data = (all_readouts - data_nc_mean)/abs(data_nc_mean - data_pc_mean)
+        normalized_data = (all_readouts - data_nc_mean) / (data_pc_mean - data_nc_mean)
+
+        if self.name == "I4":
+            pass
+            # import pdb; pdb.set_trace()
 
         # Calculate the p-Value of all data points compared to the negative control.
         # Inspired by:
@@ -659,8 +730,8 @@ class Plate:
         p_value_neg = scipy.stats.norm(data_nc_mean, data_nc_std).cdf(all_readouts)
 
         self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
-                                    "{}_pvalue_vs_neg_control".format(data_tag_readout): p_value_neg},
+                                    data_tag_pvalue_vs_neg_control: p_value_neg,
+                                    data_tag_normalized_negative_control: data_nc_mean,
+                                    data_tag_normalized_positive_control: data_pc_mean,
+                                    },
                               tag=data_tag_normalized_readout)
-
-
-
