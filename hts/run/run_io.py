@@ -124,24 +124,24 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
 
     all_data = [column_name]
     # Iterate over plates
-    for iPlate_index, iPlate in run_data.plates.items():
+    for i_plate_index, i_plate in run_data.plates.items():
         # Plates can have different layouts.
-        plate_layout_container = iPlate.plate_layout
+        plate_layout_container = i_plate.plate_layout
         plate_layout = plate_layout_container.data["layout"]
         layout_general_type = plate_layout_container.data["layout_general_type"]
         sample_replicate_count = plate_layout_container.data["sample_replicate_count"]
         # Iterate over readouts in plates (raw and preprocessed)
         #import pdb; pdb.set_trace()
-        for iReadout_index, iReadout in iPlate.readout.data.items():
+        for iReadout_index, iReadout in i_plate.readout.data.items():
             # Iterate over the x axis ("width") and the y axis ("height")
-            for i_row, i_col in itertools.product(range(iPlate.height), range(iPlate.width)):
+            for i_row, i_col in itertools.product(range(i_plate.height), range(i_plate.width)):
                 h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
-                all_data.append([iPlate.name,
+                all_data.append([i_plate.name,
                                 h_coordinate[1],
                                 h_coordinate[0],
                                 i_col + 1,
                                 i_row + 1,
-                                iPlate_index,
+                                i_plate_index,
                                 iReadout[i_row][i_col],
                                 iReadout_index,
                                 plate_layout[i_row][i_col],
@@ -168,25 +168,25 @@ def write_csv(run_data, readouts=None, plate_name="Plate ID", well_name="Well ID
     """
 
     if readouts==None:
-        plate = next (iter (dict.values()))
-        readouts = list(plate.readout.data.keys())
+        i_plate = next (iter (run_data.plates.values()))
+        readouts = sorted(list(i_plate.readout.data.keys()))
 
     column_name = [plate_name, well_name, plate_layout_name] + readouts
 
     all_data = [column_name]
     # Iterate over plates
-    for iPlate_index, iPlate in run_data.plates.items():
+    for i_plate_index, i_plate in run_data.plates.items():
         # Plates can have different layouts.
-        plate_layout_container = iPlate.plate_layout
+        plate_layout_container = i_plate.plate_layout
         plate_layout = plate_layout_container.data["layout"]
         layout_general_type = plate_layout_container.data["layout_general_type"]
         # Iterate over the x axis ("width") and the y axis ("height")
-        for i_row, i_col in itertools.product(range(iPlate.height), range(iPlate.width)):
+        for i_row, i_col in itertools.product(range(i_plate.height), range(i_plate.width)):
             h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
             h_coordinate_fraunhofer = "{0}{1:03d}".format(h_coordinate[0], int(h_coordinate[2]))
             # Iterate over readouts in plates (raw and preprocessed)
-            readout_data = [iPlate.readout.data[i][i_row][i_col] if i in iPlate.readout.data else None for i in readouts]
-            all_data.append([iPlate_index,
+            readout_data = [i_plate.readout.data[i][i_row][i_col] if i in i_plate.readout.data else None for i in readouts]
+            all_data.append([i_plate_index,
                              h_coordinate_fraunhofer,
                              plate_layout[i_row][i_col]
                              ] + readout_data)
