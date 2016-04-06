@@ -9,7 +9,8 @@ require(grid)
 
 # Light orange to blue to black scale.
 colors = c("black", "darkblue", "blue", "orangered3", "orange", "papayawhip")
-
+# http://www.cookbook-r.com/Graphs/Colors_%28ggplot2%29/#a-colorblind-friendly-palette
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 
 tile_plot_x1x2 <- function(data, column, label, save){

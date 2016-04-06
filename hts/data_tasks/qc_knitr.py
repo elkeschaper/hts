@@ -450,7 +450,7 @@ def ssmd():
 
     description = '''
 SSMD (Definition according to [wikipedia](https://en.wikipedia.org/wiki/Strictly_standardized_mean_difference "Wikipedia: SSMD"))
-$$ \\rm{ssmd} = \\frac{\mu_\\rm{pos} - \mu_\\rm{neg}}{\\sigma_\\rm{pos}^2 + \\sigma_\\rm{neg}^2}, $$
+$$ \\rm{ssmd} = \\frac{\mu_\\rm{pos} - \mu_\\rm{neg}}{\sqrt{\\sigma_\\rm{pos}^2 + \\sigma_\\rm{neg}^2}}, $$
 where pos is the positive control, and neg are positive is the negative control.
 
 Warning: The displayed cut-off values assume a moderate control. Strong controls require smaller (more strict) ssmd values.
@@ -480,8 +480,10 @@ label_position_x3 = round(length(d_qc_score$x3)/2)
 p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
-p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
 beautifier(p)
 
 print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
@@ -523,7 +525,9 @@ label_position_x3 = round(length(d_qc_score$x3)/2)
 p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
@@ -563,7 +567,9 @@ label_position_x3 = round(length(d_qc_score$x3)/2)
 p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions, label=labels, colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
