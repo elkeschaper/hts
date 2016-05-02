@@ -1,4 +1,4 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper
 
 """
     :synopsis: The Plate Class.
@@ -21,7 +21,7 @@ import string
 from hts.plate import prediction
 from hts.plate_data import plate_data, data_issue, plate_layout, readout
 
-KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "meta_data"]
+KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "config_data"]
 LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in
                                           itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
 MAX_WIDTH = 48
@@ -35,8 +35,12 @@ LOG = logging.getLogger(__name__)
 
 ## TODO: Instead of creating a matrix for both coordinates, simply create a list each to safe memory.
 
-def translate_coordinate_humanreadable(coordinate):
-    return TRANSLATE_COORDINATE_HUMANREADABLE[coordinate]
+def translate_coordinate_humanreadable(coordinate, pattern=None):
+    coordinate_human = TRANSLATE_COORDINATE_HUMANREADABLE[coordinate]
+    if pattern:
+        return pattern.format(coordinate_human[0], int(coordinate_human[2]))
+    else:
+        return coordinate_human
 
 
 def translate_humanreadable_coordinate(humanreadable):
@@ -154,13 +158,13 @@ class Plate:
                             "Plate.create()".format(format))
 
     def add_data(self, data_type, data, force=False, tag=None):
-        """ Add `data` of `data_type` to `self.meta_data`
+        """ Add `data` of `data_type` to `self.config_data`
 
-        Add `data` of `data_type` to `self.meta_data`
+        Add `data` of `data_type` to `self.config_data`
         """
 
-        if data_type == "meta_data" and not isinstance(data, meta_data.MetaData):
-            raise Exception('data is not of type meta_data.MetaData, but {}'.format(type(data)))
+        if data_type == "config_data" and not isinstance(data, meta_data.MetaData):
+            raise Exception('data is not of type config_data.MetaData, but {}'.format(type(data)))
         elif data_type == "plate_layout" and not isinstance(data, plate_layout.PlateLayout):
             raise Exception('data is not of type plate_layout.PlateLayout, but {}'.format(type(data)))
         elif data_type == "data_issue" and not isinstance(data, data_issue.DataIssue):
@@ -254,14 +258,14 @@ class Plate:
         method(**kwargs)
 
 
-    def calculate_linearly_normalized_signal(self, unnormalized_key, low, high, normalized_key):
+    def calculate_linearly_normalized_signal(self, unnormalized_key, normalized_0, normalized_1, normalized_key):
         """ Linearly normalize the data
 
         .. math::
         normalized__i = \frac{ x_{unnormalized_i} - \hat{x_{low}} } {  \hat{x_{high}} - \hat{x_{low}} }
 
-        x_low are all wells (according to the plate layout) with low values for normalization.
-        x_high are all wells (according to the plate layout) with low values for normalization.
+        normalized_0 are all wells (according to the plate layout) with mean(wells)==0 after normalization.
+        normalized_1 are all wells (according to the plate layout) with mean(wells)==1 for normalization.
 
         Args:
             unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.
@@ -275,18 +279,18 @@ class Plate:
                         "Skipping recalculation".format(normalized_key))
             return
 
-        low_data = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                condition=lambda x: x in low,
+        data_normalized_0 = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                               condition=lambda x: x in normalized_0,
+                               value_data_type="readout",
+                               value_data_tag=unnormalized_key)
+
+        data_normalized_1 = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
+                                condition=lambda x: x in normalized_1,
                                 value_data_type="readout",
                                 value_data_tag=unnormalized_key)
 
-        high_data = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                 condition=lambda x: x in high,
-                                 value_data_type="readout",
-                                 value_data_tag=unnormalized_key)
-
-        normalized_data = (self.readout.get_data(unnormalized_key) - np.mean(low_data)) / (
-            np.mean(high_data) - np.mean(low_data))
+        normalized_data = (self.readout.get_data(unnormalized_key) - np.mean(data_normalized_0)) / (
+            np.mean(data_normalized_1) - np.mean(data_normalized_0))
 
         self.readout.add_data(data={normalized_key: normalized_data}, tag=normalized_key)
 
@@ -313,7 +317,7 @@ class Plate:
                         "Skipping recalculation".format(normalized_key))
             return
 
-        relative_data = 1 - self.readout.get_data(unnormalized_key) / self.readout.get_data(normalizer_key)
+        relative_data = self.readout.get_data(unnormalized_key) / self.readout.get_data(normalizer_key)
 
         self.readout.add_data(data={normalized_key: relative_data}, tag=normalized_key)
 
