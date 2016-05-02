@@ -1,4 +1,4 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016  Elke Schaper
 
 """
     :synopsis: The Run Class.
@@ -6,14 +6,13 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
-import ast
 import collections
 import configobj
 import copy
 import logging
+import numpy as np
 import os
 import pickle
-import re
 
 from hts.data_tasks import data_tasks
 from hts.run import run_io
@@ -86,7 +85,7 @@ class Run:
         #for key, value in kwargs.items():
         #    if not hasattr(self, key):
         #        setattr(self, key, value)
-        self.meta_data = kwargs
+        self.config_data = kwargs
 
         self.plates = collections.OrderedDict((plate.name, plate) for plate in self.plates.values())
 
@@ -301,6 +300,15 @@ class Run:
         return Run(path=path, plates=plates)
 
 
+    @property
+    def data_frame(self):
+        if not hasattr(self, "_data_frame"):
+            self._data_frame = self.write(format='serialize_as_pandas', path=None, return_string=False)
+        return self._data_frame
+
+    @data_frame.setter
+    def data_frame(self, value):
+        self._data_frame = value
 
     def filter(self, **kwargs):
         """ Filter run data according to filter keyword arguments.
@@ -318,7 +326,6 @@ class Run:
         #return [item for sublist in data for item in sublist]
         return data
 
-
     def preprocess(self):
         """ Perform data preprocessing.
 
@@ -333,7 +340,7 @@ class Run:
             LOG.info("No preprocessing tasks defined in protocol: {}".format(self.protocol().name))
 
 
-    def get_run_meta_data(self):
+    def get_run_config_data(self):
         """
             Extract relevant meta data for qc and analysis reports.
             Returns list of tuples: [(key_str, value_str)]
@@ -342,25 +349,25 @@ class Run:
 
         # You could try to flatten the dict automagically to increase elegance:
         # http://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
-        meta_data_order = ["protocol_name", "protocol_file", "experimenter", "experimenter_mail", "run_config"]
-        meta_data = {}
-        for i, j in self.meta_data.items():
+        config_data_order = ["protocol_name", "protocol_file", "experimenter", "experimenter_mail", "run_config"]
+        config_data = {}
+        for i, j in self.config_data.items():
             if i in ["qc"]:
                 continue
             elif type(j) == configobj.Section:
                 for k, l in j.items():
-                    meta_data["_".join([i,k])] = l
+                    config_data["_".join([i,k])] = l
             else:
-                meta_data[i] = j
-        meta_data["protocol_name"] = self.protocol().name
-        meta_data["protocol_file"] = self.protocol().file
-        meta_data["run_config"] = self.path
-        meta_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i,j in meta_data.items()}
+                config_data[i] = j
+        config_data["protocol_name"] = self.protocol().name
+        config_data["protocol_file"] = self.protocol().file
+        config_data["run_config"] = self.path
+        config_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i,j in config_data.items()}
 
-        meta_data_ordered = [(i_o,meta_data[i_o]) for i_o in meta_data_order]
-        meta_data_ordered += [(i_m, str(i_v)) for i_m, i_v in meta_data.items() if i_m not in meta_data_order]
+        config_data_ordered = [(i_o, config_data[i_o]) for i_o in config_data_order]
+        config_data_ordered += [(i_m, str(i_v)) for i_m, i_v in config_data.items() if i_m not in config_data_order]
 
-        return meta_data_ordered
+        return config_data_ordered
 
 
     def qc(self):
@@ -382,20 +389,20 @@ class Run:
             LOG.info(task.name)
             LOG.info(task.type)
             methods_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if isinstance(j, configobj.Section)])
-            meta_data_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if not isinstance(j, configobj.Section)])
+            config_data_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if not isinstance(j, configobj.Section)])
             # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
-            if task.name in self.meta_data:
-                qc_meta_data = dict(meta_data_from_protocol, **self.meta_data[task.name])
+            if task.name in self.config_data:
+                qc_config_data = dict(config_data_from_protocol, **self.config_data[task.name])
             else:
-                qc_meta_data = meta_data_from_protocol
+                qc_config_data = config_data_from_protocol
             self._qc[task.name] = data_tasks.perform_task(run=self,
                                                           task_name=task.method,
                                                           qc_methods=methods_from_protocol,
-                                                          meta_data=self.get_run_meta_data(),
-                                                          **qc_meta_data)
+                                                          config_data=self.get_run_config_data(),
+                                                          **qc_config_data)
 
-        if "send_mail_upon_qc" in self.meta_data and self.meta_data["send_mail_upon_qc"].lower() == "true":
-            send_mail(email_to = [self.meta_data['experimenter_mail']], body = "QC report for Run config '{}' is prepared.".format(self.path))
+        if "send_mail_upon_qc" in self.config_data and self.config_data["send_mail_upon_qc"].lower() == "true":
+            send_mail(email_to = [self.config_data['experimenter_mail']], body ="QC report for Run config '{}' is prepared.".format(self.path))
         return self._qc
 
 
@@ -418,8 +425,8 @@ class Run:
 
             # Merge the data about the task from the Run config and the Protocol config:
             # This will work Python 3.5 onwards:  {**task.config, **analysis_config_run}
-            subtasks = {i:j for i,j in self.meta_data[task.name].items() if isinstance(j, configobj.Section)}
-            analysis_config_run = {i:j for i,j in self.meta_data[task.name].items() if not isinstance(j, configobj.Section)}
+            subtasks = {i:j for i,j in self.config_data[task.name].items() if isinstance(j, configobj.Section)}
+            analysis_config_run = {i:j for i,j in self.config_data[task.name].items() if not isinstance(j, configobj.Section)}
             analysis_config_meta = dict(task.config, **analysis_config_run)
 
             analysis_results = {}
@@ -470,7 +477,9 @@ class Run:
         elif format == 'csv':
             output = run_io.serialize_run_for_r(self)
         elif format == 'csv_one_well_per_row':
-            output = run_io.write_csv(self, **kwargs)
+            output = run_io.serialize_as_csv_one_row_per_well(self, **kwargs)
+        elif format == 'serialize_as_pandas':
+            output = run_io.serialize_as_pandas(self, **kwargs)
         else:
             raise Exception('Format is unknown: {}'.format(format))
 
@@ -479,6 +488,29 @@ class Run:
                 fh.write(output)
         if return_string:
             return output
+
+
+    def add_meta_data(self, tag, **kwargs):
+        config_data = self.config_data["meta_data"][tag]
+        LOG.debug(config_data)
+        merged_data = run_io.add_meta_data(self,
+                                           meta_data_kwargs=config_data["data_kwargs"],
+                                           meta_data_rename=config_data["join_columns"],
+                                           meta_data_exclude_columns=config_data["exclude_columns"],
+                                           meta_data_well_name_pattern=config_data["well_name_pattern"],
+                                           **kwargs)
+        self.data_frame(merged_data)
+
+
+    def summarize_statistical_significance(self, replicate_defining_column):
+
+        # Group by for replicates.
+        gb = self.data_frame.groupby(replicate_defining_column)
+
+        # Calculate for every group.
+        gb['p_value'].agg([np.mean, np.std])
+        gb['p_value'].agg([np.mean, np.std])
+
 
 def send_mail(body,
                 email_to,

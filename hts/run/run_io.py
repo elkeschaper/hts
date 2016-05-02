@@ -1,4 +1,4 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper
 
 """
     :synopsis: Input/output for runs.
@@ -8,10 +8,13 @@
 
 import collections
 import csv
+import io
 import itertools
 import logging
 import os
 import re
+
+import pandas as pd
 
 from hts.plate import plate
 from hts.plate_data import plate_data, readout
@@ -90,7 +93,7 @@ def read_csv(file, column_plate_name, column_well, columns_readout, columns_meta
         meta_data = {}
         for column_name in columns_meta:
             meta_data[column_name] = [[plate_data_unstructured[(row, column)].pop(0) for column in range(width)] for row in range(height)]
-        plate_data_structured["meta_data"] = plate_data.PlateData(meta_data)
+        plate_data_structured["config_data"] = plate_data.PlateData(meta_data)
 
         plates.append(plate.Plate(data=plate_data_structured, name=plate_name, width=width, height=height))
 
@@ -153,7 +156,7 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
     return "\n".join([delimiter.join([str(j) for j in i]) for i in all_data])
 
 
-def write_csv(run_data, readouts=None, plate_name="Plate ID", well_name="Well ID", plate_layout_name="sample type", delimiter=","):
+def serialize_as_csv_one_row_per_well(run_data, readouts=None, rename_columns_dict=None, **kwargs):
     """Write run data file in csv format, with one row for each well.
 
     E.g.:
@@ -167,13 +170,39 @@ def write_csv(run_data, readouts=None, plate_name="Plate ID", well_name="Well ID
         plate_layout_name (str): The name of the plate layout column
     """
 
-    if readouts==None:
-        i_plate = next (iter (run_data.plates.values()))
+    # Get data as pandas.
+    data_frame = serialize_as_pandas(run_data=run_data, readouts=readouts)
+
+    # Rename columns on demand.
+    data_frame = rename_pd_columns(data_frame=data_frame, rename_dict=rename_columns_dict)
+
+    # Give back results as csv.
+    s = io.StringIO()
+    data_frame.to_csv(s, **kwargs)
+    string = s.getvalue()
+    return string
+
+
+def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None):
+    """ Serialize data as pandas with one row == one well.
+
+    E.g.:
+    Plate ID,Well ID,Compound,,Data_0,Data_1,signal
+    XYZ005,A001,Glucose,,4444,5555,0.3
+
+    Attributes:
+        readouts (list of str): Which readouts will be printed. If not indicated, all readouts are printed.
+        plate_name (str): The name of the plate name column
+        well_name (str): The name of the well name column
+        plate_layout_name (str): The name of the plate layout column
+    """
+
+    if readouts == None:
+        i_plate = next(iter(run_data.plates.values()))
         readouts = sorted(list(i_plate.readout.data.keys()))
 
-    column_name = [plate_name, well_name, plate_layout_name] + readouts
+    all_data = collections.defaultdict(list)
 
-    all_data = [column_name]
     # Iterate over plates
     for i_plate_index, i_plate in run_data.plates.items():
         # Plates can have different layouts.
@@ -183,12 +212,58 @@ def write_csv(run_data, readouts=None, plate_name="Plate ID", well_name="Well ID
         # Iterate over the x axis ("width") and the y axis ("height")
         for i_row, i_col in itertools.product(range(i_plate.height), range(i_plate.width)):
             h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
-            h_coordinate_fraunhofer = "{0}{1:03d}".format(h_coordinate[0], int(h_coordinate[2]))
-            # Iterate over readouts in plates (raw and preprocessed)
-            readout_data = [i_plate.readout.data[i][i_row][i_col] if i in i_plate.readout.data else None for i in readouts]
-            all_data.append([i_plate_index,
-                             h_coordinate_fraunhofer,
-                             plate_layout[i_row][i_col]
-                             ] + readout_data)
+            # Here, we decide what data is saved:
+            all_data["well_1"].append(h_coordinate[0])
+            all_data["well_2"].append(h_coordinate[1])
+            all_data["well_name"].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
+            all_data["plate_name"].append(i_plate_index)
+            for readout in readouts:
+                if readout in i_plate.readout.data:
+                    all_data[readout].append(i_plate.readout.data[readout][i_row][i_col])
+                else:
+                    all_data[readout].append(None)
 
-    return "\n".join([delimiter.join([str(j) for j in i]) for i in all_data])
+    return pd.DataFrame(all_data)
+
+
+def add_meta_data(run_data, meta_data_kwargs, meta_data_well_name_pattern=None,
+                  meta_data_rename=None, meta_data_exclude_columns=None, readouts=None):
+
+    read_data = serialize_as_pandas(run_data, readouts=readouts, well_name_pattern=meta_data_well_name_pattern)
+
+    meta_data = pd.read_csv(**meta_data_kwargs)
+
+    # Rename columns on demand.
+    meta_data = rename_pd_columns(meta_data, rename_dict=meta_data_rename)
+
+    # Delete columns on demand.
+    if type(meta_data_exclude_columns) == list:
+        for excluded_column in meta_data_exclude_columns:
+            meta_data.drop(excluded_column, axis=1, inplace=True)
+
+    if len(set(read_data["well_name"]) & set(meta_data["well_name"])) == 0:
+        raise Exception("Different well_name format: hts data {} and meta_data {}".format(set(read_data["well_name"]),
+                                                                                          set(meta_data["well_name"])))
+
+    if len(set(read_data["plate_name"]) & set(meta_data["plate_name"])) == 0:
+        raise Exception("Different plate_name format: hts data {} and meta_data {}".format(set(read_data["plate_name"]),
+                                                                                          set(meta_data["plate_name"])))
+    # Perform a join on the data frames.
+    merged_data = pd.merge(read_data, meta_data, on=["well_name", "plate_name"])
+    return merged_data
+
+
+
+def rename_pd_columns(data_frame, rename_dict):
+
+    if rename_dict != None:
+        for original_name, new_name in rename_dict.items():
+            try:
+                data_frame.rename(columns={original_name: new_name}, inplace=True)
+            except:
+                LOG.error("Could not replace column name {} with {}".format(original_name, new_name))
+    else:
+        LOG.warning("Did not rename pandas dataframe columns - no dict was provided.")
+
+    return data_frame
+
