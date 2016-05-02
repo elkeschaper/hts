@@ -15,11 +15,10 @@ import os
 import sys
 
 LOG = logging.getLogger(__name__)
-
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data = None, knit_html = True, *args, **kwargs):
+def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data=None, knit_html=True):
     """
     Run QC tasks, and combine the result to a report.
 
@@ -39,13 +38,15 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
         os.makedirs(qc_result_path)
 
     path_knitr_data = os.path.join(qc_result_path, "data.csv")
-    run.write(format = 'csv', path = path_knitr_data)
+    run.write(format='csv', path=path_knitr_data)
     path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
-    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path = qc_helper_methods_path, path_knitr_data = path_knitr_data, meta_data = meta_data, x3_plate_names = [plate.name for plate in run.plates.values()])
+    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path=qc_helper_methods_path,
+                                                          path_knitr_data=path_knitr_data, meta_data=meta_data,
+                                                          x3_plate_names=[plate.name for plate in run.plates.values()])
 
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     # Create QC snippets
     qc_report_data = collections.OrderedDict()
@@ -82,7 +83,7 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
         wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **knitr_options)
         qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
 
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     # QC report
     # 1. Write the start of a RMarkdown file,
@@ -118,8 +119,8 @@ def perform_qc(method_name, *args, **kwargs):
     return qc_method(*args, **kwargs)
 
 
-
-def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, meta_data = None, original_data_frame = "d_all", output= "html_document"):
+def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, meta_data=None,
+                       original_data_frame="d_all", output="html_document"):
     """ Create knitr markdown file header and setup.
 
    Create knitr markdown file header and setup.
@@ -136,14 +137,14 @@ def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, 
 
     """
 
-    header ="""
+    header = """
 ---
 title: "QC report"
 author: "Vital-IT, Swiss Institute of Bioinformatics"
 date: "{}"
 output: "{}"
 ---
-""".format(str(datetime.date.today()),output)
+""".format(str(datetime.date.today()), output)
 
     if meta_data:
         header += """
@@ -152,8 +153,7 @@ output: "{}"
 | Overview |
 |:-----------|:------------|\n"""
 
-        header += "\n".join(["| {} | {}".format(i[0], i[1]) for i in  meta_data])
-
+        header += "\n".join(["| {} | {}".format(i[0], i[1]) for i in meta_data])
 
     environment_commands = """
 # Create environment:
@@ -162,19 +162,18 @@ output: "{}"
 source("{}")
 library(reshape2)
 require(gridExtra)""".format(qc_helper_methods_path)
-    environment="\n" + wrap_knitr_chunk(chunk=environment_commands, chunk_name="set_environment", echo=False, evaluate=True)
+    environment = "\n" + wrap_knitr_chunk(chunk=environment_commands, chunk_name="set_environment", echo=False,
+                                          evaluate=True)
 
-
-    data_loader_commands="""
+    data_loader_commands = """
 # Load data:
 path = "{0}"
 {1} = read.csv(path, sep=",", header = TRUE)
 {1}$x3_plate_name = factor({1}$x3_plate_name, levels = c("{2}"))
 """.format(path_knitr_data, original_data_frame, '","'.join(x3_plate_names))
-    data_loader="\n" + wrap_knitr_chunk(chunk=data_loader_commands, chunk_name="load_data", echo=False, evaluate=True)
+    data_loader = "\n" + wrap_knitr_chunk(chunk=data_loader_commands, chunk_name="load_data", echo=False, evaluate=True)
 
     return header, environment, data_loader
-
 
 
 ################ wrap knitr chunk ###################
@@ -186,13 +185,15 @@ def wrap_knitr_chunk(chunk, chunk_name, echo=False, evaluate=True, message=False
          In the same regard, one could rename "verbosity" to "options"/"knitr_chunk_options"
     """
     parameter_mapping = {"echo": echo, "eval": evaluate, "message": message, "warning": warning}
-    parameters = {i: "{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i,j in parameter_mapping.items()}
-    return "```{{r {1}, {echo}, {eval}, {message}, {warning}, {options}}}\n{0}\n```\n".format(chunk, chunk_name, options=options, **parameters)
+    parameters = {i: "{}=TRUE".format(i) if j else "{}=FALSE".format(i) for i, j in parameter_mapping.items()}
+    return "```{{r {1}, {echo}, {eval}, {message}, {warning}, {options}}}\n{0}\n```\n".format(chunk, chunk_name,
+                                                                                              options=options,
+                                                                                              **parameters)
 
 
 ################ Data subsetting #####################
 
-def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_frame = "d"):
+def knitr_subset(subset_requirements, original_data_frame="d_all", new_data_frame="d"):
     """ Create knitr code to subset the data.
 
    Create knitr code to subset the data.
@@ -225,7 +226,6 @@ def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_fr
             knitr_negator = ""
         knitr_requirements.append(" ".join([knitr_negator, knitr_key, knitr_equal, knitr_value]))
 
-
     subset = "{} = subset({}, {})".format(new_data_frame, original_data_frame, " & ".join(knitr_requirements))
     return subset
 
@@ -233,7 +233,6 @@ def knitr_subset(subset_requirements, original_data_frame = "d_all", new_data_fr
 ################# Plate layout ################
 
 def plate_layout():
-
     description = '''
 The plate layout used for all plates of this run.'''
 
@@ -256,7 +255,6 @@ p'''
 
 
 def chessboard_pattern():
-
     description = '''
 Evolution of mean value over plates for odd and even row and columns.'''
 
@@ -284,9 +282,7 @@ grid.arrange(p, p2, ncol=2)'''
     return description, calculation
 
 
-
 def compare_plate_replicates(r1=1, r2=2):
-
     description = """
 Plot replicate values {r1} and {r2} against each other.""".format(r1=r1, r2=r2)
 
@@ -320,10 +316,7 @@ print(outDf)""".format(r1=r1, r2=r2, lb="{", rb="}")
     return description, calculation
 
 
-
-
 def dynamics():
-
     description = '''
 Plot the (dynamical) change across readouts.'''
 
@@ -340,9 +333,7 @@ beautifier(p)'''
     return description, calculation
 
 
-
 def heat_map():
-
     description = '''
 Heatmap of well wise values.'''
 
@@ -352,9 +343,7 @@ tile_plot_x1x2x3(d, "y", FALSE)'''
     return description, calculation
 
 
-
 def kolmogorov_smirnov():
-
     description = '''
 Kolmogorov–Smirnov test: Do sample and negative control stem from the same distribution (H0) or not (H1)?'''
 
@@ -380,7 +369,6 @@ beautifier(p)'''
 
 
 def kolmogorov_smirnov_estimated():
-
     description = '''
 Kolmogorov–Smirnov test: Does the negative control stem from the same (estimated) distribution as the sample (H0) or not (H1)?'''
 
@@ -406,9 +394,7 @@ beautifier(p)'''
     return description, calculation
 
 
-
 def mean_value_across_plates():
-
     description = '''
 Evolution of mean value across plates.'''
 
@@ -421,10 +407,10 @@ p = p + geom_point(size = 2, aes(color = sample_type))
 p = p + facet_wrap( ~sample_type, ncol=4) + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
+    return description, calculation
 
 
 def shapiro_wilk_normality_test():
-
     description = '''
 Shapiro-Wilk Normality Test: Does the negative control stem from a normal distribution? Does the sample stem from a normal distribution?'''
 
@@ -445,9 +431,7 @@ beautifier(p)'''
     return description, calculation
 
 
-
 def ssmd():
-
     description = '''
 SSMD (Definition according to [wikipedia](https://en.wikipedia.org/wiki/Strictly_standardized_mean_difference "Wikipedia: SSMD"))
 $$ \\rm{ssmd} = \\frac{\mu_\\rm{pos} - \mu_\\rm{neg}}{\sqrt{\\sigma_\\rm{pos}^2 + \\sigma_\\rm{neg}^2}}, $$
@@ -492,14 +476,12 @@ print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
 
 
 def z_factor():
-
     description = '''
 The estimated z-factor is calculated as:
 $$ z_{\\rm{factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{s} + \sigma_\\rm{neg})}{|\mu_\\rm{s} - \mu_\\rm{neg}|}, $$
 where s is the sample, and neg the negative control."
 (Described e.g. on [wikipedia](https://en.wikipedia.org/wiki/Z-factor "Wikipedia: Z-factor") or in Birmingham et al, Nature, (2009) "Statistical methods for analysis of high throughput RNA interference screens"
 )'''
-
 
     calculation = '''
 d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
@@ -538,7 +520,6 @@ print(d_qc_score[with(d_qc_score, order(neg, x3_plate_name)), ])
 
 
 def z_prime_factor():
-
     description = '''
 $$ z'_{\\rm{factor}} = 1 - \\frac{3\cdot(\sigma_\\rm{hc} + \sigma_\\rm{lc})}{|\mu_\\rm{hc} - \mu_\\rm{lc}|}, $$
 where hc is the high value control, and lc the low value control. The order of controls is irrelevant in the equation.
@@ -570,45 +551,39 @@ p = p + geom_hline(yintercept=thresholds)
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
 p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
-p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
+p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
 beautifier(p)
 
 print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
-
 
     return description, calculation
 
 
 def smoothed_histogram():
-
     description = '''
 Smoothed histogram to visualise the overlap of value densities per sample type.'''
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(type=2, palette="RdYlBu")
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
 beautifier(p)'''
 
     return description, calculation
 
 
 def smoothed_histogram_sample_type():
-
     description = '''
 Smoothed histogram to visualise the overlap of value densities per sample type.'''
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample_type)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_brewer(type=2, palette="RdYlBu")
+p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
 beautifier(p)'''
 
     return description, calculation
 
 
-
-
 def time_course():
-
     description = '''
 Visualise the time course of mean and sd of different sample types.'''
 
