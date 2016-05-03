@@ -13,6 +13,7 @@ import logging
 import numpy as np
 import os
 import pickle
+import scipy.stats
 
 from hts.data_tasks import data_tasks
 from hts.run import run_io
@@ -60,6 +61,14 @@ class Run:
             LOG.warning("Could not create string of Run instance.")
 
         return run
+
+
+    def __iter__(self):
+        """
+            Iterates over plates.
+        """
+        for plate_name, plate in self.plates:
+            yield plate
 
 
     def __init__(self, plates, path=None, **kwargs):
@@ -300,16 +309,6 @@ class Run:
         return Run(path=path, plates=plates)
 
 
-    @property
-    def data_frame(self):
-        if not hasattr(self, "_data_frame"):
-            self._data_frame = self.write(format='serialize_as_pandas', path=None, return_string=False)
-        return self._data_frame
-
-    @data_frame.setter
-    def data_frame(self, value):
-        self._data_frame = value
-
     def filter(self, **kwargs):
         """ Filter run data according to filter keyword arguments.
 
@@ -480,6 +479,7 @@ class Run:
             output = run_io.serialize_as_csv_one_row_per_well(self, **kwargs)
         elif format == 'serialize_as_pandas':
             output = run_io.serialize_as_pandas(self, **kwargs)
+            self.data_frame = output
         else:
             raise Exception('Format is unknown: {}'.format(format))
 
@@ -489,6 +489,30 @@ class Run:
         if return_string:
             return output
 
+    ###### Handle Run data as a pandas.data_frame:
+    ## - less or no emphasis on plate_layout structure
+    ## - calculations that are oblivous of plate_layout may want to go here.
+    ## - one data_frame row per well or per sample
+
+    @property
+    def data_frame(self):
+        if not hasattr(self, "_data_frame"):
+            self._data_frame = self.write(format='serialize_as_pandas', path=None, return_string=False)
+        return self._data_frame
+
+    @data_frame.setter
+    def data_frame(self, value):
+        self._data_frame = value
+
+    @property
+    def data_frame_samples(self):
+        if not hasattr(self, "_data_frame_samples"):
+            self._data_frame_samples = self.data_frame[self.data_frame.sample_type == "s"]
+        return self._data_frame_samples
+
+    @data_frame_samples.setter
+    def data_frame_samples(self, value):
+        self._data_frame_samples = value
 
     def add_meta_data(self, tag, **kwargs):
         config_data = self.config_data["meta_data"][tag]
@@ -498,18 +522,48 @@ class Run:
                                            meta_data_rename=config_data["join_columns"],
                                            meta_data_exclude_columns=config_data["exclude_columns"],
                                            meta_data_well_name_pattern=config_data["well_name_pattern"],
+                                           filter_condition=lambda x: x=="s", # Only allow sample data after merging
                                            **kwargs)
-        self.data_frame(merged_data)
+        self.data_frame_samples = merged_data
 
 
-    def summarize_statistical_significance(self, replicate_defining_column):
+    def summarize_statistical_significance(self, replicate_defining_column,
+                                           data_tag_normalized_readout,
+                                           data_tag_pvalue_sample_vs_neg_control,
+                                           data_tag_pvalue_sample_vs_pos_control):
 
-        # Group by for replicates.
-        gb = self.data_frame.groupby(replicate_defining_column)
+
+        # Groupby on data_frame with sample data only for replicates.
+        gb = self.data_frame_samples.groupby(replicate_defining_column)
+
+        # Define aggregation methods
+        agg = {}
+
+        # Aggregate normalized values.
+        agg[data_tag_normalized_readout] = {data_tag_normalized_readout+'_mean': np.mean, data_tag_normalized_readout+'_std': np.std}
+
+        # Aggregate pvalues.
+        def fishers_method(pvalues):
+            # Aggregate pvalues using Fisher's method: https://en.wikipedia.org/wiki/Fisher's_method
+            statistic, pval = scipy.stats.combine_pvalues(pvalues)
+            return pval
+
+        agg[data_tag_pvalue_sample_vs_neg_control] = {data_tag_pvalue_sample_vs_neg_control: fishers_method}
+        agg[data_tag_pvalue_sample_vs_pos_control] = {data_tag_pvalue_sample_vs_pos_control: fishers_method}
+
+        # Add data from all other columns
+        columns = self.data_frame_samples.columns.values
+        columns_retain = [i for i in columns if i not in [data_tag_normalized_readout, data_tag_pvalue_sample_vs_neg_control, data_tag_pvalue_sample_vs_pos_control, replicate_defining_column]]
+        # Todo: generalize this column exclusion:
+        columns_retain = [i for i in columns_retain if i not in ["net_fret", "fret_1", "fret_2", "realtime-glo_1", "realtime-glo_2"]]
+        for column in columns_retain:
+            agg[column] = {column: lambda x: x.iloc[0]}
 
         # Calculate for every group.
-        gb['p_value'].agg([np.mean, np.std])
-        gb['p_value'].agg([np.mean, np.std])
+        gb2 = gb.agg(agg)
+        gb2.columns = gb2.columns.droplevel(0)
+
+        return gb, gb2
 
 
 def send_mail(body,

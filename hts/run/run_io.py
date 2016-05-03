@@ -183,7 +183,7 @@ def serialize_as_csv_one_row_per_well(run_data, readouts=None, rename_columns_di
     return string
 
 
-def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None):
+def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None, filter_condition=None):
     """ Serialize data as pandas with one row == one well.
 
     E.g.:
@@ -201,35 +201,45 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None):
         i_plate = next(iter(run_data.plates.values()))
         readouts = sorted(list(i_plate.readout.data.keys()))
 
+    if filter_condition == None:
+        filter_condition = lambda x: True
+
     all_data = collections.defaultdict(list)
 
     # Iterate over plates
     for i_plate_index, i_plate in run_data.plates.items():
-        # Plates can have different layouts.
-        plate_layout_container = i_plate.plate_layout
-        plate_layout = plate_layout_container.data["layout"]
-        layout_general_type = plate_layout_container.data["layout_general_type"]
-        # Iterate over the x axis ("width") and the y axis ("height")
-        for i_row, i_col in itertools.product(range(i_plate.height), range(i_plate.width)):
+        # Plates can have different layouts. Iterate over all wells with plate layout specific conditions.
+        #  layout_general_type has s, neg, pos. layout has s_0, neg_0, pos_0, ...
+        plate_layout = i_plate.plate_layout.data["layout"]
+        plate_layout_general = i_plate.plate_layout.data["layout_general_type"]
+        for i_row, i_col in i_plate.plate_layout.get_wells(data_tag="layout_general_type", condition=filter_condition):
             h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
             # Here, we decide what data is saved:
+            all_data["sample"].append(plate_layout[i_row][i_col])
+            all_data["sample_type"].append(plate_layout_general[i_row][i_col])
             all_data["well_1"].append(h_coordinate[0])
             all_data["well_2"].append(h_coordinate[1])
             all_data["well_name"].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
             all_data["plate_name"].append(i_plate_index)
             for readout in readouts:
                 if readout in i_plate.readout.data:
-                    all_data[readout].append(i_plate.readout.data[readout][i_row][i_col])
+                    try:
+                        all_data[readout].append(i_plate.readout.data[readout][i_row][i_col])
+                    except:
+                        import pdb; pdb.set_trace()
                 else:
                     all_data[readout].append(None)
 
     return pd.DataFrame(all_data)
 
 
-def add_meta_data(run_data, meta_data_kwargs, meta_data_well_name_pattern=None,
+def add_meta_data(run_data, meta_data_kwargs, meta_data_well_name_pattern=None, filter_condition=None,
                   meta_data_rename=None, meta_data_exclude_columns=None, readouts=None):
 
-    read_data = serialize_as_pandas(run_data, readouts=readouts, well_name_pattern=meta_data_well_name_pattern)
+    read_data = serialize_as_pandas(run_data,
+                                    readouts=readouts,
+                                    well_name_pattern=meta_data_well_name_pattern,
+                                    filter_condition=filter_condition)
 
     meta_data = pd.read_csv(**meta_data_kwargs)
 

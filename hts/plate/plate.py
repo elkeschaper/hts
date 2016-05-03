@@ -648,7 +648,8 @@ class Plate:
                                             negative_control_key,
                                             positive_control_key,
                                             data_tag_normalized_readout=None,
-                                            data_tag_pvalue_vs_neg_control=None,
+                                            data_tag_pvalue_sample_vs_neg_control=None,
+                                            data_tag_pvalue_sample_vs_pos_control=None,
                                             data_tag_normalized_negative_control=None,
                                             data_tag_normalized_positive_control=None,
                                             local=True,
@@ -681,8 +682,11 @@ class Plate:
         if data_tag_normalized_readout == None:
             data_tag_normalized_readout = "{}_GP_normalized_by_controls".format(data_tag_readout)
 
-        if data_tag_pvalue_vs_neg_control == None:
-            data_tag_pvalue_vs_neg_control = "{}_GP_pvalue_vs_neg_control".format(data_tag_readout)
+        if data_tag_pvalue_sample_vs_neg_control == None:
+            data_tag_pvalue_sample_vs_neg_control = "{}_GP_pvalue_vs_neg_control".format(data_tag_readout)
+
+        if data_tag_pvalue_sample_vs_pos_control == None:
+            data_tag_pvalue_sample_vs_pos_control = "{}_GP_pvalue_vs_pos_control".format(data_tag_readout)
 
         if data_tag_normalized_negative_control == None:
             data_tag_normalized_negative_control = "{}_GP_normalized_neg".format(data_tag_readout)
@@ -692,7 +696,7 @@ class Plate:
 
         all_readouts = self.readout.get_data(data_tag_readout)
 
-        if not local:
+        if local!=True:
             # Normalize by "global" plate averages of negative and positive controls.
             nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == negative_control_key)
             nc_values = self.readout.get_values(wells=nc_wells, data_tag=data_tag_readout)
@@ -702,6 +706,7 @@ class Plate:
             pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == positive_control_key)
             pc_values = self.readout.get_values(wells=pc_wells, data_tag=data_tag_readout)
             data_pc_mean = np.mean(pc_values)
+            data_pc_std = np.std(pc_values)
 
             LOG.debug("Normalize globally with mean negative control: {} "
                       "and mean negative control: {}.".format(data_nc_mean, data_pc_mean))
@@ -722,20 +727,19 @@ class Plate:
         # Calculate the normalised data
         normalized_data = (all_readouts - data_nc_mean) / (data_pc_mean - data_nc_mean)
 
-        if self.name == "I4":
-            pass
-            # import pdb; pdb.set_trace()
-
         # Calculate the p-Value of all data points compared to the negative control.
         # Inspired by:
         # http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic
-
         LOG.warning("Make sure that the local data_nc_std has the same interpretation as the global data_nc_std.")
         p_value_neg = scipy.stats.norm(data_nc_mean, data_nc_std).cdf(all_readouts)
+        # Calculate the p-Value of all data points compared to the positive control.
+        p_value_pos = 1 - scipy.stats.norm(data_pc_mean, data_pc_std).cdf(all_readouts)
 
         self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
-                                    data_tag_pvalue_vs_neg_control: p_value_neg,
-                                    data_tag_normalized_negative_control: data_nc_mean,
-                                    data_tag_normalized_positive_control: data_pc_mean,
+                                    data_tag_pvalue_sample_vs_neg_control: p_value_neg,
+                                    data_tag_pvalue_sample_vs_pos_control: p_value_pos,
+        # These are scalars, not arrays x arrays. Does this data need saving this way?
+        #                           data_tag_normalized_negative_control: data_nc_mean,
+        #                           data_tag_normalized_positive_control: data_pc_mean,
                                     },
                               tag=data_tag_normalized_readout)
