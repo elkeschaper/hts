@@ -17,8 +17,8 @@ import scipy.stats
 
 from hts.data_tasks import data_tasks
 from hts.plate_data.meta_data import MetaData
-from hts.plate_data.plate_data import PlateData
 from hts.run import run_io
+from hts.run.constants import *
 from hts.plate import plate
 from hts.plate_data import plate_layout
 from hts.protocol import protocol
@@ -535,7 +535,7 @@ class Run:
         df = self.data_frame_samples
         data = {plate: {tag: {} for tag in tags} for plate in self.plates.values()}
         for tag in tags:
-            for readout, plate_name, i_row, i_column in zip(df[tag], df['plate_name'], df['well_i1'], df['well_i2']):
+            for readout, plate_name, i_row, i_column in zip(df[tag], df[PLATE_HUMAN], df[WELL_1_MACHINE], df[WELL_2_MACHINE]):
                 data[self.plates[plate_name]][tag][(i_row, i_column)] = readout
 
         for plate, plate_data in data.items():

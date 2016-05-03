@@ -184,7 +184,7 @@ def serialize_as_csv_one_row_per_well(run_data, readouts=None, rename_columns_di
     return string
 
 
-def serialize_as_pandas(run_data, readouts=None, well_name_pattern="{}{}", filter_condition=None):
+def serialize_as_pandas(run_data, readouts=None, meta_data=None, well_name_pattern="{}{}", filter_condition=None):
     """ Serialize data as pandas with one row == one well.
 
     E.g.:
@@ -199,8 +199,13 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern="{}{}", filte
     """
 
     if readouts == None:
-        i_plate = next(iter(run_data.plates.values()))
-        readouts = sorted(list(i_plate.readout.data.keys()))
+        readouts = sorted(list(run_data[0].readout.data.keys()))
+
+    if meta_data == None:
+        try:
+            meta_data = sorted(list(run_data[0].meta_data.data.keys()))
+        except:
+            meta_data = []
 
     if filter_condition == None:
         filter_condition = lambda x: True
@@ -233,6 +238,14 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern="{}{}", filte
                         import pdb; pdb.set_trace()
                 else:
                     all_data[readout].append(None)
+            for meta in meta_data:
+                if meta in i_plate.meta_data.data:
+                    try:
+                        all_data[meta].append(i_plate.meta_data.data[meta][i_row][i_col])
+                    except:
+                        import pdb; pdb.set_trace()
+                else:
+                    all_data[meta].append(None)
 
     return pd.DataFrame(all_data)
 
