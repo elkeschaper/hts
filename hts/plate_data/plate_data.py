@@ -39,8 +39,8 @@ class PlateData:
             Create string for Readout instance.
         """
         try:
-            data = ("<PlateData instance>\nContains a list of lists."
-                    "\nwidth: {}\nheight: {}".format(self.width, self.height))
+            data = ("{}\nContains a list of lists.\nwidth: {}\nheight: {}".format(type(self).__name__,
+                                                                                  self.width, self.height))
         except:
             data = "<PlateData instance>"
             LOG.warning("Could not create string of PlateData instance.")
@@ -130,6 +130,17 @@ class PlateData:
             return pickle.load(fh)
 
 
+    @classmethod
+    def create_from_coordinate_tuple_dict(cls, data, width, height, **kwargs):
+        """
+        data is a dict: {tag: {(i_row, i_col): datum}}.
+        """
+        plate_data = {}
+        for tag, tag_data in data.items():
+            plate_data[tag] = [[tag_data[(i_row, i_col)] if (i_row, i_col) in tag_data else None for i_col in range(width)] for i_row in range(height)]
+        return cls(data=plate_data, **kwargs)
+
+
     def write(self, *args, **kwargs):
         raise NotImplementedError('Implement write()')
 
@@ -206,3 +217,4 @@ class PlateData:
             raise Exception("Not all values conform with value_type{}:\n{}".format(value_type, values))
 
         return values
+

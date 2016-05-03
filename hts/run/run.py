@@ -16,6 +16,8 @@ import pickle
 import scipy.stats
 
 from hts.data_tasks import data_tasks
+from hts.plate_data.meta_data import MetaData
+from hts.plate_data.plate_data import PlateData
 from hts.run import run_io
 from hts.plate import plate
 from hts.plate_data import plate_layout
@@ -62,7 +64,6 @@ class Run:
 
         return run
 
-
     def __iter__(self):
         """
             Iterates over plates.
@@ -70,6 +71,8 @@ class Run:
         for plate_name, plate in self.plates:
             yield plate
 
+    def __getitem__(self, i):
+        return list(self.plates.values())[i]
 
     def __init__(self, plates, path=None, **kwargs):
 
@@ -525,6 +528,20 @@ class Run:
                                            filter_condition=lambda x: x=="s", # Only allow sample data after merging
                                            **kwargs)
         self.data_frame_samples = merged_data
+
+
+    def add_data_from_data_frame(self, tags, plate_data_type="meta_data"):
+
+        df = self.data_frame_samples
+        data = {plate: {tag: {} for tag in tags} for plate in self.plates.values()}
+        for tag in tags:
+            for readout, plate_name, i_row, i_column in zip(df[tag], df['plate_name'], df['well_i1'], df['well_i2']):
+                data[self.plates[plate_name]][tag][(i_row, i_column)] = readout
+
+        for plate, plate_data in data.items():
+            # ToDo: Allow creation of any type of PlateData (e.g. via registries).
+            meta_data = MetaData.create_from_coordinate_tuple_dict(data=plate_data, width=self.width, height=self.height)
+            plate.add_data(data=meta_data, data_type=plate_data_type)
 
 
     def summarize_statistical_significance(self, replicate_defining_column,

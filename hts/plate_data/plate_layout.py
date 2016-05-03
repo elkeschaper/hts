@@ -60,7 +60,6 @@ class PlateLayout(plate_data.PlateData):
 
         data = {"layout": layout, "layout_general_type": layout_general_type, "sample_replicate_count": sample_replicate_count}
 
-        # Run super __init__
         super().__init__(data=data, **kwargs)
 
 

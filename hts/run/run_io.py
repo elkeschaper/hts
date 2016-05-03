@@ -219,6 +219,8 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None, filter_
             all_data["sample_type"].append(plate_layout_general[i_row][i_col])
             all_data["well_1"].append(h_coordinate[0])
             all_data["well_2"].append(h_coordinate[1])
+            all_data["well_i1"].append(i_row)
+            all_data["well_i2"].append(i_col)
             all_data["well_name"].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
             all_data["plate_name"].append(i_plate_index)
             for readout in readouts:

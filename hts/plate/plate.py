@@ -19,7 +19,7 @@ import scipy.stats
 import string
 
 from hts.plate import prediction
-from hts.plate_data import plate_data, data_issue, plate_layout, readout
+from hts.plate_data import plate_data, data_issue, meta_data, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "config_data"]
 LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in
@@ -163,7 +163,7 @@ class Plate:
         Add `data` of `data_type` to `self.config_data`
         """
 
-        if data_type == "config_data" and not isinstance(data, meta_data.MetaData):
+        if data_type == "meta_data" and not isinstance(data, meta_data.MetaData):
             raise Exception('data is not of type config_data.MetaData, but {}'.format(type(data)))
         elif data_type == "plate_layout" and not isinstance(data, plate_layout.PlateLayout):
             raise Exception('data is not of type plate_layout.PlateLayout, but {}'.format(type(data)))
