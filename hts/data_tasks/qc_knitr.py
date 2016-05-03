@@ -18,7 +18,7 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_data=None, knit_html=True):
+def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, config_data=None, knit_html=True):
     """
     Run QC tasks, and combine the result to a report.
 
@@ -28,7 +28,7 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
         qc_helper_methods_path (str): Path to an R file with additional functionality assumed in the QC methods.
         qc_methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
                 dictionary containing the description (function name, filters, ... for the qc method.)
-        meta_data (list of tuples): List of tuples used as content for a table in the qc report.
+        config_data (list of tuples): List of tuples used as content for a table in the qc report.
         knit_html (Boolean):
     """
 
@@ -38,13 +38,13 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, meta_
         os.makedirs(qc_result_path)
 
     path_knitr_data = os.path.join(qc_result_path, "data.csv")
-    run.write(format='csv', path=path_knitr_data)
+    run.write(format='csv_one_well_per_row', path=path_knitr_data)
     path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
 
     # Create header info and environment snippets
     header, environment, data_loader = knitr_header_setup(qc_helper_methods_path=qc_helper_methods_path,
-                                                          path_knitr_data=path_knitr_data, meta_data=meta_data,
-                                                          x3_plate_names=[plate.name for plate in run.plates.values()])
+                                                          path_knitr_data=path_knitr_data, meta_data=config_data,
+                                                          plate_names=[plate.name for plate in run.plates.values()])
 
     # import pdb; pdb.set_trace()
 
@@ -119,7 +119,7 @@ def perform_qc(method_name, *args, **kwargs):
     return qc_method(*args, **kwargs)
 
 
-def knitr_header_setup(qc_helper_methods_path, path_knitr_data, x3_plate_names, meta_data=None,
+def knitr_header_setup(qc_helper_methods_path, path_knitr_data, plate_names, meta_data=None,
                        original_data_frame="d_all", output="html_document"):
     """ Create knitr markdown file header and setup.
 
@@ -169,8 +169,8 @@ require(gridExtra)""".format(qc_helper_methods_path)
 # Load data:
 path = "{0}"
 {1} = read.csv(path, sep=",", header = TRUE)
-{1}$x3_plate_name = factor({1}$x3_plate_name, levels = c("{2}"))
-""".format(path_knitr_data, original_data_frame, '","'.join(x3_plate_names))
+{1}$plate_name = factor({1}$plate_name, levels = c("{2}"))
+""".format(path_knitr_data, original_data_frame, '","'.join(plate_names))
     data_loader = "\n" + wrap_knitr_chunk(chunk=data_loader_commands, chunk_name="load_data", echo=False, evaluate=True)
 
     return header, environment, data_loader
@@ -213,6 +213,17 @@ def knitr_subset(subset_requirements, original_data_frame="d_all", new_data_fram
         return ""
 
     knitr_requirements = []
+
+    # Create a new dataframe from the original dataframe.
+    r_code = ["{} = {}".format(new_data_frame, original_data_frame)]
+
+    # If defined, what y value is used for this Knitr element?
+    try:
+        y = subset_requirements.pop("y")
+        r_code.append("{df}$y = {df}${y}".format(df=new_data_frame, y=y))
+    except:
+        LOG.info("y was not supplied in protocol.")
+
     for knitr_key, i_s in subset_requirements.items():
         if type(i_s["values"]) == list:
             knitr_equal = "%in%"
@@ -226,8 +237,8 @@ def knitr_subset(subset_requirements, original_data_frame="d_all", new_data_fram
             knitr_negator = ""
         knitr_requirements.append(" ".join([knitr_negator, knitr_key, knitr_equal, knitr_value]))
 
-    subset = "{} = subset({}, {})".format(new_data_frame, original_data_frame, " & ".join(knitr_requirements))
-    return subset
+    r_code.append("{df} = subset({df}, {req})".format(df=new_data_frame, req=" & ".join(knitr_requirements)))
+    return "\n".join(r_code)
 
 
 ################# Plate layout ################
@@ -239,7 +250,7 @@ The plate layout used for all plates of this run.'''
     calculation = '''
 x3_tail = tail(d_all$x3, n=1)
 d = subset(d_all, x3 == x3_tail)
-d = ddply(d, .(sample_type, x1, x2), summarize, y_mean = mean(y))
+d = ddply(d, .(sample_type, x1, x2))
 
 d$x2 = factor(d$x2, levels = max(d$x2):min(d$x2))
 d$x1 = factor(d$x1, levels = min(d$x1):max(d$x1))
@@ -263,15 +274,15 @@ d = ddply(d, 1, transform, row_type = c("even", "odd")[(x2 %% 2) + 1])
 d = ddply(d, 1, transform, column_type = c("even", "odd")[(x1 %% 2) + 1])
 
 
-d_summary = ddply(d, .(x3, x3_plate_name, row_type), summarize, y_mean =mean(y), y_sd =sd(y))
-p = ggplot(d_summary, aes(x3_plate_name, y_mean))
+d_summary = ddply(d, .(x3, plate_name, row_type), summarize, y_mean =mean(y), y_sd =sd(y))
+p = ggplot(d_summary, aes(plate_name, y_mean))
 p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p = p + geom_point(size = 2, aes(color = row_type))
 p = p + scale_colour_brewer(palette="Set1")
 p = beautifier(p)
 
-d_summary = ddply(d, .(x3, x3_plate_name, column_type), summarize, y_mean =mean(y), y_sd =sd(y))
-p2 = ggplot(d_summary, aes(x3_plate_name, y_mean))
+d_summary = ddply(d, .(x3, plate_name, column_type), summarize, y_mean =mean(y), y_sd =sd(y))
+p2 = ggplot(d_summary, aes(plate_name, y_mean))
 p2 = p2 + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p2 = p2 + geom_point(size = 2, aes(color = column_type))
 p2 = p2 + scale_colour_brewer(palette="Set1")
@@ -297,7 +308,7 @@ p = p + geom_point(size = 0.8, color = "brown", alpha = 0.3)
 p = p + geom_smooth(method=lm,   # Add linear regression lines
                 se=FALSE,    # Don't add shaded confidence region
                 fullrange=T, colour="grey")
-p = p + facet_wrap( ~x3_plate_name, ncol=3) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~plate_name, ncol=3) + scale_colour_brewer(palette="Set1")
 p = p + coord_fixed(ratio=1)
 #plot.new()
 #legend('topleft', legend = lm_eqn(lm(y_replicate_1 ~ y_replicate_2, d_tmp_1)), bty = 'n') # Problem printing.
@@ -310,7 +321,7 @@ myLm <- function( formula, df ){lb}
    lmOut$r2 = summary(mod)$r.squared
    return(lmOut)
 {rb}
-outDf <- ddply(d_tmp_1, "x3_plate_name", function(df)  myLm(y_replicate_1 ~ y_replicate_2, df))
+outDf <- ddply(d_tmp_1, "plate_name", function(df)  myLm(y_replicate_1 ~ y_replicate_2, df))
 print(outDf)""".format(r1=r1, r2=r2, lb="{", rb="}")
 
     return description, calculation
@@ -321,13 +332,13 @@ def dynamics():
 Plot the (dynamical) change across readouts.'''
 
     calculation = '''
-d_summary = ddply(d, .(y_type, sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(y_type, sample, sample_type, x3, plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 d_summary$y_time = as.numeric(gsub("\\D", "", d_summary$y_type))
 
 p = ggplot(d_summary, aes(x=y_time, y=y_mean, color=sample, group=sample))
 p = p + geom_point(size=2) + geom_line()
 #p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
-p = p + facet_wrap( ~ x3_plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
+p = p + facet_wrap( ~ plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
 beautifier(p)'''
 
     return description, calculation
@@ -348,18 +359,18 @@ def kolmogorov_smirnov():
 Kolmogorov–Smirnov test: Do sample and negative control stem from the same distribution (H0) or not (H1)?'''
 
     calculation = '''
-calculate_ks <- function(neg, x3_plate_name) {
- neg_y = d[d$sample == neg & d$x3_plate_name == x3_plate_name, "y"]
- sample_y = d[d$sample_type == 's' & d$x3_plate_name == x3_plate_name, "y"]
+calculate_ks <- function(neg, plate_name) {
+ neg_y = d[d$sample == neg & d$plate_name == plate_name, "y"]
+ sample_y = d[d$sample_type == 's' & d$plate_name == plate_name, "y"]
  my_ks = ks.test(neg_y, sample_y, alternative = c("two.sided"), exact = TRUE)
  return(my_ks[['p.value']])
 }
 
-my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks(neg, x3_plate_name))
+my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']), plate_name = unique(d$plate_name))
+d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks(neg, plate_name))
 d_ks$log10_pvalue_ks = log10(d_ks$pvalue_ks)
 
-p = ggplot(d_ks, aes(x3_plate_name, log10_pvalue_ks))
+p = ggplot(d_ks, aes(plate_name, log10_pvalue_ks))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~neg, ncol=2)
@@ -373,19 +384,19 @@ def kolmogorov_smirnov_estimated():
 Kolmogorov–Smirnov test: Does the negative control stem from the same (estimated) distribution as the sample (H0) or not (H1)?'''
 
     calculation = '''
-calculate_ks_estimate <- function(neg, x3_plate_name) {
- neg_y = d[d$sample == neg & d$x3_plate_name == x3_plate_name, "y"]
+calculate_ks_estimate <- function(neg, plate_name) {
+ neg_y = d[d$sample == neg & d$plate_name == plate_name, "y"]
  # The maximum likelihood estimators for mu (sigma) of a Gaussian is the mean (the sample standard deviation = sd in R.)
- sample_y = d[d$sample_type == 's' & d$x3_plate_name == x3_plate_name, "y"]
+ sample_y = d[d$sample_type == 's' & d$plate_name == plate_name, "y"]
  my_ks = ks.test(neg_y, 'pnorm', mean(sample_y), sd(sample_y), exact = TRUE)
  return(my_ks[['p.value']])
 }
 
-my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks_estimate(neg, x3_plate_name))
+my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']), plate_name = unique(d$plate_name))
+d_ks = adply(my_grid, 1, transform, pvalue_ks = calculate_ks_estimate(neg, plate_name))
 d_ks$log10_pvalue_ks = log10(d_ks$pvalue_ks)
 
-p = ggplot(d_ks, aes(x3_plate_name, log10_pvalue_ks))
+p = ggplot(d_ks, aes(plate_name, log10_pvalue_ks))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~neg, ncol=2)
@@ -399,9 +410,9 @@ def mean_value_across_plates():
 Evolution of mean value across plates.'''
 
     calculation = '''
-d_summary = ddply(d, .(sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(sample_type, x3, plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 
-p = ggplot(d_summary, aes(x3_plate_name, y_mean))
+p = ggplot(d_summary, aes(plate_name, y_mean))
 p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.1)
 p = p + geom_point(size = 2, aes(color = sample_type))
 p = p + facet_wrap( ~sample_type, ncol=4) + scale_colour_brewer(palette="Set1")
@@ -420,9 +431,9 @@ calculate_sw <- function(data) {
  return(my_ks[['p.value']])
 }
 
-d_sw = ddply(d, .(x3_plate_name, x3, sample, sample_type), summarize, log10_pvalue_sw = log10(calculate_sw(y)))
+d_sw = ddply(d, .(plate_name, x3, sample, sample_type), summarize, log10_pvalue_sw = log10(calculate_sw(y)))
 
-p = ggplot(d_sw, aes(x3_plate_name, log10_pvalue_sw))
+p = ggplot(d_sw, aes(plate_name, log10_pvalue_sw))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~sample, ncol=2)
@@ -441,19 +452,19 @@ Warning: The displayed cut-off values assume a moderate control. Strong controls
 Also, the displayed cut-off values hold for negative controls with higher signal than the corresponding positive controls.  If this is not given, the displayed cut-off values ought to be multiplied by -1.'''
 
     calculation = '''
-d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(sample, sample_type, x3, plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 
-calculate_ssmd <- function(neg, pos, x3_plate_name) {
- neg_mean = d_summary[d_summary$sample == neg & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
- neg_sd = d_summary[d_summary$sample ==neg & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
- pos_mean = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
- pos_sd = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
+calculate_ssmd <- function(neg, pos, plate_name) {
+ neg_mean = d_summary[d_summary$sample == neg & d_summary$plate_name == plate_name, "y_mean"]
+ neg_sd = d_summary[d_summary$sample ==neg & d_summary$plate_name == plate_name, "y_sd"]
+ pos_mean = d_summary[d_summary$sample == pos & d_summary$plate_name == plate_name, "y_mean"]
+ pos_sd = d_summary[d_summary$sample == pos & d_summary$plate_name == plate_name, "y_sd"]
  ssmd = (pos_mean - neg_mean) / sqrt(pos_sd^2 + neg_sd^2)
  return(ssmd)
 }
 
-my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, x3_plate_name))
+my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), plate_name = unique(d$plate_name))
+d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, plate_name))
 
 thresholds = c(-2, -1, -0.5)
 labels = c("excellent", "good", "inferior", "poor")
@@ -461,16 +472,16 @@ label_positions = get_label_positions(d_qc_score$ssmd, thresholds)
 label_position_x3 = round(length(d_qc_score$x3)/2)
 
 
-p = ggplot(d_qc_score, aes(x3_plate_name, ssmd))
+p = ggplot(d_qc_score, aes(plate_name, ssmd))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
 beautifier(p)
 
-print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
+print(d_qc_score[with(d_qc_score, order(pos, plate_name)), ])'''
 
     return description, calculation
 
@@ -484,19 +495,19 @@ where s is the sample, and neg the negative control."
 )'''
 
     calculation = '''
-d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(sample, sample_type, x3, plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 
-calculate_z_factor <- function(neg, x3_plate_name) {
- neg_mean = d_summary[d_summary$sample == neg & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
- neg_sd = d_summary[d_summary$sample ==neg & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
- s_mean = mean(d[d$sample_type == "s" & d$x3_plate_name == x3_plate_name, "y"])
- s_sd = sd(d[d$sample_type == "s" & d$x3_plate_name == x3_plate_name, "y"])
+calculate_z_factor <- function(neg, plate_name) {
+ neg_mean = d_summary[d_summary$sample == neg & d_summary$plate_name == plate_name, "y_mean"]
+ neg_sd = d_summary[d_summary$sample ==neg & d_summary$plate_name == plate_name, "y_sd"]
+ s_mean = mean(d[d$sample_type == "s" & d$plate_name == plate_name, "y"])
+ s_sd = sd(d[d$sample_type == "s" & d$plate_name == plate_name, "y"])
  z_factor = 1 - 3*(neg_sd + s_sd) / abs (neg_mean - s_mean)
  return(z_factor)
 }
 
-my_grid = expand.grid(neg = unique(d[d$sample_type=="neg", "sample"]), x3_plate_name = unique(d$x3_plate_name))
-d_qc_score = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, x3_plate_name))
+my_grid = expand.grid(neg = unique(d[d$sample_type=="neg", "sample"]), plate_name = unique(d$plate_name))
+d_qc_score = adply(my_grid, 1, transform, z_factor = calculate_z_factor(neg, plate_name))
 
 thresholds = c(0, 0.5)
 labels = c("unacceptable", "acceptable", "very good")
@@ -504,16 +515,16 @@ label_positions = get_label_positions(d_qc_score$z_factor, thresholds)
 label_position_x3 = round(length(d_qc_score$x3)/2)
 
 
-p = ggplot(d_qc_score, aes(x3_plate_name, z_factor))
+p = ggplot(d_qc_score, aes(plate_name, z_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
 beautifier(p)
 
-print(d_qc_score[with(d_qc_score, order(neg, x3_plate_name)), ])
+print(d_qc_score[with(d_qc_score, order(neg, plate_name)), ])
 '''
 
     return description, calculation
@@ -526,35 +537,35 @@ where hc is the high value control, and lc the low value control. The order of c
 (Described e.g. in Birmingham et al, Nature, (2009) "Statistical methods for analysis of high throughput RNA interference screens": "A potential issue in using the Z' factor as a measure of assay resolution is that it is possible to generate a high Z' factor using a very strong positive control, which may not realistically represent more moderate screening positives. This issue is of special con- cern for RNAi screens, in which weak effects might be biologically meaningful and in which the signal-to-background ratio can be of lower magnitude than in small-molecule screens (Supplementary Table 1). Thus, researchers are advised whenever possible to use positive controls that are similar in strength to the hits they antici- pate finding. It may also be necessary to adjust Z'-factor quality guidelines for RNAi screens; we have found that assays with Z' fac- tors of zero or greater have been successful in identifying validated hits when we screened library plates in duplicate or triplicate.")'''
 
     calculation = '''
-d_summary = ddply(d, .(sample, sample_type, x3, x3_plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(sample, sample_type, x3, plate_name), summarize, y_mean =mean(y), y_sd =sd(y))
 
-calculate_z_prime_factor <- function(neg, pos, x3_plate_name) {
- neg_mean = d_summary[d_summary$sample == neg & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
- neg_sd = d_summary[d_summary$sample ==neg & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
- pos_mean = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_mean"]
- pos_sd = d_summary[d_summary$sample == pos & d_summary$x3_plate_name == x3_plate_name, "y_sd"]
+calculate_z_prime_factor <- function(neg, pos, plate_name) {
+ neg_mean = d_summary[d_summary$sample == neg & d_summary$plate_name == plate_name, "y_mean"]
+ neg_sd = d_summary[d_summary$sample ==neg & d_summary$plate_name == plate_name, "y_sd"]
+ pos_mean = d_summary[d_summary$sample == pos & d_summary$plate_name == plate_name, "y_mean"]
+ pos_sd = d_summary[d_summary$sample == pos & d_summary$plate_name == plate_name, "y_sd"]
  z_prime_factor = 1 - 3*(neg_sd + pos_sd) / abs (neg_mean - pos_mean)
  return(z_prime_factor)
 }
 
-my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), x3_plate_name = unique(d$x3_plate_name))
-d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, x3_plate_name))
+my_grid = expand.grid(neg = unique(d[d$sample_type=='neg', 'sample']),  pos = unique(d[d$sample_type=='pos', 'sample']), plate_name = unique(d$plate_name))
+d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_factor(neg, pos, plate_name))
 
 thresholds = c(0, 0.5)
 labels = c("unacceptable", "acceptable", "very good")
 label_positions = get_label_positions(d_qc_score$z_prime_factor, thresholds)
 label_position_x3 = round(length(d_qc_score$x3)/2)
 
-p = ggplot(d_qc_score, aes(x3_plate_name, z_prime_factor))
+p = ggplot(d_qc_score, aes(plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))
 p = p + geom_hline(yintercept=thresholds)
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
-p = p + annotate("text", x=d_qc_score$x3_plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[1]], label=labels[[1]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
+p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
 beautifier(p)
 
-print(d_qc_score[with(d_qc_score, order(pos, x3_plate_name)), ])'''
+print(d_qc_score[with(d_qc_score, order(pos, plate_name)), ])'''
 
     return description, calculation
 
@@ -565,7 +576,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
+p = p + facet_wrap( ~plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
 beautifier(p)'''
 
     return description, calculation
@@ -577,7 +588,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
 
     calculation = '''
 p = ggplot(d, aes(y, colour=sample_type)) + geom_density()
-p = p + facet_wrap( ~x3_plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
+p = p + facet_wrap( ~plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
 beautifier(p)'''
 
     return description, calculation
@@ -589,7 +600,7 @@ Visualise the time course of mean and sd of different sample types.'''
 
     calculation = '''
 d$x3 = factor(d$x3, levels = min(d$x3):max(d$x3))
-d_summary = ddply(d, .(x3, x3_plate_name, sample_type), summarize, y_mean =mean(y), y_sd =sd(y))
+d_summary = ddply(d, .(x3, plate_name, sample_type), summarize, y_mean =mean(y), y_sd =sd(y))
 p = ggplot(d_summary, aes(x3, y_mean, colour=sample_type))
 p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p = p + scale_colour_brewer(palette="Set1")

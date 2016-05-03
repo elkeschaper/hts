@@ -11,13 +11,13 @@ import csv
 import io
 import itertools
 import logging
-import os
 import re
 
 import pandas as pd
 
 from hts.plate import plate
 from hts.plate_data import plate_data, readout
+from hts.run.constants import *
 
 LOG = logging.getLogger(__name__)
 
@@ -123,7 +123,8 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
     ..ToDo: Update to fit current Run class.
     '''
     if not column_name:
-        column_name = ["x3_plate_name", "xp1", "xp2", "x1", "x2", "x3", "y", "y_type", "sample", "sample_type", "sample_replicate"]
+        column_name = [PLATE_HUMAN, WELL_1_HUMAN, WELL_2_HUMAN, WELL_2_HUMAN, WELL_1_MACHINE, WELL_2_MACHINE,
+                       VALUE_MACHINE, VALUE_TYPE_MACHINE, SAMPLE, SAMPLE_TYPE, SAMPLE_REPLICATE]
 
     all_data = [column_name]
     # Iterate over plates
@@ -183,7 +184,7 @@ def serialize_as_csv_one_row_per_well(run_data, readouts=None, rename_columns_di
     return string
 
 
-def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None, filter_condition=None):
+def serialize_as_pandas(run_data, readouts=None, well_name_pattern="{}{}", filter_condition=None):
     """ Serialize data as pandas with one row == one well.
 
     E.g.:
@@ -207,7 +208,7 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None, filter_
     all_data = collections.defaultdict(list)
 
     # Iterate over plates
-    for i_plate_index, i_plate in run_data.plates.items():
+    for i_plate_index, i_plate in enumerate(run_data):
         # Plates can have different layouts. Iterate over all wells with plate layout specific conditions.
         #  layout_general_type has s, neg, pos. layout has s_0, neg_0, pos_0, ...
         plate_layout = i_plate.plate_layout.data["layout"]
@@ -215,14 +216,15 @@ def serialize_as_pandas(run_data, readouts=None, well_name_pattern=None, filter_
         for i_row, i_col in i_plate.plate_layout.get_wells(data_tag="layout_general_type", condition=filter_condition):
             h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
             # Here, we decide what data is saved:
-            all_data["sample"].append(plate_layout[i_row][i_col])
-            all_data["sample_type"].append(plate_layout_general[i_row][i_col])
-            all_data["well_1"].append(h_coordinate[0])
-            all_data["well_2"].append(h_coordinate[1])
-            all_data["well_i1"].append(i_row)
-            all_data["well_i2"].append(i_col)
-            all_data["well_name"].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
-            all_data["plate_name"].append(i_plate_index)
+            all_data[SAMPLE].append(plate_layout[i_row][i_col])
+            all_data[SAMPLE_TYPE].append(plate_layout_general[i_row][i_col])
+            all_data[WELL_1_HUMAN].append(h_coordinate[1])
+            all_data[WELL_2_HUMAN].append(h_coordinate[0])
+            all_data[WELL_1_MACHINE].append(i_col)
+            all_data[WELL_2_MACHINE].append(i_row)
+            all_data[WELL_HUMAN].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
+            all_data[PLATE_HUMAN].append(i_plate.name)
+            all_data[PLATE_MACHINE].append(i_plate_index)
             for readout in readouts:
                 if readout in i_plate.readout.data:
                     try:
@@ -253,15 +255,14 @@ def add_meta_data(run_data, meta_data_kwargs, meta_data_well_name_pattern=None, 
         for excluded_column in meta_data_exclude_columns:
             meta_data.drop(excluded_column, axis=1, inplace=True)
 
-    if len(set(read_data["well_name"]) & set(meta_data["well_name"])) == 0:
-        raise Exception("Different well_name format: hts data {} and meta_data {}".format(set(read_data["well_name"]),
-                                                                                          set(meta_data["well_name"])))
+    for i in [WELL_HUMAN, PLATE_HUMAN]:
+        if len(set(read_data[i]) & set(meta_data[i])) == 0:
+            raise Exception("Different {} format: hts data {} and meta_data {}".format(i,
+                                                                                       set(read_data[i]),
+                                                                                       set(meta_data[i])))
 
-    if len(set(read_data["plate_name"]) & set(meta_data["plate_name"])) == 0:
-        raise Exception("Different plate_name format: hts data {} and meta_data {}".format(set(read_data["plate_name"]),
-                                                                                          set(meta_data["plate_name"])))
     # Perform a join on the data frames.
-    merged_data = pd.merge(read_data, meta_data, on=["well_name", "plate_name"])
+    merged_data = pd.merge(read_data, meta_data, on=[WELL_HUMAN, PLATE_HUMAN])
     return merged_data
 
 

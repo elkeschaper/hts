@@ -68,7 +68,7 @@ class Run:
         """
             Iterates over plates.
         """
-        for plate_name, plate in self.plates:
+        for plate_name, plate in self.plates.items():
             yield plate
 
     def __getitem__(self, i):
