@@ -535,7 +535,7 @@ class Run:
         df = self.data_frame_samples
         data = {plate: {tag: {} for tag in tags} for plate in self.plates.values()}
         for tag in tags:
-            for readout, plate_name, i_row, i_column in zip(df[tag], df[PLATE_HUMAN], df[WELL_1_MACHINE], df[WELL_2_MACHINE]):
+            for readout, plate_name, i_column, i_row in zip(df[tag], df[PLATE_HUMAN], df[WELL_COLUMN_MACHINE], df[WELL_ROW_MACHINE]):
                 data[self.plates[plate_name]][tag][(i_row, i_column)] = readout
 
         for plate, plate_data in data.items():

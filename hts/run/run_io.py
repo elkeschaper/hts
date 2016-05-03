@@ -123,7 +123,7 @@ def serialize_run_for_r(run_data, delimiter = ",", column_name = None):
     ..ToDo: Update to fit current Run class.
     '''
     if not column_name:
-        column_name = [PLATE_HUMAN, WELL_1_HUMAN, WELL_2_HUMAN, WELL_2_HUMAN, WELL_1_MACHINE, WELL_2_MACHINE,
+        column_name = [PLATE_HUMAN, WELL_COLUMN_HUMAN, WELL_ROW_HUMAN, WELL_ROW_HUMAN, WELL_COLUMN_MACHINE, WELL_ROW_MACHINE,
                        VALUE_MACHINE, VALUE_TYPE_MACHINE, SAMPLE, SAMPLE_TYPE, SAMPLE_REPLICATE]
 
     all_data = [column_name]
@@ -223,10 +223,10 @@ def serialize_as_pandas(run_data, readouts=None, meta_data=None, well_name_patte
             # Here, we decide what data is saved:
             all_data[SAMPLE].append(plate_layout[i_row][i_col])
             all_data[SAMPLE_TYPE].append(plate_layout_general[i_row][i_col])
-            all_data[WELL_1_HUMAN].append(h_coordinate[1])
-            all_data[WELL_2_HUMAN].append(h_coordinate[0])
-            all_data[WELL_1_MACHINE].append(i_col)
-            all_data[WELL_2_MACHINE].append(i_row)
+            all_data[WELL_COLUMN_HUMAN].append(h_coordinate[2])
+            all_data[WELL_ROW_HUMAN].append(h_coordinate[0])
+            all_data[WELL_COLUMN_MACHINE].append(i_col)
+            all_data[WELL_ROW_MACHINE].append(i_row)
             all_data[WELL_HUMAN].append(plate.translate_coordinate_humanreadable((i_row, i_col), pattern=well_name_pattern))
             all_data[PLATE_HUMAN].append(i_plate.name)
             all_data[PLATE_MACHINE].append(i_plate_index)
