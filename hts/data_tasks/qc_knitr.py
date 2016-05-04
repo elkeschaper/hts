@@ -1,7 +1,7 @@
 # (C) 2015, 2016 Elke Schaper
 
 """
-    :synopsis: ``quality_control`` implementes all methods connected to the
+    :synopsis: ``quality_control`` implements all methods connected to the
     quality control of a high throughput screening experiment.
     qc_knitr implements knitr specific methods.
 
@@ -46,8 +46,6 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, confi
                                                           path_knitr_data=path_knitr_data, meta_data=config_data,
                                                           plate_names=[plate.name for plate in run.plates.values()])
 
-    # import pdb; pdb.set_trace()
-
     # Create QC snippets
     qc_report_data = collections.OrderedDict()
     for i_qc, i_qc_characteristics in qc_methods.items():
@@ -82,8 +80,6 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, confi
         # Later on, you can make this line more complicated.
         wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **knitr_options)
         qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
-
-    # import pdb; pdb.set_trace()
 
     # QC report
     # 1. Write the start of a RMarkdown file,
@@ -256,7 +252,7 @@ d$x2 = factor(d$x2, levels = max(d$x2):min(d$x2))
 d$x1 = factor(d$x1, levels = min(d$x1):max(d$x1))
 p = ggplot(d, aes(x= x1, y= x2, fill=sample_type), environment = environment())
 p = p + geom_raster() + scale_fill_brewer(palette="Spectral")
-p = beautifier(p)
+p = p + beautifier()
 p'''
 
     return description, calculation
@@ -279,7 +275,7 @@ p = ggplot(d_summary, aes(plate_name, y_mean))
 p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p = p + geom_point(size = 2, aes(color = row_type))
 p = p + scale_colour_brewer(palette="Set1")
-p = beautifier(p)
+p = p + beautifier()
 
 d_summary = ddply(d, .(x3, plate_name, column_type), summarize, y_mean =mean(y), y_sd =sd(y))
 p2 = ggplot(d_summary, aes(plate_name, y_mean))
@@ -312,7 +308,7 @@ p = p + facet_wrap( ~plate_name, ncol=3) + scale_colour_brewer(palette="Set1")
 p = p + coord_fixed(ratio=1)
 #plot.new()
 #legend('topleft', legend = lm_eqn(lm(y_replicate_1 ~ y_replicate_2, d_tmp_1)), bty = 'n') # Problem printing.
-beautifier(p)
+p + beautifier()
 
 myLm <- function( formula, df ){lb}
    mod <- lm(formula, data=df)
@@ -339,7 +335,7 @@ p = ggplot(d_summary, aes(x=y_time, y=y_mean, color=sample, group=sample))
 p = p + geom_point(size=2) + geom_line()
 #p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p = p + facet_wrap( ~ plate_name, ncol=2) + scale_colour_brewer(palette="Set1")
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -374,7 +370,7 @@ p = ggplot(d_ks, aes(plate_name, log10_pvalue_ks))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~neg, ncol=2)
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -400,7 +396,7 @@ p = ggplot(d_ks, aes(plate_name, log10_pvalue_ks))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~neg, ncol=2)
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -416,7 +412,29 @@ p = ggplot(d_summary, aes(plate_name, y_mean))
 p = p + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.1)
 p = p + geom_point(size = 2, aes(color = sample_type))
 p = p + facet_wrap( ~sample_type, ncol=4) + scale_colour_brewer(palette="Set1")
-beautifier(p)'''
+p + beautifier()'''
+
+    return description, calculation
+
+
+
+def replicate_correlation(replicate_defining_column):
+    description = '''
+Correlation of first two replicate values, if data is available.'''
+
+    calculation = '''
+d$ones = 1
+dat = ddply(d,.({r}), transform, replicate = cumsum(ones), size = length(ones))
+# Only show data with at least two replicates.
+dat = subset(dat, size >= 2)
+
+# Only show the correlation of the first two replicates.
+p = ggplot(dat[dat$replicate == 1,], aes(x=dat[dat$replicate == 1,]$y, y = dat[dat$replicate == 2,]$y))
+p = p + geom_point() + xlab("replicate_1") + ylab("replicate_2")
+p = p + geom_smooth(method="lm")
+p = p + annotate("text", x = 1, y = -1, label = lm_eqn(lm(dat[dat$replicate == 1,]$y ~ dat[dat$replicate == 2,]$y)), colour="black", size = 5, parse=TRUE)
+p = p + beautifier()
+p'''.format(r=replicate_defining_column)
 
     return description, calculation
 
@@ -437,7 +455,7 @@ p = ggplot(d_sw, aes(plate_name, log10_pvalue_sw))
 p = p + geom_point()
 p = p + geom_hline(yintercept=-2)
 p = p + facet_wrap( ~sample, ncol=2)
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -479,7 +497,7 @@ p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_pos
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
-beautifier(p)
+p + beautifier()
 
 print(d_qc_score[with(d_qc_score, order(pos, plate_name)), ])'''
 
@@ -522,7 +540,7 @@ p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_pos
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ neg, ncol=2) + scale_colour_brewer(type=2, palette="RdYlBu")
-beautifier(p)
+p + beautifier()
 
 print(d_qc_score[with(d_qc_score, order(neg, plate_name)), ])
 '''
@@ -563,7 +581,7 @@ p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_pos
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[2]], label=labels[[2]], colour="grey40")
 p = p + annotate("text", x=d_qc_score$plate_name[label_position_x3], y=label_positions[[3]], label=labels[[3]], colour="grey40")
 p = p + facet_wrap( ~ pos, ncol=2) + scale_colour_manual(values=cbbPalette)
-beautifier(p)
+p + beautifier()
 
 print(d_qc_score[with(d_qc_score, order(pos, plate_name)), ])'''
 
@@ -577,7 +595,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
     calculation = '''
 p = ggplot(d, aes(y, colour=sample)) + geom_density()
 p = p + facet_wrap( ~plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -589,7 +607,7 @@ Smoothed histogram to visualise the overlap of value densities per sample type.'
     calculation = '''
 p = ggplot(d, aes(y, colour=sample_type)) + geom_density()
 p = p + facet_wrap( ~plate_name, ncol=2, scales="free_y") + scale_colour_manual(values=cbbPalette)
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
 
@@ -607,6 +625,6 @@ p = p + scale_colour_brewer(palette="Set1")
 p = p + geom_point(size = 2)
 p = p + geom_line(size = 1, aes(group=sample_type))
 # LATER: Add http://docs.ggplot2.org/current/geom_smooth.html
-beautifier(p)'''
+p + beautifier()'''
 
     return description, calculation
