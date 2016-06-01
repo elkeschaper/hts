@@ -258,6 +258,17 @@ class Plate:
         method(**kwargs)
 
 
+    @property
+    def gp_model(self):
+        if not hasattr(self, "_gp_model"):
+            self._gp_model = {}
+        return self._gp_model
+
+    @gp_model.setter
+    def gp_model(self, value):
+        self._gp_model = value
+
+
     def calculate_linearly_normalized_signal(self, unnormalized_key, normalized_0, normalized_1, normalized_key):
         """ Linearly normalize the data
 
@@ -537,7 +548,7 @@ class Plate:
         x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
 
         if not kernel and kernels:
-            kernel = prediction.create_gaussian_process_kernel(dimension=x.shape[1], kernel=None, kernels=kernels)
+            kernel = prediction.create_gaussian_process_composite_kernel(input_dim=x.shape[1], kernel=None, kernels=kernels)
 
         m = GPy.models.GPRegression(x, y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
@@ -583,8 +594,7 @@ class Plate:
 
         # Are you absolutely sure you got the mapping back to list of lists right?
         y_predicted_mean_abs = [i for j in y_predicted_mean_abs for i in j]
-        y_predicted_mean_abs = np.array(
-            [y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
+        y_predicted_mean_abs = np.array([y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
         y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
         y_predicted_sd_abs = np.array(
             [y_predicted_sd_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
@@ -610,7 +620,6 @@ class Plate:
                                                                                       y_mean=y_mean,
                                                                                       y_std=y_std,
                                                                                       data_tag_prediction=data_tag_prediction)
-
         return m, y_predicted_mean_abs, y_predicted_sd_abs
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):

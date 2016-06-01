@@ -1,5 +1,7 @@
 import GPy
 import logging
+
+import configobj
 import numpy as np
 
 LOG = logging.getLogger(__name__)
@@ -45,7 +47,7 @@ def predict_with_gaussian_process(x, y, x_predict, kernel_kwargs=None, optimize_
         optimize_kwargs = {}
 
     assert len(x) == len(y)
-    kernel = create_gaussian_process_kernel(dimension=x.shape[1], kernel=None, kernels=kernel_kwargs)
+    kernel = create_gaussian_process_composite_kernel(input_dim=x.shape[1], kernel=None, kernels=kernel_kwargs)
     m = GPy.models.GPRegression(x, y, kernel)
     LOG.info(m)
 
@@ -55,38 +57,78 @@ def predict_with_gaussian_process(x, y, x_predict, kernel_kwargs=None, optimize_
     return y_predicted_mean
 
 
-def create_gaussian_process_kernel(dimension, kernel=None, kernels=None):
+def create_gaussian_process_kernel(kernel_type, input_dim, info=None, constraints=None):
+    '''
+    `kernel_type` is the name of the kernel. Currently available kernels:
+    ['Add', 'BasisFuncKernel', 'Bias', 'Brownian', 'ChangePointBasisFuncKernel', 'Coregionalize', 'Cosine', 'DEtime', 'DiffGenomeKern', 'DomainKernel', 'EQ_ODE2', 'ExpQuad', 'Exponential', 'Fixed', 'Hierarchical', 'IndependentOutputs', 'Kern', 'Linear', 'LinearFull', 'LinearSlopeBasisFuncKernel', 'LogisticBasisFuncKernel', 'MLP', 'Matern32', 'Matern52', 'ODE_UY', 'ODE_UYC', 'ODE_st', 'ODE_t', 'OU', 'PeriodicExponential', 'PeriodicMatern32', 'PeriodicMatern52', 'Poly', 'Prod', 'RBF', 'RatQuad', 'Spline', 'SplitKern', 'StdPeriodic', 'TruncLinear', 'TruncLinear_inf', 'White'
+    '''
+    try:
+        kernel = getattr(GPy.kern, kernel_type)
+    except:
+        raise ValueError("Error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
+
+    if info == None:
+        info = {}
+    if constraints == None:
+        constraints = {}
+
+    try:
+        kernel = kernel(input_dim=input_dim, **info)
+        for parameter, property in constraints.items():
+            # e.g. kernel_tmp.variance.constrain_positive(4) would require kernel_kwargs = {"variance": ("constrain_positive", "4")}
+            # Todo: Clean up tuples vs dicts & 1 vs many constraints.
+            if type(property) in [list, tuple]:
+                method, constraint = property
+                getattr(getattr(kernel, parameter), method)(constraint)
+            elif type(property) in [dict, configobj.Section]:
+                for method, constraint in property.items():
+                    getattr(getattr(kernel, parameter), method)(*constraint)
+    except:
+        import pdb; pdb.set_trace()
+        raise ValueError("Please check you kernel kwargs for kernel kernel_type: {} with input_dim: {}".format(kernel_type, input_dim))
+
+
+    return kernel
+
+
+
+def create_gaussian_process_composite_kernel(input_dim, kernel=None, kernels=None):
     """ Create a gaussian process kernel from kernel string names.
 
     Kernel descriptions: https://gpy.readthedocs.org/en/latest/GPy.kern.src.html
 
     Args:
-        dimension (int):  The expected Kernel dimension
+        input_dim (int):  The expected Kernel dimension
         kernel (str):  A previous kernel. More kernel features are added to this previous kernel.
         kernels (dict): Dict of kernel_names: kernel_kwargs. E.g., kernels: {"rbf": None, "white_noise": None}
 
         # ToDo: Add ARD to the kernel parameters, such that e.g. lengthscales can differ across the plates.
     """
     if not kernels:
-        kernels = [("RBF", {}, {}), ("White", {}, {})]
+        kernels = [("RBF", {}, {}, None), ("White", {}, {}, "+")]
 
     for kernel_kwargs in kernels:
-        kernel_type, kernel_info, kernel_constraints = kernel_kwargs
-        # Currently available kernels:
-        # ['Add', 'BasisFuncKernel', 'Bias', 'Brownian', 'ChangePointBasisFuncKernel', 'Coregionalize', 'Cosine', 'DEtime', 'DiffGenomeKern', 'DomainKernel', 'EQ_ODE2', 'ExpQuad', 'Exponential', 'Fixed', 'Hierarchical', 'IndependentOutputs', 'Kern', 'Linear', 'LinearFull', 'LinearSlopeBasisFuncKernel', 'LogisticBasisFuncKernel', 'MLP', 'Matern32', 'Matern52', 'ODE_UY', 'ODE_UYC', 'ODE_st', 'ODE_t', 'OU', 'PeriodicExponential', 'PeriodicMatern32', 'PeriodicMatern52', 'Poly', 'Prod', 'RBF', 'RatQuad', 'Spline', 'SplitKern', 'StdPeriodic', 'TruncLinear', 'TruncLinear_inf', 'White'
-        try:
-            kernel_tmp = getattr(GPy.kern, kernel_type)
-        except:
-            raise ValueError("Possible error: Kernel {} is currently not implemented in GPy.kern:\n{}".format(kernel_type, str(dir(GPy.kern))))
-        try:
-            kernel_tmp = kernel_tmp(input_dim=dimension, **kernel_info)
-            for parameter, property in kernel_constraints.items():
-                # e.g. kernel_tmp.variance.constrain_positive(4) would require kernel_kwargs = {"variance": ("constrain_positive", "4")}
-                getattr(getattr(kernel_tmp, parameter), property[0])(property[1])
-        except:
-            raise ValueError("Please check you kernel kwargs, and the input dimensions of the data.")
+
+        # Allow kernel definition either as list of tuples, or as list of dicts.
+        if type(kernel_kwargs) == tuple:
+            kernel_type, kernel_info, kernel_constraints, kernel_arithmetic = kernel_kwargs
+            kernel_tmp = create_gaussian_process_kernel(input_dim=input_dim, kernel_type=kernel_type, info=kernel_info, constraints=kernel_constraints)
+        elif type(kernel_kwargs) in [dict, configobj.Section]:
+            try:
+                kernel_arithmetic = kernel_kwargs.pop("kernel_arithmetic")
+            except:
+                kernel_arithmetic = "+"
+            kernel_tmp = create_gaussian_process_kernel(input_dim=input_dim, **kernel_kwargs)
+        else:
+            raise Exception("Cannot handle kernel_kwargs of type {}.".format(type(kernel_kwargs)))
+
         if kernel:
-            kernel += kernel_tmp
+            if kernel_arithmetic == "+":
+                kernel += kernel_tmp
+            elif kernel_arithmetic == "*":
+                kernel *= kernel_tmp
+            else:
+                logging.error('kernel_arithmetic: {} is not implemented.'.format(kernel_arithmetic))
         else:
             kernel = kernel_tmp
 

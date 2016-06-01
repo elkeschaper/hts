@@ -2,6 +2,7 @@
 
 PLATE_MACHINE = "x3"
 PLATE_HUMAN = "plate_name"
+RUN_HUMAN = "run_name"
 WELL_COLUMN_MACHINE = "x1"
 WELL_ROW_MACHINE = "x2"
 WELL_COLUMN_HUMAN = "well_column"

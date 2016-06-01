@@ -18,7 +18,7 @@ LOG = logging.getLogger(__name__)
 PATH = '/Users/elkeschaper/Downloads/'
 
 
-def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, config_data=None, knit_html=True):
+def create_report(run, qc_result_path, qc_helper_methods_path, methods, config_data=None, knit_html=True):
     """
     Run QC tasks, and combine the result to a report.
 
@@ -26,7 +26,7 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, confi
         run (run.Run): Run instance
         qc_result_path (str):  Path to the resulting qc report file.
         qc_helper_methods_path (str): Path to an R file with additional functionality assumed in the QC methods.
-        qc_methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
+        methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
                 dictionary containing the description (function name, filters, ... for the qc method.)
         config_data (list of tuples): List of tuples used as content for a table in the qc report.
         knit_html (Boolean):
@@ -48,7 +48,7 @@ def create_report(run, qc_result_path, qc_helper_methods_path, qc_methods, confi
 
     # Create QC snippets
     qc_report_data = collections.OrderedDict()
-    for i_qc, i_qc_characteristics in qc_methods.items():
+    for i_qc, i_qc_characteristics in methods.items():
         LOG.debug("i_qc: {}".format(i_qc))
         try:
             qc_method_name = i_qc_characteristics['method']
@@ -282,7 +282,7 @@ p2 = ggplot(d_summary, aes(plate_name, y_mean))
 p2 = p2 + geom_errorbar(aes(ymin=y_mean-y_sd, ymax=y_mean+y_sd), width=.05)
 p2 = p2 + geom_point(size = 2, aes(color = column_type))
 p2 = p2 + scale_colour_brewer(palette="Set1")
-p2 = beautifier(p2)
+p2 = p2 + beautifier()
 
 grid.arrange(p, p2, ncol=2)'''
 
@@ -348,6 +348,18 @@ Heatmap of well wise values.'''
 tile_plot_x1x2x3(d, "y", FALSE)'''
 
     return description, calculation
+
+
+def heat_map_log10_mark_conditionally(condition="y<=-10", color="white"):
+    description = '''
+Heatmap of well wise values with values below {cond} marked in {color}.'''.format(cond=condition, color=color)
+
+    calculation = '''
+d$y = log10(d$y)
+tile_plot_x1x2x3_mark_conditionally(d, "y", FALSE, "{cond}", "{color}")'''.format(cond=condition, color=color)
+
+    return description, calculation
+
 
 
 def kolmogorov_smirnov():
@@ -432,11 +444,33 @@ dat = subset(dat, size >= 2)
 p = ggplot(dat[dat$replicate == 1,], aes(x=dat[dat$replicate == 1,]$y, y = dat[dat$replicate == 2,]$y))
 p = p + geom_point() + xlab("replicate_1") + ylab("replicate_2")
 p = p + geom_smooth(method="lm")
-p = p + annotate("text", x = 1, y = -1, label = lm_eqn(lm(dat[dat$replicate == 1,]$y ~ dat[dat$replicate == 2,]$y)), colour="black", size = 5, parse=TRUE)
+p = p + annotate("text", x = max(dat[dat$replicate == 1,]$y)/2, y = min(dat[dat$replicate == 2,]$y)/2, hjust = 0, label = lm_eqn(lm(dat[dat$replicate == 1,]$y ~ dat[dat$replicate == 2,]$y)), colour="black", size = 5, parse=TRUE)
 p = p + beautifier()
 p'''.format(r=replicate_defining_column)
 
     return description, calculation
+
+
+def replicate_correlation_robust(replicate_defining_column):
+    description = '''
+Correlation of first two replicate values, if data is available. Do robust regression (MASS, rlm, MM)'''
+
+    calculation = '''
+d$ones = 1
+dat = ddply(d,.({r}), transform, replicate = cumsum(ones), size = length(ones))
+# Only show data with at least two replicates.
+dat = subset(dat, size >= 2)
+
+# Only show the correlation of the first two replicates.
+p = ggplot(dat[dat$replicate == 1,], aes(x=dat[dat$replicate == 1,]$y, y = dat[dat$replicate == 2,]$y))
+p = p + geom_point() + xlab("replicate_1") + ylab("replicate_2")
+p = p + geom_smooth(method="rlm")
+p = p + annotate("text", x = max(dat[dat$replicate == 1,]$y)/2, y = min(dat[dat$replicate == 2,]$y)/2, label = rlm_eqn(rlm(dat[dat$replicate == 1,]$y ~ dat[dat$replicate == 2,]$y)), colour="black", size = 5, parse=TRUE) # Parameters e.g.  psi=psi.bisquare
+p = p + beautifier()
+p'''.format(r=replicate_defining_column)
+
+    return description, calculation
+
 
 
 def shapiro_wilk_normality_test():

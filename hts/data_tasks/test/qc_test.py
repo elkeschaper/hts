@@ -36,7 +36,7 @@ def test_qc_knitr_report(path):
     qc_knitr.create_report(run=test_run,
                            qc_result_path=test_qc_result_path,
                            qc_helper_methods_path=test_qc_helper_methods_path,
-                           qc_methods=test_qc_methods,
+                           methods=test_qc_methods,
                            config_data= None,
                            knit_html = True)
 

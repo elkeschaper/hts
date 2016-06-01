@@ -13,6 +13,8 @@ import logging
 import numpy as np
 import os
 import pickle
+
+import pandas as pd
 import scipy.stats
 
 from hts.data_tasks import data_tasks
@@ -23,13 +25,54 @@ from hts.plate import plate
 from hts.plate_data import plate_layout
 from hts.protocol import protocol
 
-
 LOG = logging.getLogger(__name__)
 
 KNOWN_DATA_TYPES = plate.KNOWN_DATA_TYPES
 
-class Run:
 
+### Decorator
+
+def merged_replicates(f):
+    # Organize pandas dataframes a) grouped_by replicates b) with one row per replicate.
+    def inner(self, replicate_defining_column, *args, **kwargs):
+
+        # Groupby on data_frame with sample data only for replicates.
+        group_by = self.data_frame_samples.groupby(replicate_defining_column)
+
+        if not hasattr(self, "_merged_data_frame"):
+            self._merged_data_frame = {}
+        if not replicate_defining_column in self._merged_data_frame:
+            # Set up first aggregate. Add basic columns: [SAMPLE, SAMPLE_TYPE]
+            agg = {}
+            for column in [replicate_defining_column, SAMPLE, SAMPLE_TYPE]:
+                agg[column] = {column: lambda x: x.iloc[0]}
+            aggregate = group_by.agg(agg)
+            aggregate.columns = aggregate.columns.droplevel(0)
+            # aggregate[RUN_HUMAN] = self.name # <- This works if all runs are attached a name.
+            self._merged_data_frame[replicate_defining_column] = aggregate
+
+        aggregate_old = self._merged_data_frame[replicate_defining_column]
+
+        # Calculate on group_by and aggregate. Return another aggregate.
+        aggregator = {replicate_defining_column: {replicate_defining_column: lambda x: x.iloc[0]}}
+        aggregate_new = f(self=self,
+                          group_by=group_by,
+                          aggregate=aggregate_old,
+                          aggregator=aggregator, *args, **kwargs)
+
+        # Combine the two aggregate dataframes.
+        # Assume that we can merge on all columns that go by the same name.
+        common_column_names = list((set(aggregate_old.columns.values) & set(aggregate_new.columns.values)))
+        aggregate_merged = pd.merge(aggregate_old, aggregate_new, on=common_column_names)
+        self._merged_data_frame[replicate_defining_column] = aggregate_merged
+        return aggregate_merged
+
+    return inner
+
+
+### Run class
+
+class Run:
     """ ``Run`` describes all information connected to one run of a high
         throughput screening experiment
 
@@ -56,8 +99,8 @@ class Run:
         """
         try:
             run = ("<Run instance>\nPath to run config file: {}\n"
-                "Number of plates: {}\nwidth: {}\nheight: {}"
-                "".format(self.path, len(self.plates), self.width, self.height))
+                   "Number of plates: {}\nwidth: {}\nheight: {}"
+                   "".format(self.path, len(self.plates), self.width, self.height))
         except:
             run = "<Run instance>"
             LOG.warning("Could not create string of Run instance.")
@@ -78,7 +121,7 @@ class Run:
 
         self.path = path
         self.plates = collections.OrderedDict((plate.name, plate) for plate in plates)
-        #Plates as list: self.plates = plates
+        # Plates as list: self.plates = plates
         # Later: Check if all plates are of the same height and length
         try:
             self.width = plates[0].width
@@ -90,11 +133,11 @@ class Run:
             param = kwargs.pop('protocol')
             if not type(param) == configobj.Section:
                 raise Exception("param for protocol is not of type "
-                    "configobj.Section: {}, {}".format(param, type(param)))
-            self.protocol(path = param['path'], format = param['format'])
+                                "configobj.Section: {}, {}".format(param, type(param)))
+            self.protocol(path=param['path'], format=param['format'])
 
         # Save all other kwargs simply as attributes.
-        #for key, value in kwargs.items():
+        # for key, value in kwargs.items():
         #    if not hasattr(self, key):
         #        setattr(self, key, value)
         self.config_data = kwargs
@@ -104,7 +147,6 @@ class Run:
         if self.protocol():
             # Todo: Include check that plate layout is defined.
             self.preprocess()
-
 
     @classmethod
     def create(cls, origin, path, format=None, dir=False, **kwargs):
@@ -133,7 +175,6 @@ class Run:
             else:
                 raise ValueError("Run create file {} does not exist.".format(path))
 
-
         if origin == 'config':
             return cls.create_from_config(path, file)
         if origin == 'envision':
@@ -145,9 +186,8 @@ class Run:
                 return pickle.load(fh)
         else:
             raise ValueError("The combination of origin: {} and format: {} is "
-                            "not implemented in "
-                            "cls.create()".format(origin, format))
-
+                             "not implemented in "
+                             "cls.create()".format(origin, format))
 
     @classmethod
     def create_from_config(cls, path, file):
@@ -187,7 +227,8 @@ class Run:
                 if all([len(paths) == 1 for paths in l_paths]) and n_plate != 1:
                     # Per datatype, one file for all plates
                     if data_type == "plate_layout":
-                        data = plate_layout.PlateLayout.create(paths=l_paths, formats=l_format, tags=l_tags, configs=l_config_set)
+                        data = plate_layout.PlateLayout.create(paths=l_paths, formats=l_format, tags=l_tags,
+                                                               configs=l_config_set)
                     else:
                         raise Exception("Reading in general info for data_type {} is not yet implemented."
                                         "".format(data_type))
@@ -197,7 +238,9 @@ class Run:
                     for i_plate in range(n_plate):
                         paths = [i[i_plate] for i in l_paths]
                         tags = [i[i_plate] for i in l_tags]
-                        config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format, "configs": l_config_set, "types": list(config_local.keys())}
+                        config_plate_wise[i_plate][data_type] = {"paths": paths, "tags": tags, "formats": l_format,
+                                                                 "configs": l_config_set,
+                                                                 "types": list(config_local.keys())}
                 else:
                     raise Exception("Currently option for multiple plates per plate data with some being one per plate "
                                     "and some one for all is not yet implemented.")
@@ -219,11 +262,13 @@ class Run:
                 else:
                     for i_plate, (i_path, tag) in enumerate(zip(paths, tags)):
                         config_local.update({"paths": [i_path], "tags": [tag], "formats": [format]})
-                        config_plate_wise[i_plate][data_type] = copy.deepcopy(config_local) # For current shallow dicts, config_local.copy() is ok.
+                        config_plate_wise[i_plate][data_type] = copy.deepcopy(
+                            config_local)  # For current shallow dicts, config_local.copy() is ok.
 
         if not plates:
             # plate.Plate.create expects: formats, paths, configs = None, names=None, tags=None
-            plates = [plate.Plate.create(format="config", name=plate_name, **config_plate) for config_plate, plate_name in zip(config_plate_wise, plate_names)]
+            plates = [plate.Plate.create(format="config", name=plate_name, **config_plate) for config_plate, plate_name
+                      in zip(config_plate_wise, plate_names)]
         for data_type, data in additional_data.items():
             for i_plate in plates:
                 i_plate.add_data(data_type, data, force=True)
@@ -231,14 +276,13 @@ class Run:
         # Data: may be all in one file (csv .xlxs), or in separated .csv files (default case, e.g. .csv)
         # Data: In particular for readouts, there may be several sets of data (e.g. Readouts for different points in time.)
 
-        #if len(data_types_plate_wise) == 0:
+        # if len(data_types_plate_wise) == 0:
         #    raise Exception("No plate wise information was defined in Run config.")
 
 
         # Check if the number of files is equal for all data_types_plate_wise:
 
         return Run(path=os.path.join(path, file), plates=plates, **config)
-
 
     @classmethod
     def map_config_file_definition(cls, config, n_plate):
@@ -248,10 +292,11 @@ class Run:
 
         config_file = {i: config.pop(i) for i in ["filenames", "path", "filename", "filenumber", "tags"] if i in config}
         tags = [i for i in range(n_plate)]
-        if all(i in config_file for i in ["path", "filenames"]): #"filenames" predominates "filename", "filenumber"
+        if all(i in config_file for i in ["path", "filenames"]):  # "filenames" predominates "filename", "filenumber"
             files = [os.path.join(config_file["path"], i_file) for i_file in config_file['filenames']]
         elif all(i in config_file for i in ["path", "filename", "filenumber"]):
-            files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in config_file['filenumber']]
+            files = [os.path.join(config_file["path"], config_file["filename"].format(i_index)) for i_index in
+                     config_file['filenumber']]
             tags = config_file['filenumber']
         elif all(i in config_file for i in ["path", "tags"]):
             # In reality, we are in this case only dealing with one file, in which the information for all plates is stored.
@@ -270,7 +315,6 @@ class Run:
                             "the user defined n_plate {} nor 1.".format(len(files), n_plate))
 
         return config, files, tags
-
 
     @classmethod
     def create_from_envision(cls, path, file):
@@ -295,7 +339,6 @@ class Run:
 
         return Run(path=path, plates=plates)
 
-
     @classmethod
     def create_from_csv_file(cls, path, file, **kwargs):
         """ Read csv data and create `Run` instance.
@@ -311,7 +354,6 @@ class Run:
         plates = run_io.read_csv(file=os.path.join(path, file), **kwargs)
         return Run(path=path, plates=plates)
 
-
     def filter(self, **kwargs):
         """ Filter run data according to filter keyword arguments.
 
@@ -325,7 +367,7 @@ class Run:
         """
 
         data = [plate.filter(**kwargs) for plate in self.plates.values()]
-        #return [item for sublist in data for item in sublist]
+        # return [item for sublist in data for item in sublist]
         return data
 
     def preprocess(self):
@@ -341,13 +383,11 @@ class Run:
         else:
             LOG.info("No preprocessing tasks defined in protocol: {}".format(self.protocol().name))
 
-
     def get_run_config_data(self):
         """
             Extract relevant meta data for qc and analysis reports.
             Returns list of tuples: [(key_str, value_str)]
         """
-
 
         # You could try to flatten the dict automagically to increase elegance:
         # http://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
@@ -358,55 +398,60 @@ class Run:
                 continue
             elif type(j) == configobj.Section:
                 for k, l in j.items():
-                    config_data["_".join([i,k])] = l
+                    config_data["_".join([i, k])] = l
             else:
                 config_data[i] = j
         config_data["protocol_name"] = self.protocol().name
         config_data["protocol_file"] = self.protocol().file
         config_data["run_config"] = self.path
-        config_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i,j in config_data.items()}
+        config_data = {i: str(j) if type(j) != list else ", ".join([str(k) for k in j]) for i, j in config_data.items()}
 
         config_data_ordered = [(i_o, config_data[i_o]) for i_o in config_data_order]
         config_data_ordered += [(i_m, str(i_v)) for i_m, i_v in config_data.items() if i_m not in config_data_order]
 
         return config_data_ordered
 
-
-    def qc(self):
-        """ Perform quality control and save the results
-
-        Perform quality control and save the results
-
-        Args:
-
-        .. todo:: qc() and analysis() as pretty similar. Perhaps, refactoring/merging may be useful.
+    def do_task(self, type="qc", type_attribute="_{}"):
+        """ Perform task. A task could be e.g. qc or analysis.
         """
 
-        if hasattr(self, '_qc'):
-            return self._qc
+        type_attribute = type_attribute.format(type)
 
-        self._qc = {}
-        tasks = self.protocol().get_tasks_by_tag("qc")
+        if hasattr(self, type_attribute):
+            return getattr(self, type_attribute)
+
+        result = {}
+        tasks = self.protocol().get_tasks_by_tag(type)
         for task in tasks:
             LOG.info(task.name)
             LOG.info(task.type)
-            methods_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if isinstance(j, configobj.Section)])
-            config_data_from_protocol = collections.OrderedDict([(i,j) for i,j in task.config.items() if not isinstance(j, configobj.Section)])
-            # This will work Python 3.5 onwards: return {**protocol_qc, **run_qc}
+            methods_from_protocol = collections.OrderedDict(
+                [(i, j) for i, j in task.config.items() if isinstance(j, configobj.Section)])
+            config_data_from_protocol = collections.OrderedDict(
+                [(i, j) for i, j in task.config.items() if not isinstance(j, configobj.Section)])
+            # This will work Python 3.5 onwards: return {**config_data_from_protocol, **self.config_data[task.name]}
             if task.name in self.config_data:
-                qc_config_data = dict(config_data_from_protocol, **self.config_data[task.name])
+                config_data = dict(config_data_from_protocol, **self.config_data[task.name])
             else:
-                qc_config_data = config_data_from_protocol
-            self._qc[task.name] = data_tasks.perform_task(run=self,
-                                                          task_name=task.method,
-                                                          qc_methods=methods_from_protocol,
-                                                          config_data=self.get_run_config_data(),
-                                                          **qc_config_data)
+                config_data = config_data_from_protocol
+            result[task.name] = data_tasks.perform_task(run=self,
+                                                        task_name=task.method,
+                                                        methods=methods_from_protocol,
+                                                        #config_data=self.get_run_config_data(), # <- Perhaps this is necessary for QC or other methods?
+                                                        **config_data)
+
+        setattr(self, type_attribute, result)
+        return result
+
+    def qc(self):
+        """ Perform quality control and save the results
+        """
+        qc = self.do_task(type="qc")
 
         if "send_mail_upon_qc" in self.config_data and self.config_data["send_mail_upon_qc"].lower() == "true":
-            send_mail(email_to = [self.config_data['experimenter_mail']], body ="QC report for Run config '{}' is prepared.".format(self.path))
-        return self._qc
-
+            send_mail(email_to=[self.config_data['experimenter_mail']],
+                      body="QC report for Run config '{}' is prepared.".format(self.path))
+        return qc
 
     def analysis(self):
         """ Perform analysis and save the results.
@@ -415,33 +460,10 @@ class Run:
         ProtocolTask tagged with "analysis" is run. Each ProtocolTask may be run multiple times, if several dicts
         are defined for it (this could be either in protocol, or in the run config.)
         """
+        analysis = self.do_task(type="analysis")
+        return analysis
 
-        if hasattr(self, '_analysis'):
-            return self._analysis
-
-        self._analysis = {}
-        tasks = self.protocol().get_tasks_by_tag("analysis")
-        for task in tasks:
-            LOG.info(task.name)
-            LOG.info(task.type)
-
-            # Merge the data about the task from the Run config and the Protocol config:
-            # This will work Python 3.5 onwards:  {**task.config, **analysis_config_run}
-            subtasks = {i:j for i,j in self.config_data[task.name].items() if isinstance(j, configobj.Section)}
-            analysis_config_run = {i:j for i,j in self.config_data[task.name].items() if not isinstance(j, configobj.Section)}
-            analysis_config_meta = dict(task.config, **analysis_config_run)
-
-            analysis_results = {}
-            for subtask_name, subtask_config in subtasks.items():
-                analysis_config = dict(analysis_config_meta, **subtask_config)
-                analysis_results[subtask_name] = data_tasks.perform_task(run=self, tag=subtask_name, task_name=task.method, **analysis_config)
-
-            self._analysis[task.name] = analysis_results
-
-        return self._analysis
-
-
-    def protocol(self, path = None, format = None):
+    def protocol(self, path=None, format=None):
         """ Read protocol and attach to `Run` instance.
 
         Read protocol and attach to `Run` instance.
@@ -459,7 +481,6 @@ class Run:
             else:
                 return None
         return self._protocol
-
 
     def write(self, format, path=None, return_string=None, **kwargs):
         """ Serialize and write ``Run`` instances.
@@ -482,7 +503,7 @@ class Run:
             output = run_io.serialize_as_csv_one_row_per_well(self, **kwargs)
         elif format == 'serialize_as_pandas':
             output = run_io.serialize_as_pandas(self, **kwargs)
-            self.data_frame = output
+            return output
         else:
             raise Exception('Format is unknown: {}'.format(format))
 
@@ -522,42 +543,53 @@ class Run:
         LOG.debug(config_data)
         merged_data = run_io.add_meta_data(self,
                                            meta_data_kwargs=config_data["data_kwargs"],
-                                           meta_data_rename=config_data["join_columns"],
+                                           meta_data_rename=config_data["rename_columns"],
                                            meta_data_exclude_columns=config_data["exclude_columns"],
                                            meta_data_well_name_pattern=config_data["well_name_pattern"],
-                                           filter_condition=lambda x: x=="s", # Only allow sample data after merging
+                                           # ToDo: When do you want to do this filtering, if needed?
+                                           #filter_condition=lambda x: x == "s",  # Only allow sample data after merging
                                            **kwargs)
         self.data_frame_samples = merged_data
 
-
     def add_data_from_data_frame(self, tags, plate_data_type="meta_data"):
-
+        """
+        Args:
+            tags (list of str):
+        """
         df = self.data_frame_samples
         data = {plate: {tag: {} for tag in tags} for plate in self.plates.values()}
         for tag in tags:
-            for readout, plate_name, i_column, i_row in zip(df[tag], df[PLATE_HUMAN], df[WELL_COLUMN_MACHINE], df[WELL_ROW_MACHINE]):
+            for readout, plate_name, i_column, i_row in zip(df[tag], df[PLATE_HUMAN], df[WELL_COLUMN_MACHINE],
+                                                            df[WELL_ROW_MACHINE]):
                 data[self.plates[plate_name]][tag][(i_row, i_column)] = readout
 
         for plate, plate_data in data.items():
             # ToDo: Allow creation of any type of PlateData (e.g. via registries).
-            meta_data = MetaData.create_from_coordinate_tuple_dict(data=plate_data, width=self.width, height=self.height)
+            meta_data = MetaData.create_from_coordinate_tuple_dict(data=plate_data, width=self.width,
+                                                                   height=self.height)
             plate.add_data(data=meta_data, data_type=plate_data_type)
 
+    @merged_replicates
+    def merger_add_data_from_data_frame(self, group_by, aggregator, columns, **kwargs):
 
-    def summarize_statistical_significance(self, replicate_defining_column,
-                                           data_tag_normalized_readout,
-                                           data_tag_pvalue_sample_vs_neg_control,
-                                           data_tag_pvalue_sample_vs_pos_control):
+        # Add data from other columns
+        for column in columns:
+            aggregator[column] = {column: lambda x: x.iloc[0]}
+        # Calculate for every group.
+        aggregated_dataframe = group_by.agg(aggregator)
+        aggregated_dataframe.columns = aggregated_dataframe.columns.droplevel(0)
+        return aggregated_dataframe
 
-
-        # Groupby on data_frame with sample data only for replicates.
-        gb = self.data_frame_samples.groupby(replicate_defining_column)
+    @merged_replicates
+    def merger_summarize_statistical_significance(self, group_by, aggregator,
+                                                  data_tag_normalized_readout,
+                                                  data_tag_pvalue_sample_vs_neg_control,
+                                                  data_tag_pvalue_sample_vs_pos_control, **kwargs):
 
         # Define aggregation methods
-        agg = {}
-
         # Aggregate normalized values.
-        agg[data_tag_normalized_readout] = {data_tag_normalized_readout+'_mean': np.mean, data_tag_normalized_readout+'_std': np.std}
+        aggregator[data_tag_normalized_readout] = {data_tag_normalized_readout + '_mean': np.mean,
+                                                   data_tag_normalized_readout + '_std': np.std}
 
         # Aggregate pvalues.
         def fishers_method(pvalues):
@@ -565,32 +597,36 @@ class Run:
             statistic, pval = scipy.stats.combine_pvalues(pvalues)
             return pval
 
-        agg[data_tag_pvalue_sample_vs_neg_control] = {data_tag_pvalue_sample_vs_neg_control: fishers_method}
-        agg[data_tag_pvalue_sample_vs_pos_control] = {data_tag_pvalue_sample_vs_pos_control: fishers_method}
-
-        # Add data from all other columns
-        columns = self.data_frame_samples.columns.values
-        columns_retain = [i for i in columns if i not in [data_tag_normalized_readout, data_tag_pvalue_sample_vs_neg_control, data_tag_pvalue_sample_vs_pos_control, replicate_defining_column]]
-        # Todo: generalize this column exclusion:
-        columns_retain = [i for i in columns_retain if i not in ["net_fret", "fret_1", "fret_2", "realtime-glo_1", "realtime-glo_2"]]
-        for column in columns_retain:
-            agg[column] = {column: lambda x: x.iloc[0]}
+        aggregator[data_tag_pvalue_sample_vs_neg_control] = {data_tag_pvalue_sample_vs_neg_control: fishers_method}
+        aggregator[data_tag_pvalue_sample_vs_pos_control] = {data_tag_pvalue_sample_vs_pos_control: fishers_method}
 
         # Calculate for every group.
-        gb2 = gb.agg(agg)
-        gb2.columns = gb2.columns.droplevel(0)
+        aggregated_dataframe = group_by.agg(aggregator)
+        aggregated_dataframe.columns = aggregated_dataframe.columns.droplevel(0)
+        return aggregated_dataframe
 
-        return gb, gb2
+    @merged_replicates
+    def merger_rank_samples(self, aggregate,
+                            ranking_column, rank_column_name, rank_threshold, is_hit_by_rank_column_name,
+                            value_threshold, is_hit_by_value_column_name, **kwargs):
+
+        # Add a ranking by `ranking_column`
+        aggregate[rank_column_name] = aggregate[ranking_column].rank(ascending=True)
+        aggregate[is_hit_by_rank_column_name] = aggregate[rank_column_name].apply(
+            lambda x: True if x < rank_threshold else False)
+        aggregate[is_hit_by_value_column_name] = aggregate[ranking_column].apply(
+            lambda x: True if x < value_threshold else False)
+
+        return aggregate
 
 
 def send_mail(body,
-                email_to,
-                email_from = "adriano_conrad_aguzzi@gmail.com",
-                smtp_server = "smtp.gmail.com",
-                smtp_port = 587,
-                smtp_username = "elkewschaper@gmail.com",
-                email_subject = "QC_report finished"):
-
+              email_to,
+              email_from="adriano_conrad_aguzzi@gmail.com",
+              smtp_server="smtp.gmail.com",
+              smtp_port=587,
+              smtp_username="elkewschaper@gmail.com",
+              email_subject="QC_report finished"):
     LOG.info("Sending email to {}".format(email_to))
 
     from email.mime.text import MIMEText
@@ -598,7 +634,7 @@ def send_mail(body,
     import smtplib
 
     smtp_password = input('Enter password for {}:  '.format(smtp_username))
-    #email_from = smtp_username
+    # email_from = smtp_username
 
     DATE_FORMAT = "%d/%m/%Y"
     EMAIL_SPACE = ", "
@@ -613,4 +649,3 @@ def send_mail(body,
     mail.login(smtp_username, smtp_password)
     mail.sendmail(email_from, email_to, msg.as_string())
     mail.quit()
-
