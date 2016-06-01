@@ -6,11 +6,10 @@ Subpackages
 
 .. toctree::
 
-    hts.analysis
-    hts.plate_layout
+    hts.data_tasks
+    hts.plate
+    hts.plate_data
     hts.protocol
-    hts.qc
-    hts.readout
     hts.run
 
 Submodules

@@ -7,9 +7,13 @@ Modules
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   hts
+   hts.run
+   hts.plate
+   hts.plate_data
+   hts.protocol
+   hts.data_tasks
 
 
 Indices and tables

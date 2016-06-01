@@ -1,21 +1,21 @@
-hts.qc package
-==============
+hts.plate package
+=================
 
 Submodules
 ----------
 
-hts.qc.qc_knitr module
+hts.plate.plate module
 ----------------------
 
-.. automodule:: hts.qc.qc_knitr
+.. automodule:: hts.plate.plate
     :members:
     :undoc-members:
     :show-inheritance:
 
-hts.qc.qc_matplotlib module
+hts.plate.prediction module
 ---------------------------
 
-.. automodule:: hts.qc.qc_matplotlib
+.. automodule:: hts.plate.prediction
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ hts.qc.qc_matplotlib module
 Module contents
 ---------------
 
-.. automodule:: hts.qc
+.. automodule:: hts.plate
     :members:
     :undoc-members:
     :show-inheritance:
