@@ -1,6 +1,4 @@
-import glob
 import os
-import shutil
 import sys
 
 try:
@@ -14,16 +12,32 @@ def read(*paths):
     with open(os.path.join(*paths), "r") as f:
         return f.read()
 
+
+# Set the home variable with user argument:
+# This is only needed if you have configs in local ~/.hts
+# Prettier solutions might be possible: http://stackoverflow.com/questions/677577/distutils-how-to-pass-a-user-defined-parameter-to-setup-py
+# try:
+#     i = sys.argv.index("--home")
+#     HOME = sys.argv[i + 1]
+#     del sys.argv[i+1]
+#     del sys.argv[i]
+#     if not os.path.exists(HOME):
+#         raise ValueError("The argument supplied in --home is not a valid path: {}".format(HOME))
+# except:
+#     HOME=os.path.expanduser("~")
+
+#SCRIPTS1 = [os.path.join("hts", "examples", i) for i in ["example_workflow.py"]]
+
+
 setup(
     name="hts",
     version="0.0.1",
     author="HTS developers",
-    author_email="elke.schaper@isb-sib.ch",
-    packages=["hts", "hts.run", "hts.run.test"],
-    #packages=find_packages(exclude=["tests*"]),
-    url="http://pypi.python.org/pypi/hts_io/",
+    author_email="elke.schaper@sib.swiss",
+    packages=["hts", "hts.data_tasks", "hts.data_tasks.test", "hts.plate", "hts.plate.test", "hts.plate_data", "hts.plate_data.test", "hts.protocol", "hts.protocol.test", "hts.run", "hts.run.test"],
+    url="http://pypi.python.org/pypi/hts/",
     license="LICENSE.txt",
-    description="Input / output for high throughput screening data.",
+    description="High throughput screening data I/O, normalization, analysis",
     long_description=read("README.rst"),
     #include_package_data=True, # If you want files mentioned in MANIFEST.in also to be installed, i.e. copied to usr/local/bin
     classifiers = [
@@ -38,12 +52,16 @@ setup(
         ],
     install_requires=[
         "configobj >= 5.0.6",
-        #"docutils >= 0.11", # Uncomment if you wish to create the documentation locally.
+        #"docutils >= 0.12", # Uncomment if you wish to create the documentation locally.
+        "GPy==1.0.9",
+        "matplotlib>=1.5.0",
         "numpy >= 1.6.1",
-        #"pypandoc >= 0.9.6" # Uncomment if you wish to convert the markdown readme to a rest readme for upload on Pypi.
-        #"pytest >= 2.5.2", # Uncomment if you wish to run the tests locally.
-        "scipy >=0.12.0",
-        #"Sphinx >= 1.2.2", # Uncomment if you wish to create the documentation locally.
+        "pandas >= 1.11.0",
+        #"pypandoc >= 1.1.3" # Uncomment if you wish to convert the markdown readme to a rest readme for upload on Pypi.
+        #"pytest >= 2.8.3", # Uncomment if you wish to run the tests locally.
+        "scipy >=0.17.1",
+        #"Sphinx >= 1.3.3", # Uncomment if you wish to create the documentation locally.
+        "xlrd>=0.9.4",
     ],
     # package_data: None-module files, which should still be distributed are mentioned here:
 
