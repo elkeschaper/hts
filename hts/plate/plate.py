@@ -14,6 +14,7 @@ import numpy as np
 import os
 import pickle
 import pylab
+import random
 import re
 import scipy.stats
 import string
@@ -257,18 +258,6 @@ class Plate:
         method = getattr(self, methodname)
         method(**kwargs)
 
-
-    @property
-    def gp_model(self):
-        if not hasattr(self, "_gp_model"):
-            self._gp_model = {}
-        return self._gp_model
-
-    @gp_model.setter
-    def gp_model(self, value):
-        self._gp_model = value
-
-
     def calculate_linearly_normalized_signal(self, unnormalized_key, normalized_0, normalized_1, normalized_key):
         """ Linearly normalize the data
 
@@ -291,36 +280,25 @@ class Plate:
             return
 
         data_normalized_0 = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                               condition=lambda x: x in normalized_0,
-                               value_data_type="readout",
-                               value_data_tag=unnormalized_key)
+                                        condition=lambda x: x in normalized_0,
+                                        value_data_type="readout",
+                                        value_data_tag=unnormalized_key)
 
         data_normalized_1 = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                condition=lambda x: x in normalized_1,
-                                value_data_type="readout",
-                                value_data_tag=unnormalized_key)
+                                        condition=lambda x: x in normalized_1,
+                                        value_data_type="readout",
+                                        value_data_tag=unnormalized_key)
 
         normalized_data = (self.readout.get_data(unnormalized_key) - np.mean(data_normalized_0)) / (
             np.mean(data_normalized_1) - np.mean(data_normalized_0))
 
         self.readout.add_data(data={normalized_key: normalized_data}, tag=normalized_key)
 
-
     def calculate_normalization_by_division(self, unnormalized_key, normalizer_key, normalized_key):
-        """ Normalize the data by rtglo as a proxy for the relative cell number.
-
-        .. math::
-        rtglo_normalized_i = \frac{ x_{unnormalized_i} - \hat{x_{low}} } {  \hat{x_{high}} - \hat{x_{low}} }
-
-        x_low could for example be cell-less wells ("blank" or "buffer). Here, the RTGlo signal should be minimal.
-        x_high could be the wells were cells are expected to grow best, and grow homogenously across plates.
-
+        """ The normalize data set is equal to a division of all data by the mean of a subset of the data.
         Args:
-            rtglo_key (str):  The key for self.readout.data where the rtglo ``Readout`` instance is stored.
             unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.
             normalized_key (str):  The key for self.readout.data where the resulting normalized ``Readout`` instance will be stored.
-            x_low (list of str):  The list of names of all low fixtures in the plate layout (self.plate_data).
-            x_high (str): The name of the high fixture in the plate layout (self.plate_data).
         """
 
         if normalized_key in self.readout.data:
@@ -331,6 +309,18 @@ class Plate:
         relative_data = self.readout.get_data(unnormalized_key) / self.readout.get_data(normalizer_key)
 
         self.readout.add_data(data={normalized_key: relative_data}, tag=normalized_key)
+
+
+    def subtract_readouts(self, data_tag_readout_minuend, data_tag_readout_subtrahend, data_tag_readout_difference, **kwargs):
+
+        if data_tag_readout_difference in self.readout.data:
+            LOG.warning("The data_tag_readout_difference {} is already in self.readout.data. "
+                        "Skipping recalculation".format(data_tag_readout_difference))
+            return
+
+        difference = self.readout.get_data(data_tag_readout_minuend) - self.readout.get_data(data_tag_readout_subtrahend)
+
+        self.readout.add_data(data={data_tag_readout_difference: difference}, tag=data_tag_readout_difference)
 
 
     def calculate_net_fret(self, donor_channel, acceptor_channel,
@@ -424,54 +414,218 @@ class Plate:
 
 
 
+    def calculate_control_normalized_signal(self,
+                                            data_tag_readout,
+                                            negative_control_key,
+                                            positive_control_key,
+                                            data_tag_normalized_readout=None,
+                                            local=True,
+                                            **kwargs):
+        """ Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
 
-    def calculate_data_issue_cell_viability_real_time_glo(self, real_time_glo_measurement, normal_well,
-                                                          data_issue_key="realtime-glo", threshold_level=0.05):
-        """ Calculate which wells suffer from cell viability issues via RealTime-Glo measurements.
+        Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
 
-        Calculate which wells suffer from cell viability issues via RealTime-Glo measurements.
-        Add the results to self.data_issue.
+        The normalization is calculated as:
+        .. math::
 
-        Current approach: We assume that the `real_time_glo_measurement` readout values for `normal_well` follow a
-        Gaussian distribution. Further, we define that any `real_time_glo_measurement` readout values for other wells
-        outside a `threshold_level` (analogous to a significance level; e.g. 5%) from this Gaussian distribution
-        has cell viability issues. For increased growth, we mark as "1". For decreased growth, we mark as "-1". For
-        normal growth, we mark the well as "0".
+        y' = \frac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }
+
+        For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).
+        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the average control values across the plate.
 
         Args:
-            real_time_glo_measurement (str):  The key for self.readout.data where the
-                                            real_time_glo_measurement ``Readout`` instance is stored.
-            normal_well (str):  The name of the wells in self.plate_layout that show standard RealTimeGlo measurements.
-                                All other wells will be evaluated in comparison to these wells.
-            data_issue_key (str):  The key for self.data_issue.data where the resulting ``DataIssue`` instance will be
-                                  stored.
+            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
+            negative_control_key (str):  The name of the negative control in the plate layout.
+            positive_control_key (str):  The name of the positive control in the plate layout.
+            data_tag_normalized_readout (str):  The key for self.readout.data where the normalized readouts will be stored.
+            local (Bool): If True, use Gaussian processes to locally predict the control distributions. Else, use
+                          plate-wise control distributions.
         """
 
-        if hasattr(self, "data_issue") and self.data_issue and data_issue_key in self.data_issue.data:
-            raise ValueError("The data_issue_key {} is already in self.data_issue.data.".format(data_issue_key))
+        if data_tag_normalized_readout == None:
+            data_tag_normalized_readout = "{}__control_normalized".format(data_tag_readout)
 
-        normal_rtglo = self.filter(condition_data_type="plate_layout", condition_data_tag="layout",
-                                   condition=lambda x: x == normal_well,
-                                   value_data_type="readout",
-                                   value_data_tag=real_time_glo_measurement)
+        all_readouts = self.readout.get_data(data_tag_readout)
 
-        # First, calculate the critical value of the distribution.
+        if local != True:
+            # Normalize by "global" plate averages of negative and positive controls.
+            nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == negative_control_key)
+            nc_values = self.readout.get_values(wells=nc_wells, data_tag=data_tag_readout)
+            data_nc_mean = np.mean(nc_values)
+            data_nc_std = np.std(nc_values)
 
-        mu_normal = np.mean(normal_rtglo)
-        sigma_normal = np.std(normal_rtglo)
-        z_score = (self.readout.get_data(real_time_glo_measurement) - mu_normal) / sigma_normal
-        # p_value for one-sided test. For two-sided test, multiply by 2:
-        p_value = scipy.stats.norm.sf(abs(z_score))
+            pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == positive_control_key)
+            pc_values = self.readout.get_values(wells=pc_wells, data_tag=data_tag_readout)
+            data_pc_mean = np.mean(pc_values)
+            data_pc_std = np.std(pc_values)
 
-        # Mark wells as True if they persist the Quality Control threshold.
-        qc = [[True if datum > threshold_level else False for datum in row] for row in p_value]
+            LOG.debug("Normalize globally with mean negative control: {} "
+                      "and mean negative control: {}.".format(data_nc_mean, data_pc_mean))
+        else:
+            # Normalize by "local" predictions of negative and positive control distributions (extracted with Gaussian
+            # processes.)
 
-        data = data_issue.DataIssue(data={data_issue_key + "_pvalue": p_value,
-                                          data_issue_key + "_qc": qc,
-                                          data_issue_key + "_zscore": z_score},
-                                    name=data_issue_key)
+            # Calculate predicted values for mean and std: negative control.
+            m, data_nc_mean, data_nc_std = self.apply_gaussian_process(data_tag_readout=data_tag_readout,
+                                                                       sample_tag_input=negative_control_key,
+                                                                       **kwargs)
 
+            # Calculate predicted values for mean and std: positive control.
+            m, data_pc_mean, data_pc_std = self.apply_gaussian_process(data_tag_readout=data_tag_readout,
+                                                                       sample_tag_input=positive_control_key,
+                                                                       **kwargs)
+
+        # Calculate the normalised data
+        normalized_data = (all_readouts - data_nc_mean) / (data_pc_mean - data_nc_mean)
+
+        self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
+                                    # These are scalars, not arrays x arrays. Does this data need saving this way?
+                                    #                           data_tag_normalized_negative_control: data_nc_mean,
+                                    #                           data_tag_normalized_positive_control: data_pc_mean,
+                                    },
+                              tag=data_tag_normalized_readout)
+
+
+    def calculate_significance_compared_to_null_distribution(self,
+                                                             data_tag_readout,
+                                                             sample_tag_null_distribution,
+                                                             data_tag_standard_score,
+                                                             data_tag_p_value,
+                                                             is_higher_value_better=True,
+                                                             **kwargs):
+
+        """
+        Calculate the standard score and p-value for all data (in `data_tag_readout`) compared to the null distribution
+        defined by all data of `sample_tag_null_distribution` in `data_tag_readout`.
+        Save as readouts with tags `data_tag_standard_score` and `data_tag_p_value`.
+
+        Assume that the samples in `sample_tag_null_distribution` follows a Gaussian distribution.
+
+        WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to
+        show lower mean values. [Otherwise, we would have to introduce a boolean "pos_control_lower_than_neg_control."]
+
+
+        Args:
+            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
+            sample_tag_null_distribution (str): The sample key (defined in plate layout) defining what sample will make up the null distribution that we compare all other samples to.
+            data_tag_standard_score (str): The key for self.readout.data where the standard scores will be stored.
+            data_tag_p_value (str): The key for self.readout.data where the p-values will be stored.
+            **kwargs:
+
+        Returns:
+
+        """
+        if data_tag_standard_score == None:
+            data_tag_standard_score = "{}__all__vs__{}__standard_score".format(data_tag_readout,
+                                                                               sample_tag_null_distribution)
+
+        if data_tag_p_value == None:
+            data_tag_p_value = "{}__all__vs__{}__pvalue".format(data_tag_readout, sample_tag_null_distribution)
+
+        all_readouts = self.readout.get_data(data_tag_readout)
+
+        if type(sample_tag_null_distribution) != list:
+            sample_tag_null_distribution = [sample_tag_null_distribution]
+
+        # Extract null distribution.
+        null_distribution_wells = self.plate_layout.get_wells(data_tag="layout",
+                                                              condition=lambda x: x in sample_tag_null_distribution)
+        null_distribution_values = self.readout.get_values(wells=null_distribution_wells, data_tag=data_tag_readout)
+        null_mean = np.mean(null_distribution_values)
+        null_std = np.std(null_distribution_values)
+
+        LOG.debug("Null distribution of sample {} has mean {} and std: {}.".format(sample_tag_null_distribution,
+                                                                                   null_mean, null_std))
+
+        # Compute the z-score or standard score
+        standard_score = (all_readouts - null_mean) / null_std
+
+        # Calculate the p-Value of all data points compared to the null distribution.
+        # Inspired by:
+        # http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic
+        p_value = scipy.stats.norm(null_mean, null_std).cdf(all_readouts)
+
+        # Alternative pvalue calculation:
+        ## p_value for one-sided test. For two-sided test, multiply by 2:
+        # p_value = scipy.stats.norm.sf(abs(standard_score))
+
+
+        if is_higher_value_better in [True, "true", "True", "TRUE"]:
+            standard_score = - standard_score
+            p_value = 1 - p_value
+
+        self.readout.add_data(data={data_tag_standard_score: standard_score,
+                                    data_tag_p_value: p_value,
+                                    },
+                              tag=data_tag_readout)
+
+
+    def classify_by_cutoff(self, data_tag_readout, data_tag_classified_readout, threshold, is_higher_value_better=True, is_twosided=False):
+        """
+        Map a dataset of float values to either binary (`is_twosided==False`) or [-1,0,1] (`is_twosided==True`), depending
+        on whether values fall below `threshold`
+
+        Args:
+            data_tag_readout: The key for self.readout.data where the readouts are stored.
+            data_tag_classified_readout: The key for self.readout.data where the True/False classification values will be stored.
+            threshold:
+
+        Returns:
+        """
+
+        all_readouts = self.readout.get_data(data_tag_readout)
+
+        if is_twosided in [True, "true", "True", "TRUE"]:
+            is_twosided = True
+        if is_higher_value_better in [True, "true", "True", "TRUE"]:
+            is_higher_value_better = True
+
+        threshold = float(threshold)
+
+        if is_twosided:
+            classified = [[1 if datum > threshold else -1 if abs(datum) > threshold else 0 for datum in row] for row in all_readouts]
+        elif is_higher_value_better:
+            classified = [[True if datum > threshold else False for datum in row] for row in all_readouts]
+        else:
+            classified = [[True if datum < threshold else False for datum in row] for row in all_readouts]
+
+        data = data_issue.DataIssue(data={data_tag_classified_readout: classified}, name=data_tag_classified_readout)
         self.add_data(data_type="data_issue", data=data)
+
+
+    def randomize_values(self,
+                         data_tag_readout,
+                         data_tag_randomized_readout,
+                         randomized_samples="s",
+                         **kwargs):
+
+        """
+        Randomize the signal in a readout per plate and for a specific sample.
+        The result of this method has only visualization purposes.
+
+
+        Args:
+            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
+            data_tag_randomized_readout (str): The key for self.readout.data where the randomized data will be stored.
+            **kwargs:
+
+        """
+        if data_tag_randomized_readout == None:
+            data_tag_randomized_readout = "{}__randomized".format(data_tag_readout)
+
+        all_readouts = self.readout.get_data(data_tag_readout)
+
+        # Extract wells
+        randomizable_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == randomized_samples)
+        randomizable_values = self.readout.get_values(wells=randomizable_wells, data_tag=data_tag_readout)
+        random.shuffle(randomizable_values)
+
+        randomized_readouts = all_readouts.copy()
+        for well, value in zip(randomizable_wells, randomizable_values):
+            randomized_readouts[well] = value
+
+        self.readout.add_data(data={data_tag_randomized_readout: randomized_readouts,}, tag=data_tag_readout)
+
 
     #### Prediction functions
 
@@ -496,12 +650,13 @@ class Plate:
 
         return prediction.cross_validate_predictions(x, y, prediction_method, **kwargs)
 
+
     def map_coordinates(self, coordinates_list):
         # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
         return [(i[1], self.height - i[0] + 1) for i in coordinates_list]
 
-    def convert_values(self, wells, values, normalize=False):
 
+    def convert_values(self, wells, values, normalize=False):
         n_samples = len(wells)
 
         # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
@@ -522,6 +677,7 @@ class Plate:
             y = y_norm
 
         return x, y, y_mean, y_std
+
 
     #### Prediction functions - Gaussian processes
 
@@ -548,7 +704,8 @@ class Plate:
         x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
 
         if not kernel and kernels:
-            kernel = prediction.create_gaussian_process_composite_kernel(input_dim=x.shape[1], kernel=None, kernels=kernels)
+            kernel = prediction.create_gaussian_process_composite_kernel(input_dim=x.shape[1], kernel=None,
+                                                                         kernels=kernels)
 
         m = GPy.models.GPRegression(x, y_norm, kernel)
         # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
@@ -570,6 +727,7 @@ class Plate:
             pylab.show()
 
         return m, y_mean, y_std
+
 
     def predict_from_gaussian_process(self, model, y_mean=0, y_std=1, sample_key=None, data_tag_prediction=None):
         """ Predict data for Gaussian process model `model`
@@ -594,7 +752,8 @@ class Plate:
 
         # Are you absolutely sure you got the mapping back to list of lists right?
         y_predicted_mean_abs = [i for j in y_predicted_mean_abs for i in j]
-        y_predicted_mean_abs = np.array([y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
+        y_predicted_mean_abs = np.array(
+            [y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
         y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
         y_predicted_sd_abs = np.array(
             [y_predicted_sd_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
@@ -604,8 +763,8 @@ class Plate:
 
         return y_predicted_mean_abs, y_predicted_sd_abs
 
-    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, data_tag_prediction=None, **kwargs):
 
+    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, data_tag_prediction=None, **kwargs):
         """ Model data as a gaussian process. Predict data for the entire plate. [Compare predictions and real values.]
 
         Args:
@@ -621,6 +780,7 @@ class Plate:
                                                                                       y_std=y_std,
                                                                                       data_tag_prediction=data_tag_prediction)
         return m, y_predicted_mean_abs, y_predicted_sd_abs
+
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
         """
@@ -652,103 +812,4 @@ class Plate:
 
         return np.linalg.norm(diff)
 
-    def calculate_control_normalized_signal(self,
-                                            data_tag_readout,
-                                            negative_control_key,
-                                            positive_control_key,
-                                            data_tag_normalized_readout=None,
-                                            data_tag_pvalue_sample_vs_neg_control=None,
-                                            data_tag_pvalue_sample_vs_pos_control=None,
-                                            data_tag_normalized_negative_control=None,
-                                            data_tag_normalized_positive_control=None,
-                                            local=True,
-                                            **kwargs):
-        """ Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
 
-        Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.
-
-        The normalization is calculated as:
-        .. math::
-
-        y' = \frac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }
-
-        For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).
-        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the average control values across the plate.
-
-        WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to
-        show lower mean values. [Otherwise, we would have to introduce a boolean "pos_control_lower_than_neg_control."]
-
-        Args:
-            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
-            negative_control_key (str):  The name of the negative control in the plate layout.
-            positive_control_key (str):  The name of the positive control in the plate layout.
-            data_tag_readout (str):  The key for self.readout.data where the normalized readouts will be stored.
-            local (Bool): If True, use Gaussian processes to locally predict the control distributions. Else, use
-                          plate-wise control distributions.
-
-        """
-
-        if data_tag_normalized_readout == None:
-            data_tag_normalized_readout = "{}_GP_normalized_by_controls".format(data_tag_readout)
-
-        if data_tag_pvalue_sample_vs_neg_control == None:
-            data_tag_pvalue_sample_vs_neg_control = "{}_GP_pvalue_vs_neg_control".format(data_tag_readout)
-
-        if data_tag_pvalue_sample_vs_pos_control == None:
-            data_tag_pvalue_sample_vs_pos_control = "{}_GP_pvalue_vs_pos_control".format(data_tag_readout)
-
-        if data_tag_normalized_negative_control == None:
-            data_tag_normalized_negative_control = "{}_GP_normalized_neg".format(data_tag_readout)
-
-        if data_tag_normalized_positive_control == None:
-            data_tag_normalized_positive_control = "{}_GP_normalized_pos".format(data_tag_readout)
-
-        all_readouts = self.readout.get_data(data_tag_readout)
-
-        if local!=True:
-            # Normalize by "global" plate averages of negative and positive controls.
-            nc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == negative_control_key)
-            nc_values = self.readout.get_values(wells=nc_wells, data_tag=data_tag_readout)
-            data_nc_mean = np.mean(nc_values)
-            data_nc_std = np.std(nc_values)
-
-            pc_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == positive_control_key)
-            pc_values = self.readout.get_values(wells=pc_wells, data_tag=data_tag_readout)
-            data_pc_mean = np.mean(pc_values)
-            data_pc_std = np.std(pc_values)
-
-            LOG.debug("Normalize globally with mean negative control: {} "
-                      "and mean negative control: {}.".format(data_nc_mean, data_pc_mean))
-        else:
-            # Normalize by "local" predictions of negative and positive control distributions (extracted with Gaussian
-            # processes.)
-
-            # Calculate predicted values for mean and std: negative control.
-            m, data_nc_mean, data_nc_std = \
-                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=negative_control_key,
-                                            **kwargs)
-
-            # Calculate predicted values for mean and std: positive control.
-            m, data_pc_mean, data_pc_std = \
-                self.apply_gaussian_process(data_tag_readout=data_tag_readout, sample_tag_input=positive_control_key,
-                                            **kwargs)
-
-        # Calculate the normalised data
-        normalized_data = (all_readouts - data_nc_mean) / (data_pc_mean - data_nc_mean)
-
-        # Calculate the p-Value of all data points compared to the negative control.
-        # Inspired by:
-        # http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic
-        LOG.warning("Make sure that the local data_nc_std has the same interpretation as the global data_nc_std.")
-        p_value_neg = scipy.stats.norm(data_nc_mean, data_nc_std).cdf(all_readouts)
-        # Calculate the p-Value of all data points compared to the positive control.
-        p_value_pos = 1 - scipy.stats.norm(data_pc_mean, data_pc_std).cdf(all_readouts)
-
-        self.readout.add_data(data={data_tag_normalized_readout: normalized_data,
-                                    data_tag_pvalue_sample_vs_neg_control: p_value_neg,
-                                    data_tag_pvalue_sample_vs_pos_control: p_value_pos,
-        # These are scalars, not arrays x arrays. Does this data need saving this way?
-        #                           data_tag_normalized_negative_control: data_nc_mean,
-        #                           data_tag_normalized_positive_control: data_pc_mean,
-                                    },
-                              tag=data_tag_normalized_readout)
