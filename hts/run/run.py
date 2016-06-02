@@ -538,18 +538,34 @@ class Run:
     def data_frame_samples(self, value):
         self._data_frame_samples = value
 
-    def add_meta_data(self, tag, **kwargs):
-        config_data = self.config_data["meta_data"][tag]
+    def add_meta_data(self, tag=None, **kwargs):
+        """
+        Set self.data_frame to merged internal and meta_data.
+
+        Args:
+            tag: The meta data tag defining which meta data to use. If `tag` is not set and there is only one set of meta data it will be used.
+            **kwargs: kwargs passed on to `run_io.add_meta_data`
+
+        """
+        if tag == None:
+            if len(self.config_data["meta_data"]) == 1:
+                config_data = next (iter (self.config_data["meta_data"].values()))
+            else:
+                raise Exception("There is more than one set of meta_data: {}. Define which one to add.".format(self.config_data["meta_data"].keys()))
+        else:
+            try:
+                config_data = self.config_data["meta_data"][tag]
+            except:
+                raise Exception("No meta_data {} available. Add the meta_data, or choose another tag.".format(tag))
+
         LOG.debug(config_data)
         merged_data = run_io.add_meta_data(self,
                                            meta_data_kwargs=config_data["data_kwargs"],
                                            meta_data_rename=config_data["rename_columns"],
                                            meta_data_exclude_columns=config_data["exclude_columns"],
                                            meta_data_well_name_pattern=config_data["well_name_pattern"],
-                                           # ToDo: When do you want to do this filtering, if needed?
-                                           #filter_condition=lambda x: x == "s",  # Only allow sample data after merging
                                            **kwargs)
-        self.data_frame_samples = merged_data
+        self.data_frame = merged_data
 
     def add_data_from_data_frame(self, tags, plate_data_type="meta_data"):
         """
