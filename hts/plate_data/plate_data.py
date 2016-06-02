@@ -70,6 +70,18 @@ class PlateData:
                 setattr(self, key, value)
 
 
+    def __iter__(self):
+        """
+            Iterates over data matrices.
+        """
+        for data_name, data in self.data.items():
+            yield data
+
+
+    def __getitem__(self, i):
+        return list(self.data.values())[i]
+
+
     @classmethod
     def create(cls, formats, paths, configs=None, names=None, tags=None, types=None, **kwargs):
         """ Create ``PlateData`` instance.
@@ -139,6 +151,27 @@ class PlateData:
         for tag, tag_data in data.items():
             plate_data[tag] = [[tag_data[(i_row, i_col)] if (i_row, i_col) in tag_data else None for i_col in range(width)] for i_row in range(height)]
         return cls(data=plate_data, **kwargs)
+
+
+    @property
+    def gp_model(self):
+        if not hasattr(self, "_gp_model"):
+            self._gp_model = {data_name: {} for data_name in self.data.keys()}
+        return self._gp_model
+
+    @gp_model.setter
+    def gp_model(self, value):
+        self._gp_model = value
+
+    def best_gp_model(self, data_key):
+        if not hasattr(self, "_best_gp_model"):
+            self._best_gp_model = {data_name: {} for data_name in self.data.keys()}
+        if len(self._best_gp_model[data_key]) == 0:
+            from hts.data_tasks.data_tasks import data_normalization
+            import pdb;
+            pdb.set_trace()
+            self._best_gp_model[data_key] = data_normalization.best_gaussian_process_normalization(self.gp_model[data_key])
+        return self._best_gp_model[data_key]
 
 
     def write(self, *args, **kwargs):
