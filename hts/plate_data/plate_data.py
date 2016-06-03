@@ -153,27 +153,6 @@ class PlateData:
         return cls(data=plate_data, **kwargs)
 
 
-    @property
-    def gp_model(self):
-        if not hasattr(self, "_gp_model"):
-            self._gp_model = {data_name: {} for data_name in self.data.keys()}
-        return self._gp_model
-
-    @gp_model.setter
-    def gp_model(self, value):
-        self._gp_model = value
-
-    def best_gp_model(self, data_key):
-        if not hasattr(self, "_best_gp_model"):
-            self._best_gp_model = {data_name: {} for data_name in self.data.keys()}
-        if len(self._best_gp_model[data_key]) == 0:
-            from hts.data_tasks.data_tasks import data_normalization
-            import pdb;
-            pdb.set_trace()
-            self._best_gp_model[data_key] = data_normalization.best_gaussian_process_normalization(self.gp_model[data_key])
-        return self._best_gp_model[data_key]
-
-
     def write(self, *args, **kwargs):
         raise NotImplementedError('Implement write()')
 
@@ -194,7 +173,7 @@ class PlateData:
     def get_data(self, data_tag):
 
         if data_tag not in self.data:
-            raise Exception("data_tag {} not in self.data: {}".format(data_tag, self.data.keys()))
+            raise Exception("data_tag {} not in self.data: {}".format(data_tag, sorted(self.data.keys())))
 
         return self.data[data_tag]
 

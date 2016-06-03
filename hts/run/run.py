@@ -17,7 +17,7 @@ import pickle
 import pandas as pd
 import scipy.stats
 
-from hts.data_tasks import data_tasks
+from hts.data_tasks import data_tasks, gaussian_processes
 from hts.plate_data.meta_data import MetaData
 from hts.run import run_io
 from hts.run.constants import *
@@ -147,6 +147,7 @@ class Run:
         if self.protocol():
             # Todo: Include check that plate layout is defined.
             self.preprocess()
+
 
     @classmethod
     def create(cls, origin, path, format=None, dir=False, **kwargs):
@@ -570,9 +571,9 @@ class Run:
     def add_data_from_data_frame(self, tags, plate_data_type="meta_data"):
         """
         Args:
-            tags (list of str):
+            tags (list of str): HTS data and meta data is joined on the columns defined by tags.
         """
-        df = self.data_frame_samples
+        df = self.data_frame
         data = {plate: {tag: {} for tag in tags} for plate in self.plates.values()}
         for tag in tags:
             for readout, plate_name, i_column, i_row in zip(df[tag], df[PLATE_HUMAN], df[WELL_COLUMN_MACHINE],
@@ -584,6 +585,7 @@ class Run:
             meta_data = MetaData.create_from_coordinate_tuple_dict(data=plate_data, width=self.width,
                                                                    height=self.height)
             plate.add_data(data=meta_data, data_type=plate_data_type)
+
 
     @merged_replicates
     def merger_add_data_from_data_frame(self, group_by, aggregator, columns, **kwargs):
@@ -598,42 +600,83 @@ class Run:
 
     @merged_replicates
     def merger_summarize_statistical_significance(self, group_by, aggregator,
-                                                  data_tag_normalized_readout,
-                                                  data_tag_pvalue_sample_vs_neg_control,
-                                                  data_tag_pvalue_sample_vs_pos_control, **kwargs):
+                                                  data_tag_readouts_to_aggregate,
+                                                  data_tag_pvalues_to_aggregate=None,
+                                                  data_tag_standard_scores_to_aggregate=None,
+                                                  **kwargs):
 
-        # Define aggregation methods
-        # Aggregate normalized values.
-        aggregator[data_tag_normalized_readout] = {data_tag_normalized_readout + '_mean': np.mean,
-                                                   data_tag_normalized_readout + '_std': np.std}
+        ## Define all aggregation methods.
 
-        # Aggregate pvalues.
+        # 1. Aggregate normalized values.
+        for data_tag in data_tag_readouts_to_aggregate:
+            aggregator[data_tag] = {data_tag + '_mean': np.mean,
+                                    data_tag + '_std': np.std}
+
+        # 2. Aggregate pvalues.
         def fishers_method(pvalues):
             # Aggregate pvalues using Fisher's method: https://en.wikipedia.org/wiki/Fisher's_method
             statistic, pval = scipy.stats.combine_pvalues(pvalues)
             return pval
 
-        aggregator[data_tag_pvalue_sample_vs_neg_control] = {data_tag_pvalue_sample_vs_neg_control: fishers_method}
-        aggregator[data_tag_pvalue_sample_vs_pos_control] = {data_tag_pvalue_sample_vs_pos_control: fishers_method}
+        if data_tag_pvalues_to_aggregate:
+            for data_tag in data_tag_pvalues_to_aggregate:
+                aggregator[data_tag] = {data_tag: fishers_method}
 
-        # Calculate for every group.
-        aggregated_dataframe = group_by.agg(aggregator)
+        # 3. Aggregate standard scores / z-scores.
+        def stouffers_z_score_method(standard_scores):
+            # Aggregate pvalues using Stouffer's z-score method for one-sided tests: https://en.wikipedia.org/wiki/Fisher's_method
+            z = np.sum(standard_scores)/np.sqrt(len(standard_scores))
+            return z
+
+        if data_tag_standard_scores_to_aggregate:
+            for data_tag in data_tag_standard_scores_to_aggregate:
+                aggregator[data_tag] = {data_tag: stouffers_z_score_method}
+
+        # Execute all aggregation methods at once for every aggregate (group).
+        try:
+            aggregated_dataframe = group_by.agg(aggregator)
+        except ValueError as err:
+            logging.error(err.args)
+            logging.error("Check if all columns defined in this method are available in this run instance:\n{}".format(self[0].readouts.columns))
+
+
         aggregated_dataframe.columns = aggregated_dataframe.columns.droplevel(0)
         return aggregated_dataframe
 
     @merged_replicates
     def merger_rank_samples(self, aggregate,
                             ranking_column, rank_column_name, rank_threshold, is_hit_by_rank_column_name,
-                            value_threshold, is_hit_by_value_column_name, **kwargs):
+                            value_threshold, is_hit_by_value_column_name, is_one_sided=True, **kwargs):
 
         # Add a ranking by `ranking_column`
-        aggregate[rank_column_name] = aggregate[ranking_column].rank(ascending=True)
-        aggregate[is_hit_by_rank_column_name] = aggregate[rank_column_name].apply(
-            lambda x: True if x < rank_threshold else False)
-        aggregate[is_hit_by_value_column_name] = aggregate[ranking_column].apply(
-            lambda x: True if x < value_threshold else False)
+        try:
+            aggregate[rank_column_name] = aggregate[ranking_column].rank(ascending=True)
+        except:
+            import pdb; pdb.set_trace()
+        if is_one_sided:
+            # Marking ranks as True or False only makes sense for one-sided tests.
+            aggregate[is_hit_by_rank_column_name] = aggregate[rank_column_name].apply(
+                lambda x: True if x < rank_threshold else False)
+            aggregate[is_hit_by_value_column_name] = aggregate[ranking_column].apply(
+                lambda x: True if x < value_threshold else False)
+        else:
+            # Here, we assume that x is a probability, with counter probability 1-x.
+            aggregate[is_hit_by_value_column_name] = aggregate[ranking_column].apply(
+                lambda x: True if x < value_threshold or 1-x < value_threshold else False)
 
         return aggregate
+
+
+    @property
+    def gp_models(self):
+        if not hasattr(self, "_gp_model"):
+            self._gp_model = gaussian_processes.GaussianProcesses(run=self, models=[])
+        return self._gp_model
+
+
+    @gp_models.setter
+    def gp_models(self, value):
+        self._gp_model = value
 
 
 def send_mail(body,

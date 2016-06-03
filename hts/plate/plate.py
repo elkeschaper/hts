@@ -6,20 +6,20 @@
     .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
 """
 
-import ast
-import GPy
 import itertools
 import logging
-import numpy as np
-import os
 import pickle
-import pylab
 import random
 import re
-import scipy.stats
 import string
 
-from hts.plate import prediction
+import GPy
+import numpy as np
+import pylab
+import scipy.stats
+
+import hts.data_tasks.gaussian_processes
+from hts.data_tasks import prediction
 from hts.plate_data import plate_data, data_issue, meta_data, plate_layout, readout
 
 KNOWN_DATA_TYPES = ["plate_layout", "readout", "data_issue", "config_data"]
@@ -515,6 +515,7 @@ class Plate:
         Returns:
 
         """
+
         if data_tag_standard_score == None:
             data_tag_standard_score = "{}__all__vs__{}__standard_score".format(data_tag_readout,
                                                                                sample_tag_null_distribution)
@@ -646,147 +647,17 @@ class Plate:
         if method_name == "gp":
             prediction_method = prediction.predict_with_gaussian_process
 
-        x, y, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=False)
+        x, y, y_mean, y_std = self.flatten_data(wells=sampled_wells, values=values, normalize=False)
 
         return prediction.cross_validate_predictions(x, y, prediction_method, **kwargs)
 
-
-    def map_coordinates(self, coordinates_list):
-        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
-        return [(i[1], self.height - i[0] + 1) for i in coordinates_list]
-
-
-    def convert_values(self, wells, values, normalize=False):
-        n_samples = len(wells)
-
-        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
-        sampled_wells = self.map_coordinates(wells)
-
-        # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
-        x = np.array(sampled_wells)
-        y = np.array(values)
-
-        y_mean = y.mean()
-        y_std = y.std()
-
-        y = y.reshape((n_samples, 1))
-
-        if normalize:
-            y_norm = y - y_mean
-            y_norm /= y_std
-            y = y_norm
-
-        return x, y, y_mean, y_std
-
-
-    #### Prediction functions - Gaussian processes
-
-
-    def model_as_gaussian_process(self, data_tag_readout, sample_tag,
-                                  n_max_iterations=10000,
-                                  plot_kwargs=False,
-                                  kernel=None,
-                                  kernels=None,
-                                  optimization_method='bfgs'):
-        """ Model data as a gaussian process. Return the Gaussian process model, and mean and std of the input data for
-        renormalization.
-
-        Args:
-            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.
-            sample_tag (str):  The sample for which the gaussian process will be modeled according to the
-                                position in self.plate_layout.data. E.g. for positive controls "pos"
-            optimization_method (str): The GPy optimization method. E.g. bfgs, scg, tnc
-        """
-
-        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x == sample_tag)
-        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout)  # value_type=float
-
-        x, y_norm, y_mean, y_std = self.convert_values(wells=sampled_wells, values=values, normalize=True)
-
-        if not kernel and kernels:
-            kernel = prediction.create_gaussian_process_composite_kernel(input_dim=x.shape[1], kernel=None,
-                                                                         kernels=kernels)
-
-        m = GPy.models.GPRegression(x, y_norm, kernel)
-        # len_prior = GPy.priors.inverse_gamma(1,18) # 1, 25
-        # m.set_prior('.*lengthscale',len_prior)
-
-        LOG.info(m)
-
-        ## It is not clear whether you should really perform this optimisation - perhaps you know the best length scale ?
-        m.optimize(optimization_method, max_f_eval=n_max_iterations)
-
-        LOG.info(m)
-
-        if plot_kwargs:
-            # m.kern.plot_ARD()
-            # Plot the posterior of the GP
-            m.plot_data()
-            m.plot_f()
-            m.plot(**plot_kwargs)
-            pylab.show()
-
-        return m, y_mean, y_std
-
-
-    def predict_from_gaussian_process(self, model, y_mean=0, y_std=1, sample_key=None, data_tag_prediction=None):
-        """ Predict data for Gaussian process model `model`
-
-        Args:
-            sample_key (str):  The sample for which the gaussian process will be predicted according to the
-                                position in self.plate_layout.data. E.g. for positive controls "pos". If not assigned,
-                                predictions for whole plate will be returned.
-            data_tag_prediction (str): If data_tag_prediction is set to a string, the data will be saved as a readout
-                                with tag *data_tag_prediction*.
-        """
-        if sample_key:
-            raise Exception("Not yet implemented")
-        else:
-            all_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: True)
-            all_wells = self.map_coordinates(all_wells)
-            x_all = np.array(all_wells)
-
-        y_predicted_mean, y_predicted_var = model.predict(x_all)
-        y_predicted_mean_abs = y_predicted_mean * y_std + y_mean
-        y_predicted_sd_abs = np.sqrt(y_predicted_var) * y_std
-
-        # Are you absolutely sure you got the mapping back to list of lists right?
-        y_predicted_mean_abs = [i for j in y_predicted_mean_abs for i in j]
-        y_predicted_mean_abs = np.array(
-            [y_predicted_mean_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
-        y_predicted_sd_abs = [i for j in y_predicted_sd_abs for i in j]
-        y_predicted_sd_abs = np.array(
-            [y_predicted_sd_abs[row * self.width:(row + 1) * self.width] for row in range(self.height)])
-
-        if data_tag_prediction:
-            self.readout.add_data(data={data_tag_prediction: y_predicted_mean_abs}, tag=data_tag_prediction)
-
-        return y_predicted_mean_abs, y_predicted_sd_abs
-
-
-    def apply_gaussian_process(self, data_tag_readout, sample_tag_input, data_tag_prediction=None, **kwargs):
-        """ Model data as a gaussian process. Predict data for the entire plate. [Compare predictions and real values.]
-
-        Args:
-            data_tag_readout (str): The key for self.readout.data where the ``Readout`` instance is stored.
-            sample_tag_input (str): The sample for which the gaussian process will be predicted according to the
-                                    position in self.plate_layout.data. E.g. for positive controls "pos".
-                                    If not assigned, predictions for whole plate will be returned.
-        """
-
-        m, y_mean, y_std = self.model_as_gaussian_process(data_tag_readout, sample_tag_input, **kwargs)
-        y_predicted_mean_abs, y_predicted_sd_abs = self.predict_from_gaussian_process(model=m,
-                                                                                      y_mean=y_mean,
-                                                                                      y_std=y_std,
-                                                                                      data_tag_prediction=data_tag_prediction)
-        return m, y_predicted_mean_abs, y_predicted_sd_abs
 
 
     def evaluate_well_value_prediction(self, data_predictions, data_tag_readout, sample_key=None):
         """
         Calculate mean squared prediction error.
 
-       ToDo: Debug
+       ToDo: Debug. Better: REWRITE!
         """
 
         # y_predicted_mean, y_predicted_var = m.predict(X)
@@ -811,5 +682,46 @@ class Plate:
             diff = np.array([diff[wells.index(well)] for well in specific_wells])
 
         return np.linalg.norm(diff)
+
+
+    #### Prediction functions - Gaussian processes
+
+    def map_coordinates(self, coordinates_list):
+        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
+        return [(i[1], self.height - i[0] + 1) for i in coordinates_list]
+
+    def flatten_data(self, wells, values):
+        return self.flatten_wells(wells), self.flatten_values(values)
+
+    def flatten_wells(self, wells):
+        # Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html
+        # map plate coordinates to "standard" coordinates. E.g. switch axes, turn x-Axis.
+        sampled_wells = self.map_coordinates(wells)
+        x = np.array(sampled_wells)
+        return x
+
+    def flatten_values(self, values):
+        y = np.array(values)
+        y = y.reshape((len(values), 1))
+        return y
+
+    def un_flatten_data(self, y):
+        y = [i for j in y for i in j]
+        y = np.array([y[row * self.width:(row + 1) * self.width] for row in range(self.height)])
+        return y
+
+    def get_data_for_gaussian_process(self, data_tag_readout, sample_tags):
+
+        if type(sample_tags) != list:
+            sample_tags = [sample_tags]
+
+        sampled_wells = self.plate_layout.get_wells(data_tag="layout", condition=lambda x: x in sample_tags)
+        values = self.readout.get_values(wells=sampled_wells, data_tag=data_tag_readout)  # value_type=float
+
+        x, y = self.flatten_data(wells=sampled_wells, values=values)
+        return x, y
+
+
+
 
 

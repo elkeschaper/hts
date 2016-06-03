@@ -1,12 +1,14 @@
-import os
 import itertools
 import logging
+import os
 
 import numpy as np
 import pytest
 
-from hts.plate import plate, prediction
-from hts.plate_data import plate_layout, readout, data_issue
+import hts.data_tasks.gaussian_processes
+from hts.data_tasks import prediction
+from hts.plate import plate
+from hts.plate_data import plate_layout, readout
 
 logging.basicConfig(level=logging.INFO)
 
@@ -107,7 +109,7 @@ def test_calculate_BIC_for_gaussian_process_models(path, path_raw):
     test_kernels = {"RBF": {"lengthscale": ("constrain_fixed", "4")}}
     m, y_mean, y_std = test_plate.model_as_gaussian_process(data_tag_readout=TEST_PLATE_NAME, sample_tag="pos", kernels=test_kernels)
 
-    test_BIC = prediction.calculate_BIC_Gaussian_process_model(m)
+    test_BIC = hts.data_tasks.gaussian_processes.calculate_BIC_Gaussian_process_model(m)
     assert type(test_BIC) == np.float64
     assert test_BIC > 0
 
