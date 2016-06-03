@@ -23,7 +23,6 @@ LOG = logging.getLogger(__name__)
 
 ################ Readout wise methods ####################
 
-
 def perform_prion_fitting(run, tag, path, write_data=False, *args, **kwargs):
     """ Perform prion fitting
 
@@ -31,8 +30,6 @@ def perform_prion_fitting(run, tag, path, write_data=False, *args, **kwargs):
 
     ..todo:: Add methods
     """
-
-    tmp = run
 
     general_filter_args = {i:j for i,j in kwargs.items() if not isinstance(j, configobj.Section)}
     dilution_wise_filter_args = {i:j for i,j in kwargs.items() if isinstance(j, configobj.Section)}
