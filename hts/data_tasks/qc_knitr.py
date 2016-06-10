@@ -1,4 +1,4 @@
-# (C) 2015, 2016 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
 
 """
     :synopsis: ``quality_control`` implements all methods connected to the
@@ -12,39 +12,49 @@ import collections
 import datetime
 import logging
 import os
+import shutil
 import sys
 
+from hts.run.constants import AUTHOR, R_HELPER_METHODS
+
 LOG = logging.getLogger(__name__)
-PATH = '/Users/elkeschaper/Downloads/'
+R_HELPER_METHODS_ORIGINAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qc_helper_methods.R")
 
-
-def create_report(run, qc_result_path, qc_helper_methods_path, methods, config_data=None, knit_html=True):
+def create_report(run, qc_result_path, methods, force, config_data=None, knit_html=True, resultfile_tag="qc_report", **kwargs):
     """
-    Run QC tasks, and combine the result to a report.
+    Run QC & data visualization tasks, and combine the result to a report.
 
     Args:
         run (run.Run): Run instance
         qc_result_path (str):  Path to the resulting qc report file.
-        qc_helper_methods_path (str): Path to an R file with additional functionality assumed in the QC methods.
         methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
                 dictionary containing the description (function name, filters, ... for the qc method.)
+        force (Boolean): If False, only perform the QC if the result file does not yet exist.
         config_data (list of tuples): List of tuples used as content for a table in the qc report.
         knit_html (Boolean):
     """
 
     qc_result_path = os.path.realpath(qc_result_path)
     if not os.path.exists(qc_result_path):
-        LOG.warning("Creating QC report result path: {}".format(qc_result_path))
+        LOG.warning("Creating knitr report result path: {}".format(qc_result_path))
         os.makedirs(qc_result_path)
+
+    result_file = os.path.join(qc_result_path, resultfile_tag + ".html")
+    if not force and os.path.isfile(result_file):
+        logging.warning("No report created: force=False and result file already created: {}.".format(result_file))
+        return
+
+    # Path to an R file with additional functionality assumed in the QC methods.
+    shutil.copyfile(R_HELPER_METHODS_ORIGINAL, os.path.join(qc_result_path, R_HELPER_METHODS))
 
     path_knitr_data = os.path.join(qc_result_path, "data.csv")
     run.write(format='csv_one_well_per_row', path=path_knitr_data)
-    path_knitr_file = os.path.join(qc_result_path, "qc_report.Rmd")
+    path_knitr_file = os.path.join(qc_result_path, resultfile_tag + ".Rmd")
 
     # Create header info and environment snippets
-    header, environment, data_loader = knitr_header_setup(qc_helper_methods_path=qc_helper_methods_path,
-                                                          path_knitr_data=path_knitr_data, meta_data=config_data,
-                                                          plate_names=[plate.name for plate in run.plates.values()])
+    header, environment, data_loader = knitr_header_setup(path_knitr_data=path_knitr_data, meta_data=config_data,
+                                                          plate_names=[plate.name for plate in run.plates.values()],
+                                                          **kwargs)
 
     # Create QC snippets
     qc_report_data = collections.OrderedDict()
@@ -76,12 +86,19 @@ def create_report(run, qc_result_path, qc_helper_methods_path, methods, config_d
             knitr_options = i_qc_characteristics['knitr_options']
         else:
             knitr_options = {}
+        if "text" in i_qc_characteristics:
+            text = i_qc_characteristics.pop("text")
+        else:
+            text = ""
 
-        # Later on, you can make this line more complicated.
+        # ToDo: Make the content more complicated.
         wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **knitr_options)
-        qc_report_data[i_qc] = "\n".join(["### QC {} ({})".format(i_qc, qc_method_name), qc_description, wrapped_chunk])
+        qc_report_data[i_qc] = "\n".join(["### {title}\n *HTS method: {method}* \n  {text}".format(title=i_qc,
+                                                                                    text=text,
+                                                                                    method=qc_method_name),
+                                          qc_description, wrapped_chunk])
 
-    # QC report
+    # knitr report
     # 1. Write the start of a RMarkdown file,
     # 2. Add each section
     # 3. Add end of RMarkdown file
@@ -90,7 +107,6 @@ def create_report(run, qc_result_path, qc_helper_methods_path, methods, config_d
         fh.write(header)
         fh.write(environment)
         fh.write(data_loader)
-        fh.write("## QC\n")
         for i_qc, i_qc_knitr in qc_report_data.items():
             fh.write(i_qc_knitr + "\n\n")
 
@@ -115,32 +131,31 @@ def perform_qc(method_name, *args, **kwargs):
     return qc_method(*args, **kwargs)
 
 
-def knitr_header_setup(qc_helper_methods_path, path_knitr_data, plate_names, meta_data=None,
-                       original_data_frame="d_all", output="html_document"):
+def knitr_header_setup(path_knitr_data, plate_names, meta_data=None,
+                       original_data_frame="d_all", output="html_document", title="QC Report"):
     """ Create knitr markdown file header and setup.
 
    Create knitr markdown file header and setup.
 
     Args:
-        path_qc_methods (str): Path to external R methods file
         path_data (str): Path to data file
 
 
     Returns:
-        header (str): Knittr markdown file header
-        environment (str): Knittr markdown environment setter
-        data_loader (str): Knittr markdown data loader
+        header (str): knitr markdown file header
+        environment (str): knitr markdown environment setter
+        data_loader (str): knitr markdown data loader
 
     """
 
     header = """
 ---
-title: "QC report"
-author: "Vital-IT, Swiss Institute of Bioinformatics"
-date: "{}"
-output: "{}"
+title: "{title}"
+author: {author}
+date: "{date}"
+output: "{output}"
 ---
-""".format(str(datetime.date.today()), output)
+""".format(author=AUTHOR, date=str(datetime.date.today()), output=output, title=title)
 
     if meta_data:
         header += """
@@ -157,7 +172,7 @@ output: "{}"
 # gc()
 source("{}")
 library(reshape2)
-require(gridExtra)""".format(qc_helper_methods_path)
+require(gridExtra)""".format(R_HELPER_METHODS)
     environment = "\n" + wrap_knitr_chunk(chunk=environment_commands, chunk_name="set_environment", echo=False,
                                           evaluate=True)
 
@@ -521,7 +536,7 @@ d_qc_score = adply(my_grid, 1, transform, ssmd = calculate_ssmd(neg, pos, plate_
 thresholds = c(-2, -1, -0.5)
 labels = c("excellent", "good", "inferior", "poor")
 label_positions = get_label_positions(d_qc_score$ssmd, thresholds)
-label_position_x3 = round(length(d_qc_score$x3)/2)
+label_position_x3 = round(length(d_qc_score$plate_name)/2)
 
 
 p = ggplot(d_qc_score, aes(plate_name, ssmd))
@@ -606,7 +621,7 @@ d_qc_score = adply(my_grid, 1, transform, z_prime_factor = calculate_z_prime_fac
 thresholds = c(0, 0.5)
 labels = c("unacceptable", "acceptable", "very good")
 label_positions = get_label_positions(d_qc_score$z_prime_factor, thresholds)
-label_position_x3 = round(length(d_qc_score$x3)/2)
+label_position_x3 = round(length(d_qc_score$plate_name)/2)
 
 p = ggplot(d_qc_score, aes(plate_name, z_prime_factor))
 p = p + geom_point(size=2, aes(color=neg))

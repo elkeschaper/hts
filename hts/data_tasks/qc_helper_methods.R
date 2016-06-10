@@ -45,11 +45,11 @@ tile_plot_x1x2x3_mark_conditionally <- function(data, column, save, condition, c
     # Inspired by: # http://stackoverflow.com/questions/13258454/marking-specific-tiles-in-geom-tile-geom-raster/13260999#13260999
     data$x2 = factor(data$x2, levels = max(data$x2):min(data$x2))
     data$x1 = factor(data$x1, levels = min(data$x1):max(data$x1))
-    p = ggplot(data, aes(x= x1,y=x2, fill=y), environment = environment()) + facet_wrap(~x3)
+    p = ggplot(data, aes(x=x1,y=x2, fill=y), environment = environment()) + facet_wrap(~x3)
     p = p + geom_raster() + scale_fill_gradientn(colours=colors, name ="y")
     p = p + coord_fixed(ratio=1)
     p = p + beautifier()
-    p = p + geom_point(data=subset(data, eval(parse(text=condition))), aes(x=x1,y=x2), size=0.4, color=color, shape=4)
+    p = p + geom_point(data=subset(data, eval(parse(text=condition))), aes(x=x1,y=x2), size=0.1, color=color, shape=4)
     return(p)
 }
 

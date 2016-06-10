@@ -1,5 +1,8 @@
 
 
+AUTHOR = "Vital-IT, Swiss Institute of Bioinformatics"
+R_HELPER_METHODS = "helper_methods.R"
+
 PLATE_MACHINE = "x3"
 PLATE_HUMAN = "plate_name"
 RUN_HUMAN = "run_name"

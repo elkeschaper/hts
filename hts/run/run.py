@@ -177,13 +177,13 @@ class Run:
                 raise ValueError("Run create file {} does not exist.".format(path))
 
         if origin == 'config':
-            return cls.create_from_config(path, file)
+            return cls.create_from_config(path, file, **kwargs)
         if origin == 'envision':
             return cls.create_from_envision(path, file)
         if origin == 'csv':
             return cls.create_from_csv_file(path, file, **kwargs)
         elif origin == 'pickle':
-            with open(file, 'rb') as fh:
+            with open(os.path.join(path, file), 'rb') as fh:
                 return pickle.load(fh)
         else:
             raise ValueError("The combination of origin: {} and format: {} is "
@@ -191,7 +191,7 @@ class Run:
                              "cls.create()".format(origin, format))
 
     @classmethod
-    def create_from_config(cls, path, file):
+    def create_from_config(cls, path, file, reload=True):
         """ Read config and use data to create `Run` instance.
 
         Read config and use data to create `Run` instance.
@@ -199,9 +199,16 @@ class Run:
         Args:
             path (str): Path to input configobj file
             file (str): Filename of configobj file
+            force (boolean): If not force and the run instance exists as a pickle, reload the pickle instead of reloading the data.
         """
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
+
+        if reload==False and "write" in config and "pickle_path" in config["write"] and os.path.isfile(config["write"]["pickle_path"]):
+            my_run = cls.create(origin='pickle', path=config["write"]["pickle_path"])
+            my_run.is_created_from_pickle = True
+            return my_run
+
         plate_names = config["plate_names"]
         n_plate = len(plate_names)
 
@@ -412,7 +419,7 @@ class Run:
 
         return config_data_ordered
 
-    def do_task(self, type="qc", type_attribute="_{}"):
+    def do_task(self, type, type_attribute="_{}", force=True):
         """ Perform task. A task could be e.g. qc or analysis.
         """
 
@@ -438,30 +445,31 @@ class Run:
             result[task.name] = data_tasks.perform_task(run=self,
                                                         task_name=task.method,
                                                         methods=methods_from_protocol,
+                                                        force=force,
                                                         #config_data=self.get_run_config_data(), # <- Perhaps this is necessary for QC or other methods?
                                                         **config_data)
 
         setattr(self, type_attribute, result)
         return result
 
-    def qc(self):
+    def qc(self, **kwargs):
         """ Perform quality control and save the results
         """
-        qc = self.do_task(type="qc")
+        qc = self.do_task(type="qc", **kwargs)
 
         if "send_mail_upon_qc" in self.config_data and self.config_data["send_mail_upon_qc"].lower() == "true":
             send_mail(email_to=[self.config_data['experimenter_mail']],
                       body="QC report for Run config '{}' is prepared.".format(self.path))
         return qc
 
-    def analysis(self):
+    def analysis(self, **kwargs):
         """ Perform analysis and save the results.
 
         Perform analysis and save the results. Parameters are taken from the protocol and the run config. Each
         ProtocolTask tagged with "analysis" is run. Each ProtocolTask may be run multiple times, if several dicts
         are defined for it (this could be either in protocol, or in the run config.)
         """
-        analysis = self.do_task(type="analysis")
+        analysis = self.do_task(type="analysis", **kwargs)
         return analysis
 
     def protocol(self, path=None, format=None):
@@ -496,8 +504,14 @@ class Run:
         """
 
         if format == 'pickle':
+            if path == None:
+                try:
+                    path = self.config_data["write"]["pickle_path"]
+                except:
+                    LOG.warning("path neither defined explictely nor, in in self.config_data")
             with open(path, 'wb') as fh:
                 pickle.dump(self, fh)
+            return
         elif format == 'csv':
             output = run_io.serialize_run_for_r(self)
         elif format == 'csv_one_well_per_row':
@@ -608,6 +622,9 @@ class Run:
         ## Define all aggregation methods.
 
         # 1. Aggregate normalized values.
+        if len([i for i in data_tag_readouts_to_aggregate if i not in self.data_frame.columns]) > 0:
+            logging.error("Required columns not available:\n{}\nreadouts:{}".format(self.data_frame.columns, data_tag_readouts_to_aggregate))
+            raise Exception
         for data_tag in data_tag_readouts_to_aggregate:
             aggregator[data_tag] = {data_tag + '_mean': np.mean,
                                     data_tag + '_std': np.std}
@@ -619,6 +636,10 @@ class Run:
             return pval
 
         if data_tag_pvalues_to_aggregate:
+            if len([i for i in data_tag_pvalues_to_aggregate if i not in self.data_frame.columns]) > 0:
+                logging.error("Required columns not available:\n{}\npvalues:{}".format(self.data_frame.columns,
+                                                                                        data_tag_pvalues_to_aggregate))
+                raise Exception
             for data_tag in data_tag_pvalues_to_aggregate:
                 aggregator[data_tag] = {data_tag: fishers_method}
 
@@ -629,16 +650,19 @@ class Run:
             return z
 
         if data_tag_standard_scores_to_aggregate:
+            if len([i for i in data_tag_standard_scores_to_aggregate if i not in self.data_frame.columns]) > 0:
+                logging.error("Required columns not available:\n{}\nstandard_scores:{}".format(self.data_frame.columns,
+                                                                                        data_tag_standard_scores_to_aggregate))
+                raise Exception
             for data_tag in data_tag_standard_scores_to_aggregate:
                 aggregator[data_tag] = {data_tag: stouffers_z_score_method}
 
         # Execute all aggregation methods at once for every aggregate (group).
         try:
             aggregated_dataframe = group_by.agg(aggregator)
-        except ValueError as err:
-            logging.error(err.args)
-            logging.error("Check if all columns defined in this method are available in this run instance:\n{}".format(self[0].readouts.columns))
-
+        except:
+            logging.error("What goes wrong here?. Columns in readout: {}".format(self.data_frame.columns))
+            raise Exception
 
         aggregated_dataframe.columns = aggregated_dataframe.columns.droplevel(0)
         return aggregated_dataframe

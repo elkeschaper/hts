@@ -13,7 +13,7 @@ import pickle
 import re
 
 LOG = logging.getLogger(__name__)
-KNOWN_TASK_TYPES = ["preprocessing", "qc", "analysis"]
+KNOWN_TASK_TYPES = ["preprocessing", "qc", "analysis", "tmp"]
 
 class Protocol:
 
