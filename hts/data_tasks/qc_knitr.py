@@ -20,13 +20,13 @@ from hts.run.constants import AUTHOR, R_HELPER_METHODS
 LOG = logging.getLogger(__name__)
 R_HELPER_METHODS_ORIGINAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qc_helper_methods.R")
 
-def create_report(run, qc_result_path, methods, force, config_data=None, knit_html=True, resultfile_tag="qc_report", **kwargs):
+def create_report(run, path, methods, force, config_data=None, knit_html=True, resultfile_tag="qc_report", **kwargs):
     """
     Run QC & data visualization tasks, and combine the result to a report.
 
     Args:
         run (run.Run): Run instance
-        qc_result_path (str):  Path to the resulting qc report file.
+        path (str):  Path to the resulting qc report file.
         methods (dict of str: (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
                 dictionary containing the description (function name, filters, ... for the qc method.)
         force (Boolean): If False, only perform the QC if the result file does not yet exist.
@@ -34,22 +34,22 @@ def create_report(run, qc_result_path, methods, force, config_data=None, knit_ht
         knit_html (Boolean):
     """
 
-    qc_result_path = os.path.realpath(qc_result_path)
-    if not os.path.exists(qc_result_path):
-        LOG.warning("Creating knitr report result path: {}".format(qc_result_path))
-        os.makedirs(qc_result_path)
+    path = os.path.realpath(path)
+    if not os.path.exists(path):
+        LOG.warning("Creating knitr report result path: {}".format(path))
+        os.makedirs(path)
 
-    result_file = os.path.join(qc_result_path, resultfile_tag + ".html")
+    result_file = os.path.join(path, resultfile_tag + ".html")
     if not force and os.path.isfile(result_file):
         logging.warning("No report created: force=False and result file already created: {}.".format(result_file))
         return
 
     # Path to an R file with additional functionality assumed in the QC methods.
-    shutil.copyfile(R_HELPER_METHODS_ORIGINAL, os.path.join(qc_result_path, R_HELPER_METHODS))
+    shutil.copyfile(R_HELPER_METHODS_ORIGINAL, os.path.join(path, R_HELPER_METHODS))
 
-    path_knitr_data = os.path.join(qc_result_path, "data.csv")
+    path_knitr_data = os.path.join(path, "data.csv")
     run.write(format='csv_one_well_per_row', path=path_knitr_data)
-    path_knitr_file = os.path.join(qc_result_path, resultfile_tag + ".Rmd")
+    path_knitr_file = os.path.join(path, resultfile_tag + ".Rmd")
 
     # Create header info and environment snippets
     header, environment, data_loader = knitr_header_setup(path_knitr_data=path_knitr_data, meta_data=config_data,
@@ -93,7 +93,7 @@ def create_report(run, qc_result_path, methods, force, config_data=None, knit_ht
 
         # ToDo: Make the content more complicated.
         wrapped_chunk = wrap_knitr_chunk(chunk=chunk, chunk_name=i_qc, **knitr_options)
-        qc_report_data[i_qc] = "\n".join(["### {title}\n *HTS method: {method}* \n  {text}".format(title=i_qc,
+        qc_report_data[i_qc] = "\n".join(["### {title}\n *HTS method: {method}* \n\n  {text}".format(title=i_qc,
                                                                                     text=text,
                                                                                     method=qc_method_name),
                                           qc_description, wrapped_chunk])
@@ -468,7 +468,7 @@ p'''.format(r=replicate_defining_column)
 
 def replicate_correlation_robust(replicate_defining_column):
     description = '''
-Correlation of first two replicate values, if data is available. Do robust regression (MASS, rlm, MM)'''
+Correlation of first two replicate values, if data is available. Do robust regression (MASS, rlm, MM). Please find more info on the robust regression method, and the interpretation of r^2ww here : https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/rlm.html .'''
 
     calculation = '''
 d$ones = 1

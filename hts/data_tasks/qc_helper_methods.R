@@ -49,7 +49,7 @@ tile_plot_x1x2x3_mark_conditionally <- function(data, column, save, condition, c
     p = p + geom_raster() + scale_fill_gradientn(colours=colors, name ="y")
     p = p + coord_fixed(ratio=1)
     p = p + beautifier()
-    p = p + geom_point(data=subset(data, eval(parse(text=condition))), aes(x=x1,y=x2), size=0.1, color=color, shape=4)
+    p = p + geom_point(data=subset(data, eval(parse(text=condition))), aes(x=x1,y=x2), size=0.8, color=color, shape=4)
     return(p)
 }
 

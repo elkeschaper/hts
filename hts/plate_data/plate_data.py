@@ -124,7 +124,7 @@ class PlateData:
     @classmethod
     def create_csv(cls, path, name, tag=None, type=None, **kwargs):
         data = plate_data_io.read_csv(path, **kwargs)
-        return cls(name=name, data={name: data}, tag=tag, type=type)
+        return cls(name=name, data={type: data}, tag=tag)
 
 
     @classmethod

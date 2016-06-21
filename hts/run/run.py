@@ -204,6 +204,23 @@ class Run:
 
         config = configobj.ConfigObj(os.path.join(path, file), stringify=True)
 
+        # If base_path is defined in config, automatically add the base to all paths.
+        if "base_path" in config:
+            base_path = config.pop("base_path")
+
+            def walk_configobj_and_add_basepath(node):
+                for key, item in node.items():
+                    if type(item) == configobj.Section:
+                        walk_configobj_and_add_basepath(item)
+                    else:
+                        if type(item) == str and key.endswith("path") or key == "filepath_or_buffer":
+                            item = os.path.join(base_path, item)
+                            node[key] = item
+                        print(node[key])
+
+            walk_configobj_and_add_basepath(config)
+
+
         if reload==False and "write" in config and "pickle_path" in config["write"] and os.path.isfile(config["write"]["pickle_path"]):
             my_run = cls.create(origin='pickle', path=config["write"]["pickle_path"])
             my_run.is_created_from_pickle = True

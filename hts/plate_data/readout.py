@@ -63,8 +63,11 @@ class Readout(plate_data.PlateData):
 
     def create_envision_csv(path, name, tag=None, type=None, **kwargs):
         readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_envision_csv(path, **kwargs)
+        if len(channel_wise_reads) == 0:
+            raise Exception("No signal data determined in file {path} with method read_envision_csv. Please check file."
+                            " In case file is correct, the current parsing does not work and either `read_envision_csv`"
+                            " needs generalization, or a new parser needs to be written.".format(path=path))
         return Readout(name=name, data=channel_wise_reads, readout_dict_info=readout_dict_info, channel_wise_info=channel_wise_info, tag=tag, type=type)
-
 
     def create_insulin_csv(path, name, tag=None, type=None, **kwargs):
         readout_dict_info, channel_wise_reads, channel_wise_info = readout_io.read_insulin_csv(path, **kwargs)

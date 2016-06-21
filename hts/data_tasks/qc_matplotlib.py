@@ -174,7 +174,7 @@ def heat_map_multiple(run, data_tag, result_file=None, n_plates_max=10, *args, *
 
 
 
-def heat_map_multiple_gaussian_process_model(run, data_tag_readout, sample_tag, result_file=None, magnification=5, n_plates_max=10, *args, **kwargs):
+def heat_map_multiple_gaussian_process_model(run, kernel_tag, result_file=None, magnification=5, n_plates_max=10, *args, **kwargs):
     """ Create a heat_map for multiple readouts
 
     Create a heat_map for multiple readouts
@@ -192,16 +192,13 @@ def heat_map_multiple_gaussian_process_model(run, data_tag_readout, sample_tag, 
 
     data = []
     for plate_tag in plate_tags:
-        plate = run.plates[plate_tag]
-        m, y_mean, y_std = plate.model_as_gaussian_process(data_tag_readout=data_tag_readout, sample_tag=sample_tag, **kwargs)
-        y_predicted_mean, y_predicted_var = m.predict(x_wells)
+        gp = run.gp_models
+        gp_model = list(gp.filter(plate_tag=plate_tag, kernel_tag=kernel_tag))[0]
+        y_predicted_mean_normalized, y_predicted_var_normalized, y_predicted_mean, y_predicted_sd = gp_model.predict(x_wells)
         y_predicted_as_matrix = y_predicted_mean.reshape(magnification*run.width,magnification*run.height).transpose()
         data.append(y_predicted_as_matrix)
 
-
-
     fig = plt.figure()
-
     grid = AxesGrid(fig, 111,
                     nrows_ncols=(b, a),
                     axes_pad=0.05,

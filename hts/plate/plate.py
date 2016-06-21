@@ -491,7 +491,7 @@ class Plate:
                                                              sample_tag_null_distribution,
                                                              data_tag_standard_score,
                                                              data_tag_p_value,
-                                                             is_higher_value_better=True,
+                                                             is_higher_value_better,
                                                              **kwargs):
 
         """
@@ -550,7 +550,7 @@ class Plate:
         ## p_value for one-sided test. For two-sided test, multiply by 2:
         # p_value = scipy.stats.norm.sf(abs(standard_score))
 
-
+        # ToDo: Check and understand
         if is_higher_value_better in [True, "true", "True", "TRUE"]:
             standard_score = - standard_score
             p_value = 1 - p_value
@@ -561,7 +561,34 @@ class Plate:
                               tag=data_tag_readout)
 
 
-    def classify_by_cutoff(self, data_tag_readout, data_tag_classified_readout, threshold, is_higher_value_better=True, is_twosided=False):
+
+    def calculate_local_ssmd(self, data_tag_mean_pos, data_tag_mean_neg, data_tag_std_pos, data_tag_std_neg, data_tag_ssmd, **kwargs):
+        """
+        Calculate local SSMD values.
+
+        Args:
+            data_tag_mean_pos:
+            data_tag_mean_neg:
+            data_tag_std_pos:
+            data_tag_std_neg:
+            data_tag_ssmd:
+
+        Returns:
+
+        """
+
+        mean_pos = self.readout.get_data(data_tag_mean_pos)
+        mean_neg = self.readout.get_data(data_tag_mean_neg)
+        std_pos = self.readout.get_data(data_tag_std_pos)
+        std_neg = self.readout.get_data(data_tag_std_neg)
+
+        ssmd = np.abs(mean_pos - mean_neg)/np.sqrt(std_pos**2 + std_neg**2)
+
+        self.readout.add_data(data={data_tag_ssmd: ssmd},
+                              tag=data_tag_ssmd)
+
+
+    def classify_by_cutoff(self, data_tag_readout, data_tag_classified_readout, threshold, is_higher_value_better=True, is_twosided=False, **kwargs):
         """
         Map a dataset of float values to either binary (`is_twosided==False`) or [-1,0,1] (`is_twosided==True`), depending
         on whether values fall below `threshold`

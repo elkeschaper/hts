@@ -174,6 +174,7 @@ def do_gaussian_process_prediction(run,
                                    result_tag_predicted_sd="{gp_model_str}__predicted_sd",
                                    best_mean_tag="best__predicted_mean",
                                    best_sd_tag="best__predicted_sd",
+                                   best_sample_tags="s",
                                    **kwargs):
     """ Perform Gaussian process prediction.
 
@@ -182,16 +183,22 @@ def do_gaussian_process_prediction(run,
 
     # ToDo: Allow non-platewise predictions (e.g. runwise, zigzag)
 
+    if type(best_sample_tags) != list:
+        best_sample_tags = [best_sample_tags]
+
     for plate_tag, plate in run.plates.items():
 
         y = plate.flatten_wells(wells=plate.plate_layout.get_wells(data_tag="layout", condition=lambda x: True))
 
-        gp_models = list(run.gp_models.filter(plate_tag=plate_tag, data_tag=data_tag_readout))
-
         # Select the model with the lowest bic
-        best_model = min(gp_models, key=lambda x: x.bic)
+        selected_gp_models = list(
+            run.gp_models.filter(plate_tag=plate_tag, data_tag=data_tag_readout, sample_tags=best_sample_tags))
+        if best_mean_tag and best_sd_tag:
+            best_model = min(selected_gp_models, key=lambda x: x.bic)
 
-        for gp_model in gp_models:
+        all_gp_models = list(run.gp_models.filter(plate_tag=plate_tag, data_tag=data_tag_readout))
+
+        for gp_model in all_gp_models:
             y_pred_mean_normalized, y_pred_var_normalized, y_pred_mean, y_pred_sd = gp_model.predict(y)
 
             # Map the data from lists back to plate matrices
@@ -206,12 +213,13 @@ def do_gaussian_process_prediction(run,
             result_tag_sd = result_tag_predicted_sd.format(gp_model_str=str(gp_model))
             plate.readout.add_data(data={result_tag_sd: y_pred_sd}, tag=result_tag_sd)
 
-            if gp_model == best_model:
-                gp_model.best = True
-                plate.readout.add_data(data={best_mean_tag: y_pred_mean}, tag=best_mean_tag)
-                plate.readout.add_data(data={best_sd_tag: y_pred_sd}, tag=best_sd_tag)
-            else:
-                gp_model.best = False
+            if best_mean_tag and best_sd_tag:
+                if gp_model == best_model:
+                    gp_model.best = True
+                    plate.readout.add_data(data={best_mean_tag: y_pred_mean}, tag=best_mean_tag)
+                    plate.readout.add_data(data={best_sd_tag: y_pred_sd}, tag=best_sd_tag)
+                else:
+                    gp_model.best = False
 
 
 def create_gaussian_process_kernel(kernel_type, input_dim, info=None, constraints=None):
