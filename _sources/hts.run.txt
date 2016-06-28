@@ -4,6 +4,14 @@ hts.run package
 Submodules
 ----------
 
+hts.run.constants module
+------------------------
+
+.. automodule:: hts.run.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 hts.run.run module
 ------------------
 

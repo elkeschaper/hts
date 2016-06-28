@@ -1,15 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>hts.run package &mdash; HTS 0.0.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,384 +24,136 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="HTS 0.0.0 documentation" href="index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">  
+  <body role="document">
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/hts_logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
             
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="http://example.com">Link</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#1.-Load-all-dependencies">1. Load all dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#2.-Read-in-your-high-throughput-screening-data">2. Read in your high throughput screening data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#3.-Perform-Gaussian-process-normalization">3. Perform Gaussian process normalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/write_data__tutorial.html">Tutorial: Write data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Write-your-data">Write your data</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">hts.run package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-hts.run.constants">hts.run.constants module</a></li>
+<li><a class="reference internal" href="#hts-run-run-module">hts.run.run module</a></li>
+<li><a class="reference internal" href="#hts-run-run-io-module">hts.run.run_io module</a></li>
+<li><a class="reference internal" href="#module-hts.run">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
   <div class="section" id="hts-run-package">
 <h1>hts.run package<a class="headerlink" href="#hts-run-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-hts.run.run">
-<span id="hts-run-run-module"></span><h2>hts.run.run module<a class="headerlink" href="#module-hts.run.run" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Run Class.</td>
-</tr>
-</tbody>
-</table>
-<dl class="class">
-<dt id="hts.run.run.Run">
-<em class="property">class </em><code class="descclassname">hts.run.run.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>plates</em>, <em>path=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="docutils">
-<dt><code class="docutils literal"><span class="pre">Run</span></code> describes all information connected to one run of a high</dt>
-<dd>throughput screening experiment</dd>
-</dl>
-<dl class="attribute">
-<dt id="hts.run.run.Run.name">
-<code class="descname">name</code><a class="headerlink" href="#hts.run.run.Run.name" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em></p>
-<p>Name of the run</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.plates">
-<code class="descname">plates</code><a class="headerlink" href="#hts.run.run.Run.plates" title="Permalink to this definition">¶</a></dt>
-<dd><p>collections.OrderedDict of <code class="docutils literal"><span class="pre">Plate</span></code></p>
-<p>collections.OrderedDict of <code class="docutils literal"><span class="pre">Plate</span></code> instances</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.width">
-<code class="descname">width</code><a class="headerlink" href="#hts.run.run.Run.width" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>Width of the plates</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.height">
-<code class="descname">height</code><a class="headerlink" href="#hts.run.run.Run.height" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em></p>
-<p>Height of the plates</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run._protocol">
-<code class="descname">_protocol</code><a class="headerlink" href="#hts.run.run.Run._protocol" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">Protocol</span></code></p>
-<p><code class="docutils literal"><span class="pre">Protocol</span></code> instance</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run._platelayout">
-<code class="descname">_platelayout</code><a class="headerlink" href="#hts.run.run.Run._platelayout" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">PlateLayout</span></code></p>
-<p><code class="docutils literal"><span class="pre">PlateLayout</span></code> instance</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run._qc">
-<code class="descname">_qc</code><a class="headerlink" href="#hts.run.run.Run._qc" title="Permalink to this definition">¶</a></dt>
-<dd><p>dict of dict of <code class="docutils literal"><span class="pre">QualityControl</span></code> instance</p>
-<p>A collection of <code class="docutils literal"><span class="pre">QualityControl</span></code> instance</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.raw_qc">
-<code class="descname">raw_qc</code><a class="headerlink" href="#hts.run.run.Run.raw_qc" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">QualityControl</span></code></p>
-<p><code class="docutils literal"><span class="pre">QualityControl</span></code> instance - NEEDED?</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.net_qc">
-<code class="descname">net_qc</code><a class="headerlink" href="#hts.run.run.Run.net_qc" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">QualityControl</span></code></p>
-<p><code class="docutils literal"><span class="pre">QualityControl</span></code> instance - NEEDED?</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run.Run.experimenter">
-<code class="descname">experimenter</code><a class="headerlink" href="#hts.run.run.Run.experimenter" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em></p>
-<p>Name of the experimenter</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">experimenter</code></dt>
-<dd><p><em>str</em></p>
-<p>Mail address of the experimenter</p>
-</dd></dl>
-
-<p>..todo:: Implement me :)</p>
-<dl class="method">
-<dt id="hts.run.run.Run.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.__str__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create string for Run instance.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.analysis">
-<code class="descname">analysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform analysis and save the results</p>
-<p>Perform analysis and save the results</p>
-<p>Args:</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="hts.run.run.Run.create">
-<em class="property">classmethod </em><code class="descname">create</code><span class="sig-paren">(</span><em>origin</em>, <em>path</em>, <em>format=None</em>, <em>dir=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
-<p>Create <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>origin</strong> (<em>str</em>) &#8211; At current only &#8220;config&#8221; or &#8220;plates&#8221;</li>
-<li><strong>format</strong> (<em>str</em>) &#8211; Format of the origin, at current not specified</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file or directory</li>
-<li><strong>dir</strong> (<em>Bool</em>) &#8211; True if all files in directory shall be read, else false.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+<div class="section" id="module-hts.run.constants">
+<span id="hts-run-constants-module"></span><h2>hts.run.constants module<a class="headerlink" href="#module-hts.run.constants" title="Permalink to this headline">¶</a></h2>
 </div>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="hts.run.run.Run.create_from_config">
-<em class="property">classmethod </em><code class="descname">create_from_config</code><span class="sig-paren">(</span><em>path</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read config and use data to create <cite>Run</cite> instance.</p>
-<p>Read config and use data to create <cite>Run</cite> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input configobj file</li>
-<li><strong>file</strong> (<em>str</em>) &#8211; Filename of configobj file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.create_from_envision">
-<code class="descname">create_from_envision</code><span class="sig-paren">(</span><em>path</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_from_envision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_from_envision" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read envision data and create <cite>Run</cite> instance.</p>
-<p>Read envision data and create <cite>Run</cite> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input configobj file</li>
-<li><strong>file</strong> (<em>str</em>) &#8211; Filename of configobj file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks if path and file exists when necessary.</p>
+<div class="section" id="hts-run-run-module">
+<h2>hts.run.run module<a class="headerlink" href="#hts-run-run-module" title="Permalink to this headline">¶</a></h2>
 </div>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.create_qc_report">
-<code class="descname">create_qc_report</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.create_qc_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.create_qc_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create quality control report (.pdf) in path.</p>
-<p>Create quality control report (.pdf) in path.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) &#8211; Path to result quality control report file</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-2">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks if the path exists.</p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.filter">
-<code class="descname">filter</code><span class="sig-paren">(</span><em>type</em>, <em>tag</em>, <em>subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.filter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter run data according to type and tag.</p>
-<p>Filter run data according to type and tag.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>type</strong> (<em>str</em>) &#8211; Either per &#8220;run_wise&#8221; or per &#8220;plate_wise&#8221;.</li>
-<li><strong>tags</strong> (<em>str</em>) &#8211; Defines either the plate (within the plate),
-or the plate (within the run).</li>
-<li><strong>subset</strong> (<em>list of str</em>) &#8211; Defines which plates/plate_readouts shall be included.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Readout or Plate (for multiple Readouts)</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.get_qc_config">
-<code class="descname">get_qc_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.get_qc_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.get_qc_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract qc info from protocol and run.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.get_run_meta_data">
-<code class="descname">get_run_meta_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.get_run_meta_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.get_run_meta_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract relevant meta data for qc and analysis reports.
-Returns list of tuples: [(key_str, value_str)]</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="hts.run.run.Run.map_config_file_definition">
-<em class="property">classmethod </em><code class="descname">map_config_file_definition</code><span class="sig-paren">(</span><em>config</em>, <em>n_plate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.map_config_file_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.map_config_file_definition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract the files from the config file.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.preprocess">
-<code class="descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform data preprocessing.</p>
-<p>Perform data preprocessing.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.protocol">
-<code class="descname">protocol</code><span class="sig-paren">(</span><em>path=None</em>, <em>format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.protocol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read protocol and attach to <cite>Run</cite> instance.</p>
-<p>Read protocol and attach to <cite>Run</cite> instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file</li>
-<li><strong>format</strong> (<em>str</em>) &#8211; At current only &#8220;csv&#8221;</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-3">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks if path and format exists when necessary.</p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.qc">
-<code class="descname">qc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.qc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.qc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform quality control and save the results</p>
-<p>Perform quality control and save the results</p>
-<p>Args:</p>
-<div class="admonition-todo admonition" id="index-4">
-<p class="first admonition-title">Todo</p>
-<p class="last">Create QC for different plate subsets (e.g. raw/net).</p>
-</div>
-<div class="admonition-todo admonition" id="index-5">
-<p class="first admonition-title">Todo</p>
-<p class="last">Use function to get to plate data instead of attributes?</p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="hts.run.run.Run.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#Run.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.Run.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Run</span></code> instances.</p>
-<p>Serialize <code class="docutils literal"><span class="pre">Run</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-6">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="hts.run.run.send_mail">
-<code class="descclassname">hts.run.run.</code><code class="descname">send_mail</code><span class="sig-paren">(</span><em>body</em>, <em>email_to</em>, <em>email_from='adriano_conrad_aguzzi&#64;gmail.com'</em>, <em>smtp_server='smtp.gmail.com'</em>, <em>smtp_port=587</em>, <em>smtp_username='elkewschaper&#64;gmail.com'</em>, <em>email_subject='QC_report finished'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run.html#send_mail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run.send_mail" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-hts.run.run_io">
-<span id="hts-run-run-io-module"></span><h2>hts.run.run_io module<a class="headerlink" href="#module-hts.run.run_io" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Input/output for runs.</td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
-<dt id="hts.run.run_io.serialize_run_for_r">
-<code class="descclassname">hts.run.run_io.</code><code class="descname">serialize_run_for_r</code><span class="sig-paren">(</span><em>run_data</em>, <em>delimiter='</em>, <em>'</em>, <em>column_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/run/run_io.html#serialize_run_for_r"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.run.run_io.serialize_run_for_r" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize run data for easy read-in as a data.frame in R.</p>
-<p>Serialize run data for easy read-in as a data.frame in R, in e.g. csv or
-tsv format.</p>
-<dl class="attribute">
-<dt id="hts.run.run_io.run">
-<code class="descclassname">hts.run.run_io.</code><code class="descname">run</code><a class="headerlink" href="#hts.run.run_io.run" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Run</em></p>
-<p>A <code class="docutils literal"><span class="pre">Run</span></code> instance.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="hts.run.run_io.delimiter">
-<code class="descclassname">hts.run.run_io.</code><code class="descname">delimiter</code><a class="headerlink" href="#hts.run.run_io.delimiter" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em></p>
-<p>A String instance. Defines the delimiter in the output
-file (e.g. &#8221;,&#8221; for csv or &#8221; &#8221; for tsv)</p>
-</dd></dl>
-
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The serialized run_data as a string.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
-<p>..ToDo: Update to fit current Run class.</p>
-</dd></dl>
-
+<div class="section" id="hts-run-run-io-module">
+<h2>hts.run.run_io module<a class="headerlink" href="#hts-run-run-io-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-hts.run">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.run" title="Permalink to this headline">¶</a></h2>
@@ -408,66 +161,21 @@ file (e.g. &#8221;,&#8221; for csv or &#8221; &#8221; for tsv)</p>
 </div>
 
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">hts.run package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-hts.run.run">hts.run.run module</a></li>
-<li><a class="reference internal" href="#module-hts.run.run_io">hts.run.run_io module</a></li>
-<li><a class="reference internal" href="#module-hts.run">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
+    </div>
+      
+  </div>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/hts.run.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2015, Elke Schaper.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/hts.run.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
+    <p>
+        &copy; Copyright 2016, Elke Schaper.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+    </p>
+  </div>
+</footer>
   </body>
 </html>

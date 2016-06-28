@@ -1,15 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>hts package &mdash; HTS 0.0.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,36 +24,153 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="HTS 0.0.0 documentation" href="index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">  
+  <body role="document">
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/hts_logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
             
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="http://example.com">Link</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#1.-Load-all-dependencies">1. Load all dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#2.-Read-in-your-high-throughput-screening-data">2. Read in your high throughput screening data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#3.-Perform-Gaussian-process-normalization">3. Perform Gaussian process normalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/write_data__tutorial.html">Tutorial: Write data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Write-your-data">Write your data</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">hts package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#hts-conftest-module">hts.conftest module</a></li>
+<li><a class="reference internal" href="#module-hts">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
   <div class="section" id="hts-package">
 <h1>hts package<a class="headerlink" href="#hts-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="hts.analysis.html">hts.analysis package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hts.analysis.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.analysis.html#module-hts.analysis.analysis">hts.analysis.analysis module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.analysis.html#module-hts.analysis">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hts.run.html">hts.run package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hts.run.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.run.html#module-hts.run.constants">hts.run.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.run.html#hts-run-run-module">hts.run.run module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.run.html#hts-run-run-io-module">hts.run.run_io module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.run.html#module-hts.run">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hts.plate_layout.html">hts.plate_layout package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hts.plate_layout.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.plate_layout.html#hts-plate-layout-plate-layout-module">hts.plate_layout.plate_layout module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.plate_layout.html#hts-plate-layout-plate-layout-io-module">hts.plate_layout.plate_layout_io module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.plate_layout.html#module-contents">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hts.plate.html">hts.plate package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate.html#hts-plate-plate-module">hts.plate.plate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate.html#hts-plate-prediction-module">hts.plate.prediction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate.html#module-hts.plate">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hts.plate_data.html">hts.plate_data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-data-issue-module">hts.plate_data.data_issue module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-meta-data-module">hts.plate_data.meta_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-plate-data-module">hts.plate_data.plate_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-plate-data-io-module">hts.plate_data.plate_data_io module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-plate-layout-module">hts.plate_data.plate_layout module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#hts-plate-data-readout-module">hts.plate_data.readout module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#module-hts.plate_data.readout_io">hts.plate_data.readout_io module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.plate_data.html#module-hts.plate_data">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hts.protocol.html">hts.protocol package</a><ul>
@@ -61,26 +179,15 @@
 <li class="toctree-l2"><a class="reference internal" href="hts.protocol.html#module-hts.protocol">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hts.qc.html">hts.qc package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hts.qc.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.qc.html#module-hts.qc.qc_knitr">hts.qc.qc_knitr module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.qc.html#module-hts.qc.qc_matplotlib">hts.qc.qc_matplotlib module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.qc.html#module-hts.qc">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="hts.readout.html">hts.readout package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hts.readout.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.readout.html#hts-readout-plate-io-module">hts.readout.plate_io module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.readout.html#hts-readout-readout-module">hts.readout.readout module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.readout.html#hts-readout-readout-dict-module">hts.readout.readout_dict module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.readout.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="hts.run.html">hts.run package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hts.run.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.run.html#module-hts.run.run">hts.run.run module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.run.html#module-hts.run.run_io">hts.run.run_io module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hts.run.html#module-hts.run">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hts.data_tasks.html">hts.data_tasks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#hts-data-tasks-analysis-module">hts.data_tasks.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#module-hts.data_tasks.data_normalization">hts.data_tasks.data_normalization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#hts-data-tasks-data-tasks-module">hts.data_tasks.data_tasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#hts-data-tasks-qc-detect-data-issues-module">hts.data_tasks.qc_detect_data_issues module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#module-hts.data_tasks.qc_knitr">hts.data_tasks.qc_knitr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#hts-data-tasks-qc-matplotlib-module">hts.data_tasks.qc_matplotlib module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hts.data_tasks.html#module-hts.data_tasks">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -89,13 +196,8 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-hts.conftest">
-<span id="hts-conftest-module"></span><h2>hts.conftest module<a class="headerlink" href="#module-hts.conftest" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="hts.conftest.pytest_runtest_setup">
-<code class="descclassname">hts.conftest.</code><code class="descname">pytest_runtest_setup</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/conftest.html#pytest_runtest_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.conftest.pytest_runtest_setup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="hts-conftest-module">
+<h2>hts.conftest module<a class="headerlink" href="#hts-conftest-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-hts">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts" title="Permalink to this headline">¶</a></h2>
@@ -103,66 +205,21 @@
 </div>
 
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">hts package</a><ul>
-<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-hts.conftest">hts.conftest module</a></li>
-<li><a class="reference internal" href="#module-hts">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
+    </div>
+      
+  </div>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/hts.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2015, Elke Schaper.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/hts.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
+    <p>
+        &copy; Copyright 2016, Elke Schaper.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+    </p>
+  </div>
+</footer>
   </body>
 </html>
