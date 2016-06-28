@@ -1,15 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Overview: module code &mdash; HTS 0.0.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,73 +24,136 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="HTS 0.0.0 documentation" href="../index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">  
+  <body role="document">
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><img src="../_static/hts_logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
             
+                <li><a href="../examples.html">Examples</a></li>
+                <li><a href="http://example.com">Link</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gaussian_process_normalization_tutorial.html#1.-Load-all-dependencies">1. Load all dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gaussian_process_normalization_tutorial.html#2.-Read-in-your-high-throughput-screening-data">2. Read in your high throughput screening data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gaussian_process_normalization_tutorial.html#3.-Perform-Gaussian-process-normalization">3. Perform Gaussian process normalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/write_data__tutorial.html">Tutorial: Write data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/write_data__tutorial.html#Write-your-data">Write your data</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
   <h1>All modules for which code is available</h1>
-<ul><li><a href="hts/analysis/analysis.html">hts.analysis.analysis</a></li>
-<li><a href="hts/conftest.html">hts.conftest</a></li>
-<li><a href="hts/plate_layout/plate_layout.html">hts.plate_layout.plate_layout</a></li>
-<li><a href="hts/plate_layout/plate_layout_io.html">hts.plate_layout.plate_layout_io</a></li>
+<ul><li><a href="hts/data_tasks/data_normalization.html">hts.data_tasks.data_normalization</a></li>
+<li><a href="hts/data_tasks/qc_knitr.html">hts.data_tasks.qc_knitr</a></li>
+<li><a href="hts/data_tasks/qc_matplotlib.html">hts.data_tasks.qc_matplotlib</a></li>
+<li><a href="hts/plate_data/readout_io.html">hts.plate_data.readout_io</a></li>
 <li><a href="hts/protocol/protocol.html">hts.protocol.protocol</a></li>
-<li><a href="hts/qc/qc_knitr.html">hts.qc.qc_knitr</a></li>
-<li><a href="hts/qc/qc_matplotlib.html">hts.qc.qc_matplotlib</a></li>
-<li><a href="hts/readout/plate_io.html">hts.readout.plate_io</a></li>
-<li><a href="hts/readout/readout.html">hts.readout.readout</a></li>
-<li><a href="hts/readout/readout_dict.html">hts.readout.readout_dict</a></li>
-<li><a href="hts/run/run.html">hts.run.run</a></li>
-<li><a href="hts/run/run_io.html">hts.run.run_io</a></li>
 </ul>
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
+    </div>
+      
+  </div>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2015, Elke Schaper.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-    </div>
-
-    
-
-    
+    <p>
+        &copy; Copyright 2016, Elke Schaper.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+    </p>
+  </div>
+</footer>
   </body>
 </html>
