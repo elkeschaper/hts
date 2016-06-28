@@ -6,13 +6,13 @@
     "raw_mimetype": "text/markdown"
    },
    "source": [
-    ".. _load_data:\n",
-    "\n",
     "# Tutorial: Load data\n",
     "\n",
     "## Create a `run config` file.\n",
     "\n",
     "The `run config` file is at the heart of all your data. Here, all paths file I/O, formats and meta data specific to your data are defined. It's based on [configobj](https://configobj.readthedocs.io/) (see [specifications](https://configobj.readthedocs.io/en/latest/configobj.html#the-config-file-format)).\n",
+    "\n",
+    "See [configuration files](../config.rst) for general instructions.\n",
     "\n",
     "Download [run config template](../tutorial_data/run_config_template_1.txt)\n",
     "\n",

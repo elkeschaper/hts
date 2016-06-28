@@ -78,6 +78,13 @@
 <li class="toctree-l2"><a class="reference internal" href="gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
@@ -379,20 +386,20 @@ performed the HTS run.</li>
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span># %matplotlib inline is only necessary in inline mode
-%matplotlib inline
-import logging
-import os
+<span></span><span class="c1"># %matplotlib inline is only necessary in inline mode</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
-from hts.data_tasks import qc_matplotlib
-from hts.run.run import Run
-from hts.paths import TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">qc_matplotlib</span>
+<span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
+<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
-logging.basicConfig(level=logging.ERROR)
-config_path = TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">config_path</span> <span class="o">=</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
-print(&quot;Find the configuration file for this tutorial here: {}&quot;.format(config_path))
-run = Run.create(path=config_path, origin=&quot;config&quot;)
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Find the configuration file for this tutorial here: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config_path</span><span class="p">))</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
 
 </pre></div>
 </div>
@@ -465,7 +472,7 @@ config
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

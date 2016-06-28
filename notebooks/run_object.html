@@ -78,6 +78,13 @@
 <li class="toctree-l2"><a class="reference internal" href="gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
@@ -275,16 +282,16 @@ div.nboutput  > :nth-child(2).stderr {
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>%matplotlib inline
-import os
+<span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">os</span>
 
-from hts.run.run import Run
-from hts.paths import TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
+<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
 
-data_path = TUTORIAL_DATA_NORMALIZATION_PATH
-print(&quot;If you would like to see the data file, go to {}&quot;.format(data_path))
-run = Run.create(path=data_path, origin=&quot;csv&quot;, format=&quot;csv&quot;, column_plate_name=&quot;Plate ID&quot;, column_well=&quot;Well ID&quot;, columns_readout=[&quot;Data0&quot;, &quot;Data1&quot;], columns_meta= [&quot;Data2&quot;], width=24, height=16))
+<span class="n">data_path</span> <span class="o">=</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;If you would like to see the data file, go to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_path</span><span class="p">))</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">column_plate_name</span><span class="o">=</span><span class="s2">&quot;Plate ID&quot;</span><span class="p">,</span> <span class="n">column_well</span><span class="o">=</span><span class="s2">&quot;Well ID&quot;</span><span class="p">,</span> <span class="n">columns_readout</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Data0&quot;</span><span class="p">,</span> <span class="s2">&quot;Data1&quot;</span><span class="p">],</span> <span class="n">columns_meta</span><span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Data2&quot;</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span>
 
 </pre></div>
 </div>
@@ -331,7 +338,7 @@ statements, look here <a class="reference external" href="data_io">Data IO</a> a
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

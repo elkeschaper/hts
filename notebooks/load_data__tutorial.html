@@ -80,13 +80,22 @@
 <li class="toctree-l2"><a class="reference internal" href="gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="write_data__tutorial.html">Tutorial: Write data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="write_data__tutorial.html#Write-your-data">Write your data</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
 </li>
 </ul>
@@ -297,6 +306,7 @@ div.nboutput  > :nth-child(2).stderr {
 paths file I/O, formats and meta data specific to your data are defined.
 It&#8217;s based on <a class="reference external" href="https://configobj.readthedocs.io/">configobj</a> (see
 <a class="reference external" href="https://configobj.readthedocs.io/en/latest/configobj.html#the-config-file-format">specifications</a>).</p>
+<p>See <a class="reference internal" href="../config.html"><span class="doc">configuration files</span></a> for general instructions.</p>
 <p>Download <a class="reference external" href="../tutorial_data/run_config_template_1.txt">run config
 template</a></p>
 <p>Let&#8217;s take a look at the different parts of the file.</p>
@@ -386,14 +396,14 @@ layout with <code class="docutils literal"><span class="pre">format</span> <span
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>from hts.run.run import Run
-from hts.paths import TUTORIAL_DATA_NORMALIZATION_PATH
+<span></span><span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
+<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
-config_path = TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="n">config_path</span> <span class="o">=</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
-run = Run.create(path=config_path, origin=&quot;config&quot;)
+<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
 
-print(run)
+<span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -429,7 +439,7 @@ report</a> or different types of analyses.</p>
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

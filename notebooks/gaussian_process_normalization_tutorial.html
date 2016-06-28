@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="HTS 0.0.0 documentation" href="../index.html" />
-    <link rel="next" title="Tutorial: Data normalization" href="data_normalization_tutorial.html" />
+    <link rel="next" title="Tutorial: Create a Quality control report" href="quality_control_reporting__tutorial.html" />
     <link rel="prev" title="Tutorial: Load data" href="load_data__tutorial.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -80,6 +80,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
@@ -126,7 +133,7 @@
     </a>
   </li>
   <li>
-    <a href="data_normalization_tutorial.html" title="Next Chapter: Tutorial: Data normalization"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tutorial: Dat... &raquo;</span>
+    <a href="quality_control_reporting__tutorial.html" title="Next Chapter: Tutorial: Create a Quality control report"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tutorial: Cre... &raquo;</span>
     </a>
   </li>
               
@@ -293,21 +300,21 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>1. Load all dependencies<a class="headerlink" href="#1.-Load-all-dependencies" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [1]:
+<span></span>In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span># %matplotlib inline is only necessary in inline mode
-%matplotlib inline
-import logging
-import os
+<span></span><span class="c1"># %matplotlib inline is only necessary in inline mode</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
-from hts.data_tasks import qc_matplotlib
-from hts.run.run import Run
-from hts.paths import TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">qc_matplotlib</span>
+<span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
+<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
-logging.basicConfig(level=logging.ERROR)
-config_path = TUTORIAL_DATA_NORMALIZATION_PATH
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">config_path</span> <span class="o">=</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
 
 </pre></div>
 </div>
@@ -319,12 +326,12 @@ config_path = TUTORIAL_DATA_NORMALIZATION_PATH
 <p>Let&#8217;s read in some data defined in a config file:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
+<span></span>In [11]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>print(&quot;Find the configuration file for this tutorial here: {}&quot;.format(config_path))
-run = Run.create(path=config_path, origin=&quot;config&quot;)
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Find the configuration file for this tutorial here: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config_path</span><span class="p">))</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -348,11 +355,11 @@ statements, look here <a class="reference external" href="data_io">Data IO</a> a
 <p>Let&#8217;s have a look at the current data set:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [12]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>print(run)
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -379,11 +386,11 @@ Bayesian Information Criterion, and produces a report of the results
 [ToDo: Link to report].</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [13]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>run.do_task(&quot;gp&quot;)
+<span></span><span class="n">run</span><span class="o">.</span><span class="n">do_task</span><span class="p">(</span><span class="s2">&quot;gp&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -399,7 +406,7 @@ WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate 
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>Out[4]:
+<span></span>Out[13]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -418,11 +425,11 @@ WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate 
 the <code class="docutils literal"><span class="pre">Protocol</span> <span class="pre">config</span></code> file defined in the <code class="docutils literal"><span class="pre">Run</span> <span class="pre">config</span></code> file:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [14]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>print(run.protocol)
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -431,7 +438,7 @@ the <code class="docutils literal"><span class="pre">Protocol</span> <span class
 </div>
 <div class="container">
 <div class="highlight"><pre>
-&lt;bound method Run.protocol of &lt;hts.run.run.Run object at 0x1093de048&gt;&gt;
+&lt;bound method Run.protocol of &lt;hts.run.run.Run object at 0x10eced908&gt;&gt;
 </pre></div></div>
 </div>
 <p>Look here to see how to <a class="reference external" href="protocol_config">create a protocol config
@@ -441,11 +448,11 @@ file</a>. For now, let&#8217;s go step by step:</p>
 <p>m Let&#8217;s have a look look at the raw data. It&#8217;s named &#8220;signal&#8221;:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [15]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>qc_matplotlib.heat_map_multiple(run, &quot;signal&quot;)
+<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -497,11 +504,11 @@ kernels</a></p>
 <p>Now, let&#8217;s plot some of the predictions:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [16]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>qc_matplotlib.heat_map_multiple(run, &quot;best__s__predicted_mean&quot;)
+<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;best__s__predicted_mean&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -515,11 +522,11 @@ kernels</a></p>
 <p>Let&#8217;s plot the trained Gaussian process in high resolution:</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [17]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>qc_matplotlib.heat_map_multiple_gaussian_process_model(run, kernel_tag=&quot;rbf&quot;)
+<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple_gaussian_process_model</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">kernel_tag</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -536,11 +543,11 @@ kernels</a></p>
 <h2>Write the normalized data to a file<a class="headerlink" href="#Write-the-normalized-data-to-a-file" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [9]:
+<span></span>In [18]:
 </pre></div>
 </div>
 <div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span>run.write(format=&quot;csv&quot;)
+<span></span><span class="n">run</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -560,7 +567,7 @@ kernels</a></p>
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

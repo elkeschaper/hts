@@ -78,6 +78,13 @@
 <li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
@@ -102,12 +109,12 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">hts.plate_data package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-plate-data-data-issue-module">hts.plate_data.data_issue module</a></li>
-<li><a class="reference internal" href="#hts-plate-data-meta-data-module">hts.plate_data.meta_data module</a></li>
-<li><a class="reference internal" href="#hts-plate-data-plate-data-module">hts.plate_data.plate_data module</a></li>
-<li><a class="reference internal" href="#hts-plate-data-plate-data-io-module">hts.plate_data.plate_data_io module</a></li>
-<li><a class="reference internal" href="#hts-plate-data-plate-layout-module">hts.plate_data.plate_layout module</a></li>
-<li><a class="reference internal" href="#hts-plate-data-readout-module">hts.plate_data.readout module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.data_issue">hts.plate_data.data_issue module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.meta_data">hts.plate_data.meta_data module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.plate_data">hts.plate_data.plate_data module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.plate_data_io">hts.plate_data.plate_data_io module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.plate_layout">hts.plate_data.plate_layout module</a></li>
+<li><a class="reference internal" href="#module-hts.plate_data.readout">hts.plate_data.readout module</a></li>
 <li><a class="reference internal" href="#module-hts.plate_data.readout_io">hts.plate_data.readout_io module</a></li>
 <li><a class="reference internal" href="#module-hts.plate_data">Module contents</a></li>
 </ul>
@@ -150,23 +157,430 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-plate-data-data-issue-module">
-<h2>hts.plate_data.data_issue module<a class="headerlink" href="#hts-plate-data-data-issue-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate_data.data_issue">
+<span id="hts-plate-data-data-issue-module"></span><h2>hts.plate_data.data_issue module<a class="headerlink" href="#module-hts.plate_data.data_issue" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The DataIssue Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.plate_data.data_issue.DataIssue">
+<em class="property">class </em><code class="descclassname">hts.plate_data.data_issue.</code><code class="descname">DataIssue</code><span class="sig-paren">(</span><em>data</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/data_issue.html#DataIssue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hts.plate_data.plate_data.PlateData" title="hts.plate_data.plate_data.PlateData"><code class="xref py py-class docutils literal"><span class="pre">hts.plate_data.plate_data.PlateData</span></code></a></p>
+<p><code class="docutils literal"><span class="pre">DataIssue</span></code> describes all information connected to the plate_data of a
+high throughput screen.</p>
+<dl class="attribute">
+<dt id="hts.plate_data.data_issue.DataIssue.sample_replicate_count">
+<code class="descname">sample_replicate_count</code><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue.sample_replicate_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; (Explain!)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.data_issue.DataIssue.layout_general_type">
+<code class="descname">layout_general_type</code><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue.layout_general_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of lists</em> &#8211; The plate layout (explain!)</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.data_issue.DataIssue.create_well_list">
+<em class="property">classmethod </em><code class="descname">create_well_list</code><span class="sig-paren">(</span><em>well_list</em>, <em>width</em>, <em>height</em>, <em>data_tag</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/data_issue.html#DataIssue.create_well_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue.create_well_list" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>well_list</strong> (<em>list of tuple</em>) &#8211; List of wells with data issues, given as coordinate tuples (rowi, columni)</li>
+<li><strong>width</strong> (<em>int</em>) &#8211; Width of the well plate</li>
+<li><strong>height</strong> (<em>int</em>) &#8211; Height of the well plate</li>
+<li><strong>data_tag</strong> (<em>str</em>) &#8211; Tag of the created data</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.data_issue.DataIssue.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>tag=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/data_issue.html#DataIssue.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">DataIssue</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">DataIssue</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
 </div>
-<div class="section" id="hts-plate-data-meta-data-module">
-<h2>hts.plate_data.meta_data module<a class="headerlink" href="#hts-plate-data-meta-data-module" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="hts-plate-data-plate-data-module">
-<h2>hts.plate_data.plate_data module<a class="headerlink" href="#hts-plate-data-plate-data-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate_data.meta_data">
+<span id="hts-plate-data-meta-data-module"></span><h2>hts.plate_data.meta_data module<a class="headerlink" href="#module-hts.plate_data.meta_data" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="hts.plate_data.meta_data.MetaData">
+<em class="property">class </em><code class="descclassname">hts.plate_data.meta_data.</code><code class="descname">MetaData</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/meta_data.html#MetaData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.meta_data.MetaData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hts.plate_data.plate_data.PlateData" title="hts.plate_data.plate_data.PlateData"><code class="xref py py-class docutils literal"><span class="pre">hts.plate_data.plate_data.PlateData</span></code></a></p>
+</dd></dl>
+
 </div>
-<div class="section" id="hts-plate-data-plate-data-io-module">
-<h2>hts.plate_data.plate_data_io module<a class="headerlink" href="#hts-plate-data-plate-data-io-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate_data.plate_data">
+<span id="hts-plate-data-plate-data-module"></span><h2>hts.plate_data.plate_data module<a class="headerlink" href="#module-hts.plate_data.plate_data" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The PlateData Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.plate_data.plate_data.PlateData">
+<em class="property">class </em><code class="descclassname">hts.plate_data.plate_data.</code><code class="descname">PlateData</code><span class="sig-paren">(</span><em>data</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><code class="docutils literal"><span class="pre">PlateData</span></code> describes arbitrary data for all wells in a plate.</p>
+<p>The keys of the the data dicts are referred to as &#8220;data_tag&#8221;.</p>
+<dl class="attribute">
+<dt id="hts.plate_data.plate_data.PlateData.width">
+<code class="descname">width</code><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Width of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.plate_data.PlateData.height">
+<code class="descname">height</code><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Height of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.plate_data.PlateData.data">
+<code class="descname">data</code><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict of lists of lists</em> &#8211; A dict of same-sized matrices with arbitrary data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.__iter__">
+<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.__iter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over data matrices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create string for Readout instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.add_data">
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>data</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.add_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_data.PlateData.create">
+<em class="property">classmethod </em><code class="descname">create</code><span class="sig-paren">(</span><em>formats</em>, <em>paths</em>, <em>configs=None</em>, <em>names=None</em>, <em>tags=None</em>, <em>types=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">PlateData</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">PlateData</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to input file or directory</li>
+<li><strong>format</strong> (<em>str</em>) &#8211; Format of the input; translates to a method.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_data.PlateData.create_csv">
+<em class="property">classmethod </em><code class="descname">create_csv</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_data.PlateData.create_excel">
+<em class="property">classmethod </em><code class="descname">create_excel</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_excel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_excel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_data.PlateData.create_from_coordinate_tuple_dict">
+<em class="property">classmethod </em><code class="descname">create_from_coordinate_tuple_dict</code><span class="sig-paren">(</span><em>data</em>, <em>width</em>, <em>height</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_from_coordinate_tuple_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_from_coordinate_tuple_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>data is a dict: {tag: {(i_row, i_col): datum}}.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_data.PlateData.create_pickle">
+<em class="property">classmethod </em><code class="descname">create_pickle</code><span class="sig-paren">(</span><em>path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_pickle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_pickle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.get_data">
+<code class="descname">get_data</code><span class="sig-paren">(</span><em>data_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.get_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.get_values">
+<code class="descname">get_values</code><span class="sig-paren">(</span><em>wells</em>, <em>data_tag</em>, <em>value_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of values for defined <cite>wells</cite> of the data tagged with <cite>data_tag</cite>.</p>
+<p>Get list of values for defined <cite>wells</cite> of the data tagged with <cite>data_tag</cite>.
+If <cite>value_type</cite> is set, check if all values conform with <cite>value_type</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wells</strong> (<em>lists of tuple</em>) &#8211; List of well coordinates.</li>
+<li><strong>data_tag</strong> (<em>str</em>) &#8211; Data tag.</li>
+<li><strong>value_type</strong> (<em>str</em>) &#8211; The type of the return values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(list of x), where x are of type <cite>value_type</cite>, if <cite>value_type</cite> is set.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.get_wells">
+<code class="descname">get_wells</code><span class="sig-paren">(</span><em>data_tag</em>, <em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.get_wells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.get_wells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of well coordinates for which the data tagged with <cite>data_tag</cite> conforms to <cite>condition</cite>.</p>
+<p>Get list of well coordinates for which the data tagged with <cite>data_tag</cite> conforms to <cite>condition</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_tag</strong> (<em>str</em>) &#8211; Data tag.</li>
+<li><strong>condition</strong> (<a class="reference internal" href="hts.protocol.html#hts.protocol.protocol.ProtocolTask.method" title="hts.protocol.protocol.ProtocolTask.method"><em>method</em></a>) &#8211; The condition expressed as a method. E.g., condition=lambda x: x==True</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(list of (int, int)).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_data.PlateData.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="hts-plate-data-plate-layout-module">
-<h2>hts.plate_data.plate_layout module<a class="headerlink" href="#hts-plate-data-plate-layout-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate_data.plate_data_io">
+<span id="hts-plate-data-plate-data-io-module"></span><h2>hts.plate_data.plate_data_io module<a class="headerlink" href="#module-hts.plate_data.plate_data_io" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Input/output for plate data.</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="hts.plate_data.plate_data_io.read_csv">
+<code class="descclassname">hts.plate_data.plate_data_io.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em>, <em>delimiter='</em>, <em>'</em>, <em>remove_empty_row=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data_io.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data_io.read_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read plate data file in csv format.</p>
+<p>The arrangement in the .csv file corresponds exactly to the plate layout.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.plate_data.plate_data_io.read_excel">
+<code class="descclassname">hts.plate_data.plate_data_io.</code><code class="descname">read_excel</code><span class="sig-paren">(</span><em>path</em>, <em>tags=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data_io.html#read_excel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data_io.read_excel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read plate data path in excel format.</p>
+<p>Read plate data path in excel format.
+The plate values must be the only data in the excel sheets. That is, no
+check of the content of the sheet, nor of its size is currently performed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to the path with  data in the excel path format.</li>
+<li><strong>tag</strong> (<em>list of str</em>) &#8211; Names of all spreadsheets for which the data shall be returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> &#8211; Data retrieved from the excel file</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict of list of lists</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="hts-plate-data-readout-module">
-<h2>hts.plate_data.readout module<a class="headerlink" href="#hts-plate-data-readout-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate_data.plate_layout">
+<span id="hts-plate-data-plate-layout-module"></span><h2>hts.plate_data.plate_layout module<a class="headerlink" href="#module-hts.plate_data.plate_layout" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The PlateLayout Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.plate_data.plate_layout.PlateLayout">
+<em class="property">class </em><code class="descclassname">hts.plate_data.plate_layout.</code><code class="descname">PlateLayout</code><span class="sig-paren">(</span><em>layout</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_layout.html#PlateLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hts.plate_data.plate_data.PlateData" title="hts.plate_data.plate_data.PlateData"><code class="xref py py-class docutils literal"><span class="pre">hts.plate_data.plate_data.PlateData</span></code></a></p>
+<p><code class="docutils literal"><span class="pre">PlateLayout</span></code> describes all information connected to the plate_data of a
+high throughput screen.</p>
+<p>Vocabulary:
+neg_k: negative control k
+pos_k: positive control k
+s_k: sample k
+All other names may be used, but are not interpreted at current.</p>
+<dl class="attribute">
+<dt id="hts.plate_data.plate_layout.PlateLayout.sample_replicate_count">
+<code class="descname">sample_replicate_count</code><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.sample_replicate_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; (Explain!)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.plate_layout.PlateLayout.layout_general_type">
+<code class="descname">layout_general_type</code><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.layout_general_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of lists</em> &#8211; The plate layout (explain!)</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.plate_data.plate_layout.PlateLayout.create_csv">
+<em class="property">classmethod </em><code class="descname">create_csv</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_layout.html#PlateLayout.create_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.create_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_layout.PlateLayout.invert">
+<code class="descname">invert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_layout.html#PlateLayout.invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an inverted <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.</p>
+<p>Create an inverted <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance.
+The misfortunate experimenter turned the plate by 180 degrees, such that the general plate layout needs
+to be adjusted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.plate_layout.PlateLayout.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_layout.html#PlateLayout.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">PlateLayout</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-hts.plate_data.readout">
+<span id="hts-plate-data-readout-module"></span><h2>hts.plate_data.readout module<a class="headerlink" href="#module-hts.plate_data.readout" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Readout Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.plate_data.readout.Readout">
+<em class="property">class </em><code class="descclassname">hts.plate_data.readout.</code><code class="descname">Readout</code><span class="sig-paren">(</span><em>data</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#hts.plate_data.plate_data.PlateData" title="hts.plate_data.plate_data.PlateData"><code class="xref py py-class docutils literal"><span class="pre">hts.plate_data.plate_data.PlateData</span></code></a></p>
+<p><code class="docutils literal"><span class="pre">Readout</span></code> describes one plate matrix</p>
+<dl class="attribute">
+<dt id="hts.plate_data.readout.Readout.width">
+<code class="descname">width</code><a class="headerlink" href="#hts.plate_data.readout.Readout.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Width of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.readout.Readout.height">
+<code class="descname">height</code><a class="headerlink" href="#hts.plate_data.readout.Readout.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Height of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.readout.Readout.data">
+<code class="descname">data</code><a class="headerlink" href="#hts.plate_data.readout.Readout.data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.array of np.arrays</em> &#8211; A matrix of plate values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.readout.Readout.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create string for Readout instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.readout.Readout.create_envision_csv">
+<code class="descname">create_envision_csv</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.create_envision_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.create_envision_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.readout.Readout.create_insulin_csv">
+<code class="descname">create_insulin_csv</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.create_insulin_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.create_insulin_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate_data.readout.Readout.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Readout</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">Readout</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-hts.plate_data.readout_io">
 <span id="hts-plate-data-readout-io-module"></span><h2>hts.plate_data.readout_io module<a class="headerlink" href="#module-hts.plate_data.readout_io" title="Permalink to this headline">¶</a></h2>
@@ -360,11 +774,11 @@ It may be read in as a .csv file.</p>
 <span class="n">Exported</span> <span class="k">with</span> <span class="n">EnVision</span> <span class="n">Workstation</span> <span class="n">version</span> <span class="n">X</span><span class="o">.</span><span class="n">XX</span> <span class="n">Build</span> <span class="n">X</span>
 </pre></div>
 </div>
-<div class="admonition-todo admonition" id="index-0">
+<div class="admonition-todo admonition" id="index-3">
 <p class="first admonition-title">Todo</p>
 <p class="last">Extract all necessary information</p>
 </div>
-<div class="admonition-todo admonition" id="index-1">
+<div class="admonition-todo admonition" id="index-4">
 <p class="first admonition-title">Todo</p>
 <p class="last">Show correct output format</p>
 </div>
@@ -404,11 +818,11 @@ channel_wise_info (dict of ?): Information per read out table</td>
 <p>...
 [&#8216;Raw Data (450-10/480-10)&#8217;, &#8216;24 h &#8216;, &#8216;92800&#8217;, &#8216;82816&#8217;, &#8216;78852&#8217;, &#8216;24468&#8217;, &#8216;25900&#8217;, &#8216;22324&#8217;, &#8216;20384&#8217;, &#8216;66892&#8217;, &#8216;101476&#8217;, &#8216;85164&#8217;, &#8216;22176&#8217;, &#8216;174492&#8217;, &#8216;39984&#8217;, &#8216;73952&#8217;, &#8216;143660&#8217;, &#8216;70868&#8217;, &#8216;72600&#8217;, &#8216;21304&#8217;, &#8216;24376&#8217;, &#8216;22420&#8217;, &#8216;23348&#8217;, &#8216;22312&#8217;, &#8216;23616&#8217;, &#8216;20420&#8217;, &#8216;85200&#8217;, &#8216;70952&#8217;, &#8216;73548&#8217;, &#8216;69348&#8217;, &#8216;24384&#8217;, &#8216;25488&#8217;, &#8216;24700&#8217;, &#8216;24380&#8217;, &#8216;96772&#8217;, &#8216;50552&#8217;, &#8216;24136&#8217;, &#8216;260000&#8217;, &#8216;23528&#8217;, &#8216;128728&#8217;, &#8216;79116&#8217;, &#8216;73652&#8217;, &#8216;22992&#8217;, &#8216;22748&#8217;, &#8216;24100&#8217;, &#8216;24884&#8217;, &#8216;24032&#8217;, &#8216;21552&#8217;, &#8216;25680&#8217;, &#8216;22408&#8217;, &#8216;73524&#8217;, &#8216;74556&#8217;, &#8216;72456&#8217;, &#8216;93120&#8217;, &#8216;24452&#8217;, &#8216;22868&#8217;, &#8216;21500&#8217;, &#8216;23360&#8217;, &#8216;102440&#8217;, &#8216;85836&#8217;, &#8216;92504&#8217;, &#8216;260000&#8217;, &#8216;81764&#8217;, &#8216;21776&#8217;, &#8216;100372&#8217;, &#8216;78460&#8217;, &#8216;22164&#8217;, &#8216;25028&#8217;, &#8216;23384&#8217;, &#8216;23144&#8217;, &#8216;24036&#8217;, &#8216;23016&#8217;, &#8216;23140&#8217;, &#8216;22312&#8217;, &#8216;74172&#8217;, &#8216;76156&#8217;, &#8216;54784&#8217;, &#8216;48004&#8217;, &#8216;22324&#8217;, &#8216;27640&#8217;, &#8216;23160&#8217;, &#8216;156636&#8217;, &#8216;106144&#8217;, &#8216;88764&#8217;, &#8216;73328&#8217;, &#8216;70260&#8217;, &#8216;23296&#8217;, &#8216;97192&#8217;, &#8216;162224&#8217;, &#8216;91048&#8217;, &#8216;23440&#8217;, &#8216;23356&#8217;, &#8216;22264&#8217;, &#8216;24996&#8217;, &#8216;23776&#8217;, &#8216;23036&#8217;, &#8216;21812&#8217;, &#8216;21800&#8217;, &#8216;90348&#8217;, &#8216;84308&#8217;, &#8216;23584&#8217;, &#8216;63112&#8217;, &#8216;22240&#8217;, &#8216;22876&#8217;, &#8216;22880&#8217;, &#8216;23112&#8217;, &#8216;103736&#8217;, &#8216;89732&#8217;, &#8216;63072&#8217;, &#8216;22548&#8217;, &#8216;82852&#8217;, &#8216;73176&#8217;, &#8216;35872&#8217;, &#8216;76016&#8217;, &#8216;24880&#8217;, &#8216;24264&#8217;, &#8216;22696&#8217;, &#8216;23320&#8217;, &#8216;23920&#8217;, &#8216;22584&#8217;, &#8216;22168&#8217;, &#8216;21840&#8217;, &#8216;74412&#8217;, &#8216;75252&#8217;, &#8216;37532&#8217;, &#8216;71384&#8217;, &#8216;23980&#8217;, &#8216;22852&#8217;, &#8216;23152&#8217;, &#8216;22656&#8217;, &#8216;105296&#8217;, &#8216;92144&#8217;, &#8216;20632&#8217;, &#8216;29200&#8217;, &#8216;23780&#8217;, &#8216;24208&#8217;, &#8216;120060&#8217;, &#8216;79868&#8217;, &#8216;21412&#8217;, &#8216;22828&#8217;, &#8216;22312&#8217;, &#8216;24512&#8217;, &#8216;21984&#8217;, &#8216;21824&#8217;, &#8216;21460&#8217;, &#8216;21696&#8217;, &#8216;95996&#8217;, &#8216;77544&#8217;, &#8216;79152&#8217;, &#8216;24700&#8217;, &#8216;22440&#8217;, &#8216;22000&#8217;, &#8216;22428&#8217;, &#8216;22264&#8217;, &#8216;104392&#8217;, &#8216;154872&#8217;, &#8216;22544&#8217;, &#8216;232136&#8217;, &#8216;21544&#8217;, &#8216;90364&#8217;, &#8216;68496&#8217;, &#8216;73432&#8217;, &#8216;22336&#8217;, &#8216;22000&#8217;, &#8216;22216&#8217;, &#8216;24752&#8217;, &#8216;21292&#8217;, &#8216;23448&#8217;, &#8216;22056&#8217;, &#8216;21480&#8217;, &#8216;103124&#8217;, &#8216;86196&#8217;, &#8216;107096&#8217;, &#8216;95484&#8217;, &#8216;23784&#8217;, &#8216;23884&#8217;, &#8216;22992&#8217;, &#8216;19860&#8217;, &#8216;99912&#8217;, &#8216;90396&#8217;, &#8216;46256&#8217;, &#8216;69084&#8217;, &#8216;24268&#8217;, &#8216;185948&#8217;, &#8216;260000&#8217;, &#8216;72548&#8217;, &#8216;24996&#8217;, &#8216;23960&#8217;, &#8216;24620&#8217;, &#8216;23472&#8217;, &#8216;23204&#8217;, &#8216;23956&#8217;, &#8216;23532&#8217;, &#8216;23268&#8217;, &#8216;110844&#8217;, &#8216;86672&#8217;, &#8216;21496&#8217;, &#8216;61340&#8217;, &#8216;23936&#8217;, &#8216;22656&#8217;, &#8216;22844&#8217;, &#8216;22512&#8217;, &#8216;100960&#8217;, &#8216;101568&#8217;, &#8216;22952&#8217;, &#8216;260000&#8217;, &#8216;23348&#8217;, &#8216;72924&#8217;, &#8216;29148&#8217;, &#8216;78608&#8217;, &#8216;22168&#8217;, &#8216;20440&#8217;, &#8216;23472&#8217;, &#8216;24088&#8217;, &#8216;23968&#8217;, &#8216;21088&#8217;, &#8216;21792&#8217;, &#8216;21124&#8217;, &#8216;106716&#8217;, &#8216;103196&#8217;, &#8216;85308&#8217;, &#8216;21208&#8217;, &#8216;21468&#8217;, &#8216;21860&#8217;, &#8216;22968&#8217;, &#8216;23076&#8217;, &#8216;108668&#8217;, &#8216;107004&#8217;, &#8216;23496&#8217;, &#8216;25536&#8217;, &#8216;20936&#8217;, &#8216;72692&#8217;, &#8216;119792&#8217;, &#8216;80572&#8217;, &#8216;22636&#8217;, &#8216;24564&#8217;, &#8216;23060&#8217;, &#8216;22456&#8217;, &#8216;23328&#8217;, &#8216;22512&#8217;, &#8216;22072&#8217;, &#8216;23936&#8217;, &#8216;95544&#8217;, &#8216;88600&#8217;, &#8216;35492&#8217;, &#8216;94352&#8217;, &#8216;23652&#8217;, &#8216;24104&#8217;, &#8216;24696&#8217;, &#8216;22556&#8217;, &#8216;110020&#8217;, &#8216;75004&#8217;, &#8216;81776&#8217;, &#8216;260000&#8217;, &#8216;22236&#8217;, &#8216;79736&#8217;, &#8216;126644&#8217;, &#8216;82300&#8217;, &#8216;21760&#8217;, &#8216;22452&#8217;, &#8216;21332&#8217;, &#8216;22652&#8217;, &#8216;22180&#8217;, &#8216;22880&#8217;, &#8216;23848&#8217;, &#8216;22664&#8217;, &#8216;139048&#8217;, &#8216;110560&#8217;, &#8216;121972&#8217;, &#8216;86100&#8217;, &#8216;23504&#8217;, &#8216;23412&#8217;, &#8216;24436&#8217;, &#8216;22116&#8217;, &#8216;99472&#8217;, &#8216;98072&#8217;, &#8216;20612&#8217;, &#8216;75236&#8217;, &#8216;92184&#8217;, &#8216;36724&#8217;, &#8216;52132&#8217;, &#8216;77144&#8217;, &#8216;20228&#8217;, &#8216;22136&#8217;, &#8216;22004&#8217;, &#8216;22268&#8217;, &#8216;23948&#8217;, &#8216;22392&#8217;, &#8216;22816&#8217;, &#8216;20148&#8217;, &#8216;68720&#8217;, &#8216;87972&#8217;, &#8216;74404&#8217;, &#8216;23064&#8217;, &#8216;22936&#8217;, &#8216;32204&#8217;, &#8216;23896&#8217;, &#8216;22348&#8217;, &#8216;111532&#8217;, &#8216;108596&#8217;, &#8216;23384&#8217;, &#8216;77400&#8217;, &#8216;22676&#8217;, &#8216;156324&#8217;, &#8216;107708&#8217;, &#8216;76944&#8217;, &#8216;22200&#8217;, &#8216;22560&#8217;, &#8216;23808&#8217;, &#8216;23364&#8217;, &#8216;22672&#8217;, &#8216;20848&#8217;, &#8216;23488&#8217;, &#8216;20760&#8217;, &#8216;151656&#8217;, &#8216;96264&#8217;, &#8216;50708&#8217;, &#8216;89168&#8217;, &#8216;24312&#8217;, &#8216;21336&#8217;, &#8216;21792&#8217;, &#8216;24292&#8217;, &#8216;114804&#8217;, &#8216;82816&#8217;, &#8216;78708&#8217;, &#8216;260000&#8217;, &#8216;23416&#8217;, &#8216;22292&#8217;, &#8216;22464&#8217;, &#8216;76528&#8217;, &#8216;22944&#8217;, &#8216;22496&#8217;, &#8216;23256&#8217;, &#8216;23560&#8217;, &#8216;21752&#8217;, &#8216;21164&#8217;, &#8216;22680&#8217;, &#8216;22224&#8217;, &#8216;71908&#8217;, &#8216;84052&#8217;, &#8216;90484&#8217;, &#8216;21520&#8217;, &#8216;24096&#8217;, &#8216;22804&#8217;, &#8216;25404&#8217;, &#8216;21080&#8217;, &#8216;111256&#8217;, &#8216;113704&#8217;, &#8216;44036&#8217;, &#8216;260000&#8217;, &#8216;23592&#8217;, &#8216;22244&#8217;, &#8216;197724&#8217;, &#8216;80332&#8217;, &#8216;23544&#8217;, &#8216;22212&#8217;, &#8216;23016&#8217;, &#8216;26352&#8217;, &#8216;22480&#8217;, &#8216;21744&#8217;, &#8216;23184&#8217;, &#8216;22024&#8217;, &#8216;74344&#8217;, &#8216;91832&#8217;, &#8216;42572&#8217;, &#8216;80732&#8217;, &#8216;22032&#8217;, &#8216;24688&#8217;, &#8216;21960&#8217;, &#8216;69204&#8217;, &#8216;122800&#8217;, &#8216;82632&#8217;, &#8216;78348&#8217;, &#8216;197916&#8217;, &#8216;44216&#8217;, &#8216;74516&#8217;, &#8216;134416&#8217;, &#8216;76968&#8217;, &#8216;131412&#8217;, &#8216;18012&#8217;, &#8216;22432&#8217;, &#8216;20456&#8217;, &#8216;20400&#8217;, &#8216;22580&#8217;, &#8216;22384&#8217;, &#8216;18788&#8217;]
 [&#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;]</p>
-<div class="admonition-todo admonition" id="index-2">
+<div class="admonition-todo admonition" id="index-5">
 <p class="first admonition-title">Todo</p>
 <p class="last">Extract all necessary information</p>
 </div>
-<div class="admonition-todo admonition" id="index-3">
+<div class="admonition-todo admonition" id="index-6">
 <p class="first admonition-title">Todo</p>
 <p class="last">Show correct output format</p>
 </div>
@@ -448,7 +862,7 @@ channel_wise_info (dict of ?): Information per read out table</td>
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

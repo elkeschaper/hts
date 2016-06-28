@@ -78,6 +78,13 @@
 <li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
 </ul>
@@ -102,12 +109,12 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">hts.data_tasks package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-data-tasks-analysis-module">hts.data_tasks.analysis module</a></li>
+<li><a class="reference internal" href="#module-hts.data_tasks.analysis">hts.data_tasks.analysis module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks.data_normalization">hts.data_tasks.data_normalization module</a></li>
-<li><a class="reference internal" href="#hts-data-tasks-data-tasks-module">hts.data_tasks.data_tasks module</a></li>
-<li><a class="reference internal" href="#hts-data-tasks-qc-detect-data-issues-module">hts.data_tasks.qc_detect_data_issues module</a></li>
+<li><a class="reference internal" href="#module-hts.data_tasks.data_tasks">hts.data_tasks.data_tasks module</a></li>
+<li><a class="reference internal" href="#module-hts.data_tasks.qc_detect_data_issues">hts.data_tasks.qc_detect_data_issues module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks.qc_knitr">hts.data_tasks.qc_knitr module</a></li>
-<li><a class="reference internal" href="#hts-data-tasks-qc-matplotlib-module">hts.data_tasks.qc_matplotlib module</a></li>
+<li><a class="reference internal" href="#module-hts.data_tasks.qc_matplotlib">hts.data_tasks.qc_matplotlib module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks">Module contents</a></li>
 </ul>
 </li>
@@ -149,8 +156,30 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-data-tasks-analysis-module">
-<h2>hts.data_tasks.analysis module<a class="headerlink" href="#hts-data-tasks-analysis-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.data_tasks.analysis">
+<span id="hts-data-tasks-analysis-module"></span><h2>hts.data_tasks.analysis module<a class="headerlink" href="#module-hts.data_tasks.analysis" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">analysis</span></code> implements all methods connected to the</td>
+</tr>
+</tbody>
+</table>
+<p>analysis of a high throughput screening experiment</p>
+<dl class="function">
+<dt id="hts.data_tasks.analysis.filter">
+<code class="descclassname">hts.data_tasks.analysis.</code><code class="descname">filter</code><span class="sig-paren">(</span><em>data</em>, <em>readout_tag</em>, <em>plates</em>, <em>sample_type</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/analysis.html#filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.analysis.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.analysis.perform_prion_fitting">
+<code class="descclassname">hts.data_tasks.analysis.</code><code class="descname">perform_prion_fitting</code><span class="sig-paren">(</span><em>run</em>, <em>tag</em>, <em>path</em>, <em>write_data=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/analysis.html#perform_prion_fitting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.analysis.perform_prion_fitting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform prion fitting</p>
+<p>Perform prion fitting</p>
+<p>..todo:: Add methods</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-hts.data_tasks.data_normalization">
 <span id="hts-data-tasks-data-normalization-module"></span><h2>hts.data_tasks.data_normalization module<a class="headerlink" href="#module-hts.data_tasks.data_normalization" title="Permalink to this headline">¶</a></h2>
@@ -174,11 +203,50 @@
 <dd></dd></dl>
 
 </div>
-<div class="section" id="hts-data-tasks-data-tasks-module">
-<h2>hts.data_tasks.data_tasks module<a class="headerlink" href="#hts-data-tasks-data-tasks-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.data_tasks.data_tasks">
+<span id="hts-data-tasks-data-tasks-module"></span><h2>hts.data_tasks.data_tasks module<a class="headerlink" href="#module-hts.data_tasks.data_tasks" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="hts.data_tasks.data_tasks.perform_task">
+<code class="descclassname">hts.data_tasks.data_tasks.</code><code class="descname">perform_task</code><span class="sig-paren">(</span><em>run</em>, <em>task_name</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/data_tasks.html#perform_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.data_tasks.perform_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="hts-data-tasks-qc-detect-data-issues-module">
-<h2>hts.data_tasks.qc_detect_data_issues module<a class="headerlink" href="#hts-data-tasks-qc-detect-data-issues-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.data_tasks.qc_detect_data_issues">
+<span id="hts-data-tasks-qc-detect-data-issues-module"></span><h2>hts.data_tasks.qc_detect_data_issues module<a class="headerlink" href="#module-hts.data_tasks.qc_detect_data_issues" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">qc_detect_data_issues</span></code> implements methods to apply specified thresholds, and declare data that does not</td>
+</tr>
+</tbody>
+</table>
+<p>comply with this cut-offs, either in terms of a Run instance with truncated data, or a Data issue file.</p>
+<dl class="function">
+<dt id="hts.data_tasks.qc_detect_data_issues.detect_low_cell_viability">
+<code class="descclassname">hts.data_tasks.qc_detect_data_issues.</code><code class="descname">detect_low_cell_viability</code><span class="sig-paren">(</span><em>run</em>, <em>control_readout_tag</em>, <em>control_sample_type</em>, <em>controlled_sample_types</em>, <em>data_issue_tag</em>, <em>path</em>, <em>alpha=0.05</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_detect_data_issues.html#detect_low_cell_viability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_detect_data_issues.detect_low_cell_viability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect which wells suffer from low cell viability by too strong divergence of a base value.
+As a practical example, RealTime-Glo measurements are performed for all wells. Sample wells that deviate &gt; x
+from nominal control wells are considered to have &#8220;issues&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>run</strong> (<a class="reference internal" href="hts.run.html#hts.run.run.Run" title="hts.run.run.Run"><em>run.Run</em></a>) &#8211; A Run instance.</li>
+<li><strong>control_readout_tag</strong> (<em>str</em>) &#8211; Tag of the control experiment readout (e.g. RealTime-Glo)</li>
+<li><strong>control_sample_type</strong> (<em>str</em>) &#8211; sample_type used as control.</li>
+<li><strong>controlled_sample_types</strong> (<em>list of str</em>) &#8211; sample_types that will be evaluated in reference to <cite>control_sample_type</cite></li>
+<li><strong>data_issue_tag</strong> (<em>str</em>) &#8211; Tag of the data issue data that is created.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to data issue result file.</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; Significance level for Real-TimeGlo cut-off.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-hts.data_tasks.qc_knitr">
 <span id="hts-data-tasks-qc-knitr-module"></span><h2>hts.data_tasks.qc_knitr module<a class="headerlink" href="#module-hts.data_tasks.qc_knitr" title="Permalink to this headline">¶</a></h2>
@@ -211,7 +279,7 @@ qc_knitr implements knitr specific methods.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>run</strong> (<em>run.Run</em>) &#8211; Run instance</li>
+<li><strong>run</strong> (<a class="reference internal" href="hts.run.html#hts.run.run.Run" title="hts.run.run.Run"><em>run.Run</em></a>) &#8211; Run instance</li>
 <li><strong>path</strong> (<em>str</em>) &#8211; Path to the resulting qc report file.</li>
 <li><strong>(dict of str</strong> (<em>methods</em>) &#8211; (dict of str: stuff)): A dictionary connecting an abitrary name of each qc method to a
 dictionary containing the description (function name, filters, ... for the qc method.)</li>
@@ -356,8 +424,78 @@ In the same regard, one could rename &#8220;verbosity&#8221; to &#8220;options&#
 <dd></dd></dl>
 
 </div>
-<div class="section" id="hts-data-tasks-qc-matplotlib-module">
-<h2>hts.data_tasks.qc_matplotlib module<a class="headerlink" href="#hts-data-tasks-qc-matplotlib-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.data_tasks.qc_matplotlib">
+<span id="hts-data-tasks-qc-matplotlib-module"></span><h2>hts.data_tasks.qc_matplotlib module<a class="headerlink" href="#module-hts.data_tasks.qc_matplotlib" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">quality_control</span></code> implements all methods connected to the</td>
+</tr>
+</tbody>
+</table>
+<p>quality control of a high throughput screening experiment
+qc_matplotlib implements matplotlib specific methods.</p>
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.create_report">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">create_report</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#create_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.create_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods is expected by run.Run .
+Todo: Needs implementation if Matplotlib reports are required.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.heat_map_multiple">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">heat_map_multiple</code><span class="sig-paren">(</span><em>run</em>, <em>data_tag</em>, <em>result_file=None</em>, <em>n_plates_max=10</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#heat_map_multiple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.heat_map_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<p>Create a heat_map for multiple readouts</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.heat_map_multiple_gaussian_process_model">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">heat_map_multiple_gaussian_process_model</code><span class="sig-paren">(</span><em>run</em>, <em>kernel_tag</em>, <em>result_file=None</em>, <em>magnification=5</em>, <em>n_plates_max=10</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#heat_map_multiple_gaussian_process_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.heat_map_multiple_gaussian_process_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<p>Create a heat_map for multiple readouts</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.heat_map_single">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">heat_map_single</code><span class="sig-paren">(</span><em>run</em>, <em>data_tag</em>, <em>plate_tag</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#heat_map_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.heat_map_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for a single plate</p>
+<p>Create a heat_map for a single plate</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.heat_map_single_gaussian_process_model">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">heat_map_single_gaussian_process_model</code><span class="sig-paren">(</span><em>run</em>, <em>data_tag_readout</em>, <em>sample_tag</em>, <em>plate_tag</em>, <em>magnification=5</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#heat_map_single_gaussian_process_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.heat_map_single_gaussian_process_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<blockquote>
+<div>Create a heat_map for multiple readouts</div></blockquote>
+<dl class="docutils">
+<dt>model_as_gaussian_process(self, data_tag_readout, sample_key,</dt>
+<dd>kernel_type=&#8217;m32&#8217;,
+n_max_iterations=1000,
+plot_kwargs=False,</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.slice_multiple_gaussian_process_model">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">slice_multiple_gaussian_process_model</code><span class="sig-paren">(</span><em>run</em>, <em>data_tag_readout</em>, <em>sample_tag</em>, <em>result_file=None</em>, <em>slice=5</em>, <em>n_plates_max=10</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#slice_multiple_gaussian_process_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.slice_multiple_gaussian_process_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<p>Create a heat_map for multiple readouts</p>
+<p># Currently: using Plotly.
+# Perhaps, matplotlib.axes._subplots.AxesSubplot can be integrated with Matplotlib&#8217;s AxesGrid as above.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.data_tasks.qc_matplotlib.slice_single_gaussian_process_model">
+<code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">slice_single_gaussian_process_model</code><span class="sig-paren">(</span><em>run</em>, <em>data_tag_readout</em>, <em>sample_tag</em>, <em>plate_tag</em>, <em>slice=5</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#slice_single_gaussian_process_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.slice_single_gaussian_process_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a heat_map for multiple readouts</p>
+<p>Create a heat_map for multiple readouts</p>
+<p># Currently: using Plotly.
+# Perhaps, matplotlib.axes._subplots.AxesSubplot can be integrated with Matplotlib&#8217;s AxesGrid as above.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-hts.data_tasks">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.data_tasks" title="Permalink to this headline">¶</a></h2>
@@ -377,7 +515,7 @@ In the same regard, one could rename &#8220;verbosity&#8221; to &#8220;options&#
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>
 </footer>

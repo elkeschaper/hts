@@ -1,0 +1,190 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "raw_mimetype": "text/markdown"
+   },
+   "source": [
+    "# Tutorial: Create a Quality control report\n",
+    "\n",
+    "`HTS` automatically generates Quality control reports, with a large number of diverse quality control statistics and plots currently implemented.\n",
+    "\n",
+    "For reporting `HTS` uses [the R library Knitr](http://yihui.name/knitr/). \n",
+    "Knitr allows for output as .html and .pdf (default: .html).\n",
+    "\n",
+    "To comply with `reproducible research` standards, code, data and reports are all provided in one result folder.\n",
+    "\n",
+    "\n",
+    "Follow this tutorial to learn how to create a versatile Quality control report for your data with `HTS`:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": false
+   },
+   "source": [
+    "### Create a `protocol_config` file.\n",
+    "\n",
+    "The `protocoll config` defines standardized procedures that are run on all of your `run_config` files. It is based on [configobj](https://configobj.readthedocs.io/) (see [specifications](https://configobj.readthedocs.io/en/latest/configobj.html#the-config-file-format)).\n",
+    "\n",
+    "Follow the [protocol_config](../config.rst) tutorial, or download [protocoll config template](../tutorial_data/protocol_template_1.txt), or simply create an empty textfile for your protocol.\n",
+    "\n",
+    "### Add Quality control instructions to the `protocol_config` .\n",
+    "\n",
+    "In this simple example, only two quality control plots are defined:\n",
+    "```\n",
+    "[My personalized Quality control report]\n",
+    "    tags = qc, foo, bar\n",
+    "    method = qc_knitr.create_report\n",
+    "    title = This is my favorite Quality control report\n",
+    "    resultfile_tag = my_quality_control\n",
+    "    [[1. Plate layout]]\n",
+    "        method = plate_layout\n",
+    "        text = \"You may add an explanatory text here.\"\n",
+    "    [[2. My readout]]\n",
+    "        method = heat_map\n",
+    "        text = \"You may add an explanatory text here.\"\n",
+    "        [[[knitr_options]]]\n",
+    "            options = \"fig.height=7\"\n",
+    "        [[[filter]]]\n",
+    "            y = my_signal\n",
+    "            [[[[sample_type]]]]\n",
+    "                values = s, pos, neg\n",
+    "                is_negated = False\n",
+    "            [[[[sample]]]]\n",
+    "                values = pos_1\n",
+    "                is_negated = True\n",
+    "```\n",
+    "\n",
+    "Every quality control plot consists of at least a **unique** name and the `method` definition.\n",
+    "An explanatory `text` may be defined.\n",
+    "```\n",
+    "    [[2. My readout]]\n",
+    "        method = heat_map\n",
+    "        text = \"You may add an explanatory text here.\"\n",
+    "```\n",
+    "\n",
+    "See a [list of all currently implemented Quality controls [here](hts/hts.data_tasks.html#module-hts.data_tasks.qc_knitr).\n",
+    "\n",
+    "\n",
+    "All options used in knitr chunks may be set:\n",
+    "```\n",
+    "        [[[knitr_options]]]\n",
+    "            options = \"fig.height=7\"\n",
+    "```\n",
+    "\n",
+    "Also, the quality control may be run on a filtered set of the data only:\n",
+    "For example, to do the quality control only on positive control 0 (pos_0) and on samples, you may add:\n",
+    "```\n",
+    "            [[[[sample_type]]]]\n",
+    "                values = pos, s\n",
+    "                is_negated = False\n",
+    "            [[[[sample]]]]\n",
+    "                values = pos_1\n",
+    "                is_negated = True\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "raw_mimetype": "text/markdown"
+   },
+   "source": [
+    "### Connect your high-throughput screening data set to the `protocol_config`.\n",
+    "\n",
+    "Create [a run config](load_data__tutorial.ipynb) for your data.\n",
+    "\n",
+    "First, connect the `run_config` to the `protocol_config` that contains the QC instructions by adding these lines:\n",
+    "```\n",
+    "# Connect the run config data to the protocol config:\n",
+    "[protocol]\n",
+    "    path = local/path/to/protocol.csv\n",
+    "    format = config\n",
+    "```\n",
+    "\n",
+    "Then, define where the Quality control reports are saved for this data set, by adding:\n",
+    "```\n",
+    "[My personalized Quality control report]\n",
+    "    qc_result_path = QC/20160418_siRNA_BeiValeria/\n",
+    "```\n",
+    "\n",
+    "\n",
+    ".. note::\n",
+    "\n",
+    "    * The name of the quality control tags in `procol_config` and `run_config` (Here: *My personalized Quality control report*) need to match.\n",
+    "\n",
+    "\n",
+    "### Create the Quality control report: Example \n",
+    "We will use a prepared test data set."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{}"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# %matplotlib inline is only necessary in inline mode\n",
+    "%matplotlib inline\n",
+    "import logging\n",
+    "import os\n",
+    "\n",
+    "from hts.data_tasks import qc_matplotlib\n",
+    "from hts.run.run import Run\n",
+    "from hts.paths import TUTORIAL_QC_PATH\n",
+    "\n",
+    "logging.basicConfig(level=logging.ERROR)\n",
+    "config_path = TUTORIAL_QC_PATH\n",
+    "\n",
+    "run = Run.create(path=config_path, origin=\"config\")\n",
+    "\n",
+    "run.qc()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    " `run.qc()` invokes all protocol tasks tagged with `qc`. You can add an arbitrary number of tasks to the procol file, tag them and invoke them with `run.do_task(tag=\"my_tag\")`."
+   ]
+  }
+ ],
+ "metadata": {
+  "celltoolbar": "Raw Cell Format",
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
