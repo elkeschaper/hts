@@ -5,9 +5,9 @@ Installation
 ============
 
 
-We recommend to install HTS in a (virtual environment)[http://docs.python-guide.org/en/latest/dev/virtualenvs/].
+We recommend to install HTS in a `virtual environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
-HTS uses (GPy)[http://sheffieldml.github.io/GPy/] for Gaussian process normalization. GPy itself requires numpy at setup time::
+HTS uses `GPy <http://sheffieldml.github.io/GPy/>`_ for Gaussian process normalization. GPy itself requires numpy at setup time::
 
     $ pip install numpy
 
@@ -18,7 +18,7 @@ With pip (or pip3) configured for Python3, you can install the latest version of
     $ pip install git+https://github.com/elkeschaper/hts.git
 
 
-GPy is under constant development, and it might be useful to deinstall the PyPi version installed by default, and instead install the (latest develop version)[https://github.com/SheffieldML/GPy]::
+GPy is under constant development, and it might be useful to deinstall the PyPi version installed by default, and instead install the `latest develop version <https://github.com/SheffieldML/GPy>`_::
 
      $ pip install git+https://github.com/SheffieldML/GPy.git
 
