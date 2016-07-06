@@ -55,7 +55,7 @@ setup(
         #"docutils >= 0.12", # Uncomment if you wish to create the documentation locally.
         "matplotlib>=1.5.0",
         "numpy >= 1.6.1",
-        "pandas >= 1.11.0",
+        "pandas >= 0.18.0",
         #"pypandoc >= 1.1.3" # Uncomment if you wish to convert the markdown readme to a rest readme for upload on Pypi.
         #"pytest >= 2.8.3", # Uncomment if you wish to run the tests locally.
         "scipy >=0.17.1",
