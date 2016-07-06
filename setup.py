@@ -53,7 +53,6 @@ setup(
     install_requires=[
         "configobj >= 5.0.6",
         #"docutils >= 0.12", # Uncomment if you wish to create the documentation locally.
-        "GPy==1.0.9",
         "matplotlib>=1.5.0",
         "numpy >= 1.6.1",
         "pandas >= 1.11.0",
@@ -62,6 +61,7 @@ setup(
         "scipy >=0.17.1",
         #"Sphinx >= 1.3.3", # Uncomment if you wish to create the documentation locally.
         "xlrd>=0.9.4",
+        "GPy==1.0.9",
     ],
     # package_data: None-module files, which should still be distributed are mentioned here:
 
