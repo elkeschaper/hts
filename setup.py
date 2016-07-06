@@ -53,15 +53,15 @@ setup(
     install_requires=[
         "configobj >= 5.0.6",
         #"docutils >= 0.12", # Uncomment if you wish to create the documentation locally.
-        "matplotlib>=1.5.0",
+        "GPy >= 1.0.9",  # GPy requires numpy during installation.
+        "matplotlib >= 1.5.0",
         "numpy >= 1.6.1",
         "pandas >= 0.18.0",
         #"pypandoc >= 1.1.3" # Uncomment if you wish to convert the markdown readme to a rest readme for upload on Pypi.
         #"pytest >= 2.8.3", # Uncomment if you wish to run the tests locally.
-        "scipy >=0.17.1",
+        "scipy >= 0.17.1",
         #"Sphinx >= 1.3.3", # Uncomment if you wish to create the documentation locally.
-        "xlrd>=0.9.4",
-        "GPy==1.0.9",
+        "xlrd >= 0.9.4",
     ],
     # package_data: None-module files, which should still be distributed are mentioned here:
 
