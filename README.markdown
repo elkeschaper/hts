@@ -1,12 +1,6 @@
-# High throughput screening
+# HTS: High-Throughput Screening
 
-HTS is a flexible sequence high throughput screening Python3 library.
-
-  - IO
-  - Mapping
-  - QC
-  - ?
-
+HTS is a Python3 library to streamline I/O, QC and Analysis of high-throughput screening data.
 The source code is [documented on GitHub IO].
 
 ### Version
@@ -15,23 +9,26 @@ The source code is [documented on GitHub IO].
 
 ### Installation
 
-HTS is not available on [Pypi] yet.
+We recommend to install HTS in a [virtual environment].
+With pip (or pip3) configured for Python3, you can install the latest version of HTS directly from Github:
+
 
 ```sh
-$ pip install hts
+$ pip install git+https://github.com/elkeschaper/hts.git
 ```
 
 
 
 ### License
 
-[Not chosen]
+GPL
 
 
 ### Dependencies
 
-None declared
+Python libraries only.
 
 
 [documented on GitHub IO]:http://elkeschaper.github.io/hts/
 [Pypi]:https://pypi.python.org/pypi
+[virtual environment]:http://docs.python-guide.org/en/latest/dev/virtualenvs/
