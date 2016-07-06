@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>hts.data_tasks.qc_knitr &mdash; HTS 0.0.0 documentation</title>
+    <title>hts.data_tasks.qc_knitr &mdash; HTS 0.0.1 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.0.0',
+        VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="HTS 0.0.0 documentation" href="../../../index.html" />
+    <link rel="top" title="HTS 0.0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -520,6 +520,15 @@
     <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span></div>
 
 
+<div class="viewcode-block" id="heat_map_mark_conditionally"><a class="viewcode-back" href="../../../hts.data_tasks.html#hts.data_tasks.qc_knitr.heat_map_mark_conditionally">[docs]</a><span class="k">def</span> <span class="nf">heat_map_mark_conditionally</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="s2">&quot;y&lt;=-10&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">):</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">Heatmap of well wise values with values below {cond} marked in {color}.&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="o">=</span><span class="n">condition</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="n">calculation</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">tile_plot_x1x2x3_mark_conditionally(d, &quot;y&quot;, FALSE, &quot;{cond}&quot;, &quot;{color}&quot;)&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="o">=</span><span class="n">condition</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">description</span><span class="p">,</span> <span class="n">calculation</span></div>
+
 
 <div class="viewcode-block" id="kolmogorov_smirnov"><a class="viewcode-back" href="../../../hts.data_tasks.html#hts.data_tasks.qc_knitr.kolmogorov_smirnov">[docs]</a><span class="k">def</span> <span class="nf">kolmogorov_smirnov</span><span class="p">():</span>
     <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
@@ -834,7 +843,7 @@
       
     </p>
     <p>
-        &copy; Copyright 2016, Elke Schaper.<br/>
+        &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
     </p>
   </div>

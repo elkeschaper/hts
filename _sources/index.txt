@@ -9,6 +9,7 @@ High Throughput Screening Library - beta version
 HTS streamlines I/O, QC and Analysis of High Throughput Screening data.
 `Code base on GitHub. <https://github.com/elkeschaper/hts>`_
 
+:ref:`Intro to the HTS data model: When is it useful, and when not.<model>`
 
 
 Configuration
