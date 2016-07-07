@@ -216,7 +216,6 @@ class Run:
                         if type(item) == str and key.endswith("path") or key == "filepath_or_buffer":
                             item = os.path.join(base_path, item)
                             node[key] = item
-                        print(node[key])
 
             walk_configobj_and_add_basepath(config)
 
