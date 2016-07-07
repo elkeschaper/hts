@@ -1,24 +1,20 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
 
 """
-    :synopsis: The PlateLayout Class.
+    :synopsis: The ``PlateLayout`` Class.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
+
 
 import itertools
 import logging
 import numpy as np
-import os
-import pickle
-import re
 
 from hts.plate_data import plate_data_io
 from hts.plate_data import plate_data
 
 LOG = logging.getLogger(__name__)
-
-
 
 
 class PlateLayout(plate_data.PlateData):
@@ -34,7 +30,7 @@ class PlateLayout(plate_data.PlateData):
 
     Attributes:
         sample_replicate_count (str): (Explain!)
-        layout_general_type (list of lists): The plate layout (explain!)
+        layout_general_type (list of lists): The plate layout
 
     """
 
@@ -80,27 +76,3 @@ class PlateLayout(plate_data.PlateData):
         inverted_layout = [[j for j in i[::-1]] for i in self.data["layout"][::-1]]
         return PlateLayout(name="{}_inverted".format(self.name), data={"layout": inverted_layout})
 
-
-    def write(self, format, path=None, return_string=None, *args):
-        """ Serialize and write ``PlateLayout`` instances.
-
-        Serialize ``PlateLayout`` instance using the stated ``format``.
-
-        Args:
-            format (str):  The output format: Currently only "pickle".
-            path (str): Path to output file
-
-        .. todo:: Write checks for ``format`` and ``path``.
-        """
-
-        if format == 'pickle':
-            with open(path, 'wb') as fh:
-                pickle.dump(self, fh)
-        else:
-            raise Exception('Format is unknown: {}'.format(format))
-
-        if path:
-            with open(path, 'w') as fh:
-                fh.write(output)
-        if return_string:
-            return output

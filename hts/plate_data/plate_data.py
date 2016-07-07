@@ -1,22 +1,21 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
 
 """
-    :synopsis: The PlateData Class.
+    :synopsis: The ``PlateData`` Class.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
+
 
 import itertools
 import os
 import logging
 import pickle
 import string
-import sys
 
 from hts.plate_data import plate_data_io
 
 LOG = logging.getLogger(__name__)
-
 
 PLATE_LETTERS = list(string.ascii_uppercase) + ["".join(i) for i in itertools.product(string.ascii_uppercase, string.ascii_uppercase)]
 
@@ -31,6 +30,7 @@ class PlateData:
         width (int): Width of the plate
         height (int): Height of the plate
         data (dict of lists of lists): A dict of same-sized matrices with arbitrary data
+        tags (list of str): List of tags for each PlateData instance.
 
     """
 
@@ -128,12 +128,43 @@ class PlateData:
 
 
     @classmethod
-    def create_excel(cls, path, name, tag=None, type=None, **kwargs):
-        # This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
+    def create_excel_multiple_plates_per_file(cls, path, name, tag=None, type=None, **kwargs):
+        """
+        This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)
+
+        Args:
+            path (str): path is the name of the particular excel sheet retrieved for the current plate.
+            name:
+            tag:
+            type:
+            **kwargs: Kwargs contains "file", which is the path to the the excel file.
+
+        Returns:
+            PlateData instance
+        """
         tags = [path]
         path = kwargs.pop("file")
         data = plate_data_io.read_excel(path=path, tags=tags, **kwargs)
         return cls(name=name, data=data, tag=tag, type=type)
+
+    @classmethod
+    def create_excel(cls, path, name, tag=None, type=None, **kwargs):
+        """
+        In one excel file, the data for one plate is covered.
+        Currently, all sheets in the excel file are used.
+
+        Args:
+            path (str): The path to the excel sheet.
+            name:
+            tag:
+            type:
+            **kwargs:
+
+        Returns:
+            PlateData instance
+        """
+        data = plate_data_io.read_excel(path=path, **kwargs)
+        return cls(name=name, data=data, tag=tag) # , type=type
 
 
     @classmethod
@@ -145,7 +176,16 @@ class PlateData:
     @classmethod
     def create_from_coordinate_tuple_dict(cls, data, width, height, **kwargs):
         """
-        data is a dict: {tag: {(i_row, i_col): datum}}.
+        Create a Plate data instance from information in a dict.
+
+        Args:
+            data (dict): {tag: {(i_row, i_col): datum}}.
+            width: The width of the plate
+            height: The height of the plate
+            **kwargs:
+
+        Returns:
+            PlateData instance
         """
         plate_data = {}
         for tag, tag_data in data.items():
@@ -153,8 +193,32 @@ class PlateData:
         return cls(data=plate_data, **kwargs)
 
 
-    def write(self, *args, **kwargs):
-        raise NotImplementedError('Implement write()')
+    def write(self, format, path=None, tag=None, return_string=None, *args):
+        """ Serialize and write ``PlateData`` instances.
+
+        Serialize ``PlateData`` instance using the stated ``format``.
+
+        Args:
+            format (str):  The output format: Currently only csv, pickle.
+            path (str): Path to output file
+
+        .. todo:: Write checks for ``format`` and ``path``.
+        """
+
+        if format == 'pickle':
+            with open(path, 'wb') as fh:
+                pickle.dump(self, fh)
+        elif format == "csv":
+            with open(path, 'w') as fh:
+                for row in self.data[tag]:
+                    fh.write(",".join([str(datum) for datum in row]) + "\n")
+        else:
+            raise NotImplementedError('Format is unknown: {}'.format(format))
+
+        if return_string:
+            raise NotImplementedError('Implement method for return_string')
+
+
 
 
     def add_data(self, data, tag=None):
@@ -171,9 +235,15 @@ class PlateData:
 
 
     def get_data(self, data_tag):
+        """
+        Args:
+            data_tag (str): The data_tag for which to retrieve a the data.
 
+        Returns: A matrix or lists of list (width x height) of data.
+
+        """
         if data_tag not in self.data:
-            raise Exception("data_tag {} not in self.data: {}".format(data_tag, sorted(self.data.keys())))
+            raise Exception("Cannot retrieve data with data_tag {}: not in self.data: {}".format(data_tag, sorted(self.data.keys())))
 
         return self.data[data_tag]
 

@@ -1,15 +1,13 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT
 
 """
     :synopsis: Input/output for plate data.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 import csv
 import logging
-import os
-import re
 import xlrd
 
 LOG = logging.getLogger(__name__)
@@ -18,9 +16,18 @@ LOG = logging.getLogger(__name__)
 
 
 def read_csv(file, delimiter=",", remove_empty_row=True):
-    """Read plate data file in csv format.
+    """
+    Read plate data file in csv format.
 
     The arrangement in the .csv file corresponds exactly to the plate layout.
+
+    Args:
+        file: Path to the .csv file.
+        delimiter: delimiter of the .csv file.
+        remove_empty_row: If True, ignore lines with no content.
+
+    Returns:
+        data (dict of list of lists): Data retrieved from the excel file
     """
 
     with open(file, 'r') as fh:
