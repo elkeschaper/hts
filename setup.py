@@ -64,6 +64,6 @@ setup(
         "xlrd >= 0.9.4",
     ],
     # package_data: None-module files, which should still be distributed are mentioned here:
-    package_data={"hts": ["hts/data_tasks/*.R"],},
+    package_data={"hts": ["data_tasks/*.R"],},
     package_dir={"hts": "hts"},
 )
