@@ -7,7 +7,7 @@
 import logging
 import sys
 
-from hts.data_tasks import analysis, data_normalization, data_normalization, gaussian_processes, qc_detect_data_issues, qc_knitr, qc_matplotlib
+from hts.data_tasks import data_normalization, data_normalization, dpia_analysis, gaussian_processes, qc_detect_data_issues, qc_knitr, qc_matplotlib
 
 LOG = logging.getLogger(__name__)
 
