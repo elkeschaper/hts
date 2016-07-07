@@ -4,7 +4,7 @@
     :synopsis: ``data_normalization`` implements methods connected to the
     readout normalization of a high throughput screening experiment
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 

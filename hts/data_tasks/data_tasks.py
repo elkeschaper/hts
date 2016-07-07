@@ -1,3 +1,9 @@
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
+
+"""
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
+"""
+
 import logging
 import sys
 

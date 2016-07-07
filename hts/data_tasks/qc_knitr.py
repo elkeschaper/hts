@@ -5,7 +5,7 @@
     quality control of a high throughput screening experiment.
     qc_knitr implements knitr specific methods.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 import collections
@@ -375,6 +375,15 @@ tile_plot_x1x2x3_mark_conditionally(d, "y", FALSE, "{cond}", "{color}")'''.forma
 
     return description, calculation
 
+
+def heat_map_mark_conditionally(condition="y<=-10", color="white"):
+    description = '''
+Heatmap of well wise values with values below {cond} marked in {color}.'''.format(cond=condition, color=color)
+
+    calculation = '''
+tile_plot_x1x2x3_mark_conditionally(d, "y", FALSE, "{cond}", "{color}")'''.format(cond=condition, color=color)
+
+    return description, calculation
 
 
 def kolmogorov_smirnov():

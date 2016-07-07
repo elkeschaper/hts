@@ -1,11 +1,9 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT.ch
 
 """
-    :synopsis: ``quality_control`` implementes all methods connected to the
-    quality control of a high throughput screening experiment
-    qc_matplotlib implements matplotlib specific methods.
+    :synopsis: ``qc_matplotlib`` implements common plots to visualise HTS data available on the fly.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 import itertools
@@ -13,9 +11,9 @@ import logging
 import math
 import matplotlib
 
-matplotlib.use('pdf')
-import matplotlib.pyplot as plt
+#matplotlib.use('pdf')
 from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import AxesGrid
 import numpy as np
 

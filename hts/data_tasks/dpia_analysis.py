@@ -1,10 +1,10 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
 
 """
     :synopsis: ``analysis`` implements all methods connected to the
-    analysis of a high throughput screening experiment
+    analysis of dpia high throughput screening experiments.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 import configobj
@@ -12,11 +12,12 @@ import logging
 import os
 import sys
 
-from fit.model import Model
-#from fit.model_dpia_linear_ml import ModelDPIAML
+try:
+    from fit.model import Model
+    #from fit.model_dpia_linear_ml import ModelDPIAML
+except:
+    logging.debug("dPIA-related fit library is not available")
 
-from hts.plate import plate
-from hts.plate_data import readout
 
 LOG = logging.getLogger(__name__)
 

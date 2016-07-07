@@ -1,3 +1,12 @@
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
+
+"""
+    :synopsis: ``gaussian_processes`` implements classes and methods connecting HTS data with the GPy library
+    to enable modeling the data and doing predictions with Gaussian processes.
+
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
+"""
+
 import logging
 from distutils.util import strtobool
 

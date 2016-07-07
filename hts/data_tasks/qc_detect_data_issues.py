@@ -1,10 +1,10 @@
-# (C) 2015 Elke Schaper
+# (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics
 
 """
     :synopsis: ``qc_detect_data_issues`` implements methods to apply specified thresholds, and declare data that does not
     comply with this cut-offs, either in terms of a Run instance with truncated data, or a Data issue file.
 
-    .. moduleauthor:: Elke Schaper <elke.schaper@isb-sib.ch>
+    .. moduleauthor:: Elke Schaper <elke.schaper@sib.swiss>
 """
 
 import logging
