@@ -142,25 +142,24 @@
     <div class="col-md-12 content">
       
   <h1>Source code for hts.plate_data.plate_data</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) 2015 Elke Schaper</span>
+<span></span><span class="c1"># (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :synopsis: The PlateData Class.</span>
+<span class="sd">    :synopsis: The ``PlateData`` Class.</span>
 
-<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@sib.swiss&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="kn">import</span> <span class="n">plate_data_io</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
 
 <span class="n">PLATE_LETTERS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)]</span>
 
@@ -175,6 +174,7 @@
 <span class="sd">        width (int): Width of the plate</span>
 <span class="sd">        height (int): Height of the plate</span>
 <span class="sd">        data (dict of lists of lists): A dict of same-sized matrices with arbitrary data</span>
+<span class="sd">        tags (list of str): List of tags for each PlateData instance.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -273,8 +273,19 @@
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PlateData.create_excel_multiple_plates_per_file"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.create_excel_multiple_plates_per_file">[docs]</a>    <span class="k">def</span> <span class="nf">create_excel_multiple_plates_per_file</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)</span>
-        <span class="c1"># This code is currently not used in run.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): path is the name of the particular excel sheet retrieved for the current plate.</span>
+<span class="sd">            name:</span>
+<span class="sd">            tag:</span>
+<span class="sd">            type:</span>
+<span class="sd">            **kwargs: Kwargs contains &quot;file&quot;, which is the path to the the excel file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PlateData instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">plate_data_io</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -282,7 +293,20 @@
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PlateData.create_excel"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.create_excel">[docs]</a>    <span class="k">def</span> <span class="nf">create_excel</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># &quot;One file per plate.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In one excel file, the data for one plate is covered.</span>
+<span class="sd">        Currently, all sheets in the excel file are used.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): The path to the excel sheet.</span>
+<span class="sd">            name:</span>
+<span class="sd">            tag:</span>
+<span class="sd">            type:</span>
+<span class="sd">            **kwargs:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PlateData instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">plate_data_io</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span> <span class="c1"># , type=type</span></div>
 
@@ -296,7 +320,16 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PlateData.create_from_coordinate_tuple_dict"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.create_from_coordinate_tuple_dict">[docs]</a>    <span class="k">def</span> <span class="nf">create_from_coordinate_tuple_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        data is a dict: {tag: {(i_row, i_col): datum}}.</span>
+<span class="sd">        Create a Plate data instance from information in a dict.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): {tag: {(i_row, i_col): datum}}.</span>
+<span class="sd">            width: The width of the plate</span>
+<span class="sd">            height: The height of the plate</span>
+<span class="sd">            **kwargs:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PlateData instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plate_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">tag_data</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -304,8 +337,32 @@
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">plate_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="PlateData.write"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Implement write()&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PlateData.write"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_string</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Serialize and write ``PlateData`` instances.</span>
+
+<span class="sd">        Serialize ``PlateData`` instance using the stated ``format``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            format (str):  The output format: Currently only csv, pickle.</span>
+<span class="sd">            path (str): Path to output file</span>
+
+<span class="sd">        .. todo:: Write checks for ``format`` and ``path``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s1">&#39;pickle&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">]:</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">row</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Format is unknown: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">format</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">return_string</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Implement method for return_string&#39;</span><span class="p">)</span></div>
+
+
 
 
 <div class="viewcode-block" id="PlateData.add_data"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -322,9 +379,15 @@
 
 
 <div class="viewcode-block" id="PlateData.get_data"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data.PlateData.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag (str): The data_tag for which to retrieve a the data.</span>
 
+<span class="sd">        Returns: A matrix or lists of list (width x height) of data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;data_tag {} not in self.data: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Cannot retrieve data with data_tag {}: not in self.data: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">data_tag</span><span class="p">]</span></div>
 

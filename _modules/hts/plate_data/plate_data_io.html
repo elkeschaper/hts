@@ -160,9 +160,18 @@
 
 
 <div class="viewcode-block" id="read_csv"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_data_io.read_csv">[docs]</a><span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">remove_empty_row</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read plate data file in csv format.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read plate data file in csv format.</span>
 
 <span class="sd">    The arrangement in the .csv file corresponds exactly to the plate layout.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file: Path to the .csv file.</span>
+<span class="sd">        delimiter: delimiter of the .csv file.</span>
+<span class="sd">        remove_empty_row: If True, ignore lines with no content.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        data (dict of list of lists): Data retrieved from the excel file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>

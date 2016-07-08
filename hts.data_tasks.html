@@ -111,7 +111,7 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">hts.data_tasks package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-hts.data_tasks.analysis">hts.data_tasks.analysis module</a></li>
+<li><a class="reference internal" href="#hts-data-tasks-analysis-module">hts.data_tasks.analysis module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks.data_normalization">hts.data_tasks.data_normalization module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks.data_tasks">hts.data_tasks.data_tasks module</a></li>
 <li><a class="reference internal" href="#module-hts.data_tasks.qc_detect_data_issues">hts.data_tasks.qc_detect_data_issues module</a></li>
@@ -158,30 +158,8 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-hts.data_tasks.analysis">
-<span id="hts-data-tasks-analysis-module"></span><h2>hts.data_tasks.analysis module<a class="headerlink" href="#module-hts.data_tasks.analysis" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">analysis</span></code> implements all methods connected to the</td>
-</tr>
-</tbody>
-</table>
-<p>analysis of a high throughput screening experiment</p>
-<dl class="function">
-<dt id="hts.data_tasks.analysis.filter">
-<code class="descclassname">hts.data_tasks.analysis.</code><code class="descname">filter</code><span class="sig-paren">(</span><em>data</em>, <em>readout_tag</em>, <em>plates</em>, <em>sample_type</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/analysis.html#filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.analysis.filter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="hts.data_tasks.analysis.perform_prion_fitting">
-<code class="descclassname">hts.data_tasks.analysis.</code><code class="descname">perform_prion_fitting</code><span class="sig-paren">(</span><em>run</em>, <em>tag</em>, <em>path</em>, <em>write_data=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/analysis.html#perform_prion_fitting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.analysis.perform_prion_fitting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform prion fitting</p>
-<p>Perform prion fitting</p>
-<p>..todo:: Add methods</p>
-</dd></dl>
-
+<div class="section" id="hts-data-tasks-analysis-module">
+<h2>hts.data_tasks.analysis module<a class="headerlink" href="#hts-data-tasks-analysis-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-hts.data_tasks.data_normalization">
 <span id="hts-data-tasks-data-normalization-module"></span><h2>hts.data_tasks.data_normalization module<a class="headerlink" href="#module-hts.data_tasks.data_normalization" title="Permalink to this headline">¶</a></h2>
@@ -437,12 +415,10 @@ In the same regard, one could rename &#8220;verbosity&#8221; to &#8220;options&#
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">quality_control</span></code> implements all methods connected to the</td>
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body"><code class="docutils literal"><span class="pre">qc_matplotlib</span></code> implements common plots to visualise HTS data available on the fly.</td>
 </tr>
 </tbody>
 </table>
-<p>quality control of a high throughput screening experiment
-qc_matplotlib implements matplotlib specific methods.</p>
 <dl class="function">
 <dt id="hts.data_tasks.qc_matplotlib.create_report">
 <code class="descclassname">hts.data_tasks.qc_matplotlib.</code><code class="descname">create_report</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/data_tasks/qc_matplotlib.html#create_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.data_tasks.qc_matplotlib.create_report" title="Permalink to this definition">¶</a></dt>

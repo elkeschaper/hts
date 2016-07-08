@@ -23,15 +23,23 @@ GPy is under constant development, and it might be useful to deinstall the PyPi 
      $ pip install git+https://github.com/SheffieldML/GPy.git
 
 
-Once HTS is available on Pypi, try::
-
-    $ pip install hts
-
-
-
 
 Now you can import hts in your Python3 project::
 
     import hts
+
+
+
+For creating .html or .pdf reports with HTS, install `R <https://www.r-project.org/>`_ and the R package `Knitr <http://yihui.name/knitr/>`_.
+Next, make sure that Rscript is accessible from the command line::
+
+    $ which Rscript
+
+
+
+
+
+
+
 
 

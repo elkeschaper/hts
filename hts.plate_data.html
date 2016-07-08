@@ -206,29 +206,6 @@ high throughput screen.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="hts.plate_data.data_issue.DataIssue.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>tag=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/data_issue.html#DataIssue.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.data_issue.DataIssue.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and write <code class="docutils literal"><span class="pre">DataIssue</span></code> instances.</p>
-<p>Serialize <code class="docutils literal"><span class="pre">DataIssue</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -247,7 +224,7 @@ high throughput screen.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The PlateData Class.</td>
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The <code class="docutils literal"><span class="pre">PlateData</span></code> Class.</td>
 </tr>
 </tbody>
 </table>
@@ -273,6 +250,12 @@ high throughput screen.</p>
 <dt id="hts.plate_data.plate_data.PlateData.data">
 <code class="descname">data</code><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.data" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict of lists of lists</em> &#8211; A dict of same-sized matrices with arbitrary data</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate_data.plate_data.PlateData.tags">
+<code class="descname">tags</code><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em> &#8211; List of tags for each PlateData instance.</p>
 </dd></dl>
 
 <dl class="method">
@@ -319,17 +302,73 @@ high throughput screen.</p>
 <dl class="classmethod">
 <dt id="hts.plate_data.plate_data.PlateData.create_excel">
 <em class="property">classmethod </em><code class="descname">create_excel</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_excel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_excel" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>In one excel file, the data for one plate is covered.
+Currently, all sheets in the excel file are used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; The path to the excel sheet.</li>
+<li><strong>name</strong> &#8211; </li>
+<li><strong>tag</strong> &#8211; </li>
+<li><strong>type</strong> &#8211; </li>
+<li><strong>**kwargs</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">PlateData instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="hts.plate_data.plate_data.PlateData.create_excel_multiple_plates_per_file">
 <em class="property">classmethod </em><code class="descname">create_excel_multiple_plates_per_file</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_excel_multiple_plates_per_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_excel_multiple_plates_per_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This is a hack, such that information for multiple plates can be retrieved from a single plate (see run.py)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; path is the name of the particular excel sheet retrieved for the current plate.</li>
+<li><strong>name</strong> &#8211; </li>
+<li><strong>tag</strong> &#8211; </li>
+<li><strong>type</strong> &#8211; </li>
+<li><strong>**kwargs</strong> &#8211; Kwargs contains &#8220;file&#8221;, which is the path to the the excel file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">PlateData instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="hts.plate_data.plate_data.PlateData.create_from_coordinate_tuple_dict">
 <em class="property">classmethod </em><code class="descname">create_from_coordinate_tuple_dict</code><span class="sig-paren">(</span><em>data</em>, <em>width</em>, <em>height</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.create_from_coordinate_tuple_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.create_from_coordinate_tuple_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>data is a dict: {tag: {(i_row, i_col): datum}}.</p>
+<dd><p>Create a Plate data instance from information in a dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<em>dict</em>) &#8211; {tag: {(i_row, i_col): datum}}.</li>
+<li><strong>width</strong> &#8211; The width of the plate</li>
+<li><strong>height</strong> &#8211; The height of the plate</li>
+<li><strong>**kwargs</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">PlateData instance</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
@@ -340,7 +379,16 @@ high throughput screen.</p>
 <dl class="method">
 <dt id="hts.plate_data.plate_data.PlateData.get_data">
 <code class="descname">get_data</code><span class="sig-paren">(</span><em>data_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.get_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_tag</strong> (<em>str</em>) &#8211; The data_tag for which to retrieve a the data.</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: A matrix or lists of list (width x height) of data.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="hts.plate_data.plate_data.PlateData.get_values">
@@ -390,8 +438,26 @@ If <cite>value_type</cite> is set, check if all values conform with <cite>value_
 
 <dl class="method">
 <dt id="hts.plate_data.plate_data.PlateData.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.write" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>tag=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data.html#PlateData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data.PlateData.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">PlateData</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">PlateData</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only csv, pickle.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
 
 </dd></dl>
 
@@ -411,6 +477,25 @@ If <cite>value_type</cite> is set, check if all values conform with <cite>value_
 <code class="descclassname">hts.plate_data.plate_data_io.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em>, <em>delimiter='</em>, <em>'</em>, <em>remove_empty_row=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_data_io.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_data_io.read_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read plate data file in csv format.</p>
 <p>The arrangement in the .csv file corresponds exactly to the plate layout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file</strong> &#8211; Path to the .csv file.</li>
+<li><strong>delimiter</strong> &#8211; delimiter of the .csv file.</li>
+<li><strong>remove_empty_row</strong> &#8211; If True, ignore lines with no content.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> &#8211; Data retrieved from the excel file</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict of list of lists</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -447,7 +532,7 @@ check of the content of the sheet, nor of its size is currently performed.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The PlateLayout Class.</td>
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The <code class="docutils literal"><span class="pre">PlateLayout</span></code> Class.</td>
 </tr>
 </tbody>
 </table>
@@ -471,7 +556,7 @@ All other names may be used, but are not interpreted at current.</p>
 <dl class="attribute">
 <dt id="hts.plate_data.plate_layout.PlateLayout.layout_general_type">
 <code class="descname">layout_general_type</code><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.layout_general_type" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list of lists</em> &#8211; The plate layout (explain!)</p>
+<dd><p><em>list of lists</em> &#8211; The plate layout</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -488,29 +573,6 @@ The misfortunate experimenter turned the plate by 180 degrees, such that the gen
 to be adjusted.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="hts.plate_data.plate_layout.PlateLayout.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/plate_layout.html#PlateLayout.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.plate_layout.PlateLayout.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and write <code class="docutils literal"><span class="pre">PlateLayout</span></code> instances.</p>
-<p>Serialize <code class="docutils literal"><span class="pre">PlateLayout</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -520,7 +582,7 @@ to be adjusted.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Readout Class.</td>
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The <code class="docutils literal"><span class="pre">Readout</span></code> Class.</td>
 </tr>
 </tbody>
 </table>
@@ -562,29 +624,6 @@ to be adjusted.</p>
 <dt id="hts.plate_data.readout.Readout.create_insulin_csv">
 <code class="descname">create_insulin_csv</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>tag=None</em>, <em>type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.create_insulin_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.create_insulin_csv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="hts.plate_data.readout.Readout.write">
-<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate_data/readout.html#Readout.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate_data.readout.Readout.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Readout</span></code> instances.</p>
-<p>Serialize <code class="docutils literal"><span class="pre">Readout</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) &#8211; The output format: Currently only &#8220;pickle&#8221;.</li>
-<li><strong>path</strong> (<em>str</em>) &#8211; Path to output file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="index-2">
-<p class="first admonition-title">Todo</p>
-<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
-</div>
-</dd></dl>
 
 </dd></dl>
 
@@ -781,11 +820,11 @@ It may be read in as a .csv file.</p>
 <span class="n">Exported</span> <span class="k">with</span> <span class="n">EnVision</span> <span class="n">Workstation</span> <span class="n">version</span> <span class="n">X</span><span class="o">.</span><span class="n">XX</span> <span class="n">Build</span> <span class="n">X</span>
 </pre></div>
 </div>
-<div class="admonition-todo admonition" id="index-3">
+<div class="admonition-todo admonition" id="index-1">
 <p class="first admonition-title">Todo</p>
 <p class="last">Extract all necessary information</p>
 </div>
-<div class="admonition-todo admonition" id="index-4">
+<div class="admonition-todo admonition" id="index-2">
 <p class="first admonition-title">Todo</p>
 <p class="last">Show correct output format</p>
 </div>
@@ -825,11 +864,11 @@ channel_wise_info (dict of ?): Information per read out table</td>
 <p>...
 [&#8216;Raw Data (450-10/480-10)&#8217;, &#8216;24 h &#8216;, &#8216;92800&#8217;, &#8216;82816&#8217;, &#8216;78852&#8217;, &#8216;24468&#8217;, &#8216;25900&#8217;, &#8216;22324&#8217;, &#8216;20384&#8217;, &#8216;66892&#8217;, &#8216;101476&#8217;, &#8216;85164&#8217;, &#8216;22176&#8217;, &#8216;174492&#8217;, &#8216;39984&#8217;, &#8216;73952&#8217;, &#8216;143660&#8217;, &#8216;70868&#8217;, &#8216;72600&#8217;, &#8216;21304&#8217;, &#8216;24376&#8217;, &#8216;22420&#8217;, &#8216;23348&#8217;, &#8216;22312&#8217;, &#8216;23616&#8217;, &#8216;20420&#8217;, &#8216;85200&#8217;, &#8216;70952&#8217;, &#8216;73548&#8217;, &#8216;69348&#8217;, &#8216;24384&#8217;, &#8216;25488&#8217;, &#8216;24700&#8217;, &#8216;24380&#8217;, &#8216;96772&#8217;, &#8216;50552&#8217;, &#8216;24136&#8217;, &#8216;260000&#8217;, &#8216;23528&#8217;, &#8216;128728&#8217;, &#8216;79116&#8217;, &#8216;73652&#8217;, &#8216;22992&#8217;, &#8216;22748&#8217;, &#8216;24100&#8217;, &#8216;24884&#8217;, &#8216;24032&#8217;, &#8216;21552&#8217;, &#8216;25680&#8217;, &#8216;22408&#8217;, &#8216;73524&#8217;, &#8216;74556&#8217;, &#8216;72456&#8217;, &#8216;93120&#8217;, &#8216;24452&#8217;, &#8216;22868&#8217;, &#8216;21500&#8217;, &#8216;23360&#8217;, &#8216;102440&#8217;, &#8216;85836&#8217;, &#8216;92504&#8217;, &#8216;260000&#8217;, &#8216;81764&#8217;, &#8216;21776&#8217;, &#8216;100372&#8217;, &#8216;78460&#8217;, &#8216;22164&#8217;, &#8216;25028&#8217;, &#8216;23384&#8217;, &#8216;23144&#8217;, &#8216;24036&#8217;, &#8216;23016&#8217;, &#8216;23140&#8217;, &#8216;22312&#8217;, &#8216;74172&#8217;, &#8216;76156&#8217;, &#8216;54784&#8217;, &#8216;48004&#8217;, &#8216;22324&#8217;, &#8216;27640&#8217;, &#8216;23160&#8217;, &#8216;156636&#8217;, &#8216;106144&#8217;, &#8216;88764&#8217;, &#8216;73328&#8217;, &#8216;70260&#8217;, &#8216;23296&#8217;, &#8216;97192&#8217;, &#8216;162224&#8217;, &#8216;91048&#8217;, &#8216;23440&#8217;, &#8216;23356&#8217;, &#8216;22264&#8217;, &#8216;24996&#8217;, &#8216;23776&#8217;, &#8216;23036&#8217;, &#8216;21812&#8217;, &#8216;21800&#8217;, &#8216;90348&#8217;, &#8216;84308&#8217;, &#8216;23584&#8217;, &#8216;63112&#8217;, &#8216;22240&#8217;, &#8216;22876&#8217;, &#8216;22880&#8217;, &#8216;23112&#8217;, &#8216;103736&#8217;, &#8216;89732&#8217;, &#8216;63072&#8217;, &#8216;22548&#8217;, &#8216;82852&#8217;, &#8216;73176&#8217;, &#8216;35872&#8217;, &#8216;76016&#8217;, &#8216;24880&#8217;, &#8216;24264&#8217;, &#8216;22696&#8217;, &#8216;23320&#8217;, &#8216;23920&#8217;, &#8216;22584&#8217;, &#8216;22168&#8217;, &#8216;21840&#8217;, &#8216;74412&#8217;, &#8216;75252&#8217;, &#8216;37532&#8217;, &#8216;71384&#8217;, &#8216;23980&#8217;, &#8216;22852&#8217;, &#8216;23152&#8217;, &#8216;22656&#8217;, &#8216;105296&#8217;, &#8216;92144&#8217;, &#8216;20632&#8217;, &#8216;29200&#8217;, &#8216;23780&#8217;, &#8216;24208&#8217;, &#8216;120060&#8217;, &#8216;79868&#8217;, &#8216;21412&#8217;, &#8216;22828&#8217;, &#8216;22312&#8217;, &#8216;24512&#8217;, &#8216;21984&#8217;, &#8216;21824&#8217;, &#8216;21460&#8217;, &#8216;21696&#8217;, &#8216;95996&#8217;, &#8216;77544&#8217;, &#8216;79152&#8217;, &#8216;24700&#8217;, &#8216;22440&#8217;, &#8216;22000&#8217;, &#8216;22428&#8217;, &#8216;22264&#8217;, &#8216;104392&#8217;, &#8216;154872&#8217;, &#8216;22544&#8217;, &#8216;232136&#8217;, &#8216;21544&#8217;, &#8216;90364&#8217;, &#8216;68496&#8217;, &#8216;73432&#8217;, &#8216;22336&#8217;, &#8216;22000&#8217;, &#8216;22216&#8217;, &#8216;24752&#8217;, &#8216;21292&#8217;, &#8216;23448&#8217;, &#8216;22056&#8217;, &#8216;21480&#8217;, &#8216;103124&#8217;, &#8216;86196&#8217;, &#8216;107096&#8217;, &#8216;95484&#8217;, &#8216;23784&#8217;, &#8216;23884&#8217;, &#8216;22992&#8217;, &#8216;19860&#8217;, &#8216;99912&#8217;, &#8216;90396&#8217;, &#8216;46256&#8217;, &#8216;69084&#8217;, &#8216;24268&#8217;, &#8216;185948&#8217;, &#8216;260000&#8217;, &#8216;72548&#8217;, &#8216;24996&#8217;, &#8216;23960&#8217;, &#8216;24620&#8217;, &#8216;23472&#8217;, &#8216;23204&#8217;, &#8216;23956&#8217;, &#8216;23532&#8217;, &#8216;23268&#8217;, &#8216;110844&#8217;, &#8216;86672&#8217;, &#8216;21496&#8217;, &#8216;61340&#8217;, &#8216;23936&#8217;, &#8216;22656&#8217;, &#8216;22844&#8217;, &#8216;22512&#8217;, &#8216;100960&#8217;, &#8216;101568&#8217;, &#8216;22952&#8217;, &#8216;260000&#8217;, &#8216;23348&#8217;, &#8216;72924&#8217;, &#8216;29148&#8217;, &#8216;78608&#8217;, &#8216;22168&#8217;, &#8216;20440&#8217;, &#8216;23472&#8217;, &#8216;24088&#8217;, &#8216;23968&#8217;, &#8216;21088&#8217;, &#8216;21792&#8217;, &#8216;21124&#8217;, &#8216;106716&#8217;, &#8216;103196&#8217;, &#8216;85308&#8217;, &#8216;21208&#8217;, &#8216;21468&#8217;, &#8216;21860&#8217;, &#8216;22968&#8217;, &#8216;23076&#8217;, &#8216;108668&#8217;, &#8216;107004&#8217;, &#8216;23496&#8217;, &#8216;25536&#8217;, &#8216;20936&#8217;, &#8216;72692&#8217;, &#8216;119792&#8217;, &#8216;80572&#8217;, &#8216;22636&#8217;, &#8216;24564&#8217;, &#8216;23060&#8217;, &#8216;22456&#8217;, &#8216;23328&#8217;, &#8216;22512&#8217;, &#8216;22072&#8217;, &#8216;23936&#8217;, &#8216;95544&#8217;, &#8216;88600&#8217;, &#8216;35492&#8217;, &#8216;94352&#8217;, &#8216;23652&#8217;, &#8216;24104&#8217;, &#8216;24696&#8217;, &#8216;22556&#8217;, &#8216;110020&#8217;, &#8216;75004&#8217;, &#8216;81776&#8217;, &#8216;260000&#8217;, &#8216;22236&#8217;, &#8216;79736&#8217;, &#8216;126644&#8217;, &#8216;82300&#8217;, &#8216;21760&#8217;, &#8216;22452&#8217;, &#8216;21332&#8217;, &#8216;22652&#8217;, &#8216;22180&#8217;, &#8216;22880&#8217;, &#8216;23848&#8217;, &#8216;22664&#8217;, &#8216;139048&#8217;, &#8216;110560&#8217;, &#8216;121972&#8217;, &#8216;86100&#8217;, &#8216;23504&#8217;, &#8216;23412&#8217;, &#8216;24436&#8217;, &#8216;22116&#8217;, &#8216;99472&#8217;, &#8216;98072&#8217;, &#8216;20612&#8217;, &#8216;75236&#8217;, &#8216;92184&#8217;, &#8216;36724&#8217;, &#8216;52132&#8217;, &#8216;77144&#8217;, &#8216;20228&#8217;, &#8216;22136&#8217;, &#8216;22004&#8217;, &#8216;22268&#8217;, &#8216;23948&#8217;, &#8216;22392&#8217;, &#8216;22816&#8217;, &#8216;20148&#8217;, &#8216;68720&#8217;, &#8216;87972&#8217;, &#8216;74404&#8217;, &#8216;23064&#8217;, &#8216;22936&#8217;, &#8216;32204&#8217;, &#8216;23896&#8217;, &#8216;22348&#8217;, &#8216;111532&#8217;, &#8216;108596&#8217;, &#8216;23384&#8217;, &#8216;77400&#8217;, &#8216;22676&#8217;, &#8216;156324&#8217;, &#8216;107708&#8217;, &#8216;76944&#8217;, &#8216;22200&#8217;, &#8216;22560&#8217;, &#8216;23808&#8217;, &#8216;23364&#8217;, &#8216;22672&#8217;, &#8216;20848&#8217;, &#8216;23488&#8217;, &#8216;20760&#8217;, &#8216;151656&#8217;, &#8216;96264&#8217;, &#8216;50708&#8217;, &#8216;89168&#8217;, &#8216;24312&#8217;, &#8216;21336&#8217;, &#8216;21792&#8217;, &#8216;24292&#8217;, &#8216;114804&#8217;, &#8216;82816&#8217;, &#8216;78708&#8217;, &#8216;260000&#8217;, &#8216;23416&#8217;, &#8216;22292&#8217;, &#8216;22464&#8217;, &#8216;76528&#8217;, &#8216;22944&#8217;, &#8216;22496&#8217;, &#8216;23256&#8217;, &#8216;23560&#8217;, &#8216;21752&#8217;, &#8216;21164&#8217;, &#8216;22680&#8217;, &#8216;22224&#8217;, &#8216;71908&#8217;, &#8216;84052&#8217;, &#8216;90484&#8217;, &#8216;21520&#8217;, &#8216;24096&#8217;, &#8216;22804&#8217;, &#8216;25404&#8217;, &#8216;21080&#8217;, &#8216;111256&#8217;, &#8216;113704&#8217;, &#8216;44036&#8217;, &#8216;260000&#8217;, &#8216;23592&#8217;, &#8216;22244&#8217;, &#8216;197724&#8217;, &#8216;80332&#8217;, &#8216;23544&#8217;, &#8216;22212&#8217;, &#8216;23016&#8217;, &#8216;26352&#8217;, &#8216;22480&#8217;, &#8216;21744&#8217;, &#8216;23184&#8217;, &#8216;22024&#8217;, &#8216;74344&#8217;, &#8216;91832&#8217;, &#8216;42572&#8217;, &#8216;80732&#8217;, &#8216;22032&#8217;, &#8216;24688&#8217;, &#8216;21960&#8217;, &#8216;69204&#8217;, &#8216;122800&#8217;, &#8216;82632&#8217;, &#8216;78348&#8217;, &#8216;197916&#8217;, &#8216;44216&#8217;, &#8216;74516&#8217;, &#8216;134416&#8217;, &#8216;76968&#8217;, &#8216;131412&#8217;, &#8216;18012&#8217;, &#8216;22432&#8217;, &#8216;20456&#8217;, &#8216;20400&#8217;, &#8216;22580&#8217;, &#8216;22384&#8217;, &#8216;18788&#8217;]
 [&#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;, &#8216;&#8217;]</p>
-<div class="admonition-todo admonition" id="index-5">
+<div class="admonition-todo admonition" id="index-3">
 <p class="first admonition-title">Todo</p>
 <p class="last">Extract all necessary information</p>
 </div>
-<div class="admonition-todo admonition" id="index-6">
+<div class="admonition-todo admonition" id="index-4">
 <p class="first admonition-title">Todo</p>
 <p class="last">Show correct output format</p>
 </div>

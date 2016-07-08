@@ -142,27 +142,23 @@
     <div class="col-md-12 content">
       
   <h1>Source code for hts.plate_data.plate_layout</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) 2015 Elke Schaper</span>
+<span></span><span class="c1"># (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :synopsis: The PlateLayout Class.</span>
+<span class="sd">    :synopsis: The ``PlateLayout`` Class.</span>
 
-<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@sib.swiss&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="kn">import</span> <span class="n">plate_data_io</span>
 <span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="kn">import</span> <span class="n">plate_data</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-
 
 
 <div class="viewcode-block" id="PlateLayout"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_layout.PlateLayout">[docs]</a><span class="k">class</span> <span class="nc">PlateLayout</span><span class="p">(</span><span class="n">plate_data</span><span class="o">.</span><span class="n">PlateData</span><span class="p">):</span>
@@ -178,7 +174,7 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        sample_replicate_count (str): (Explain!)</span>
-<span class="sd">        layout_general_type (list of lists): The plate layout (explain!)</span>
+<span class="sd">        layout_general_type (list of lists): The plate layout</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -222,32 +218,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">inverted_layout</span> <span class="o">=</span> <span class="p">[[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="n">PlateLayout</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;{}_inverted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="n">inverted_layout</span><span class="p">})</span></div>
+        <span class="k">return</span> <span class="n">PlateLayout</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;{}_inverted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="n">inverted_layout</span><span class="p">})</span></div></div>
 
-
-<div class="viewcode-block" id="PlateLayout.write"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.plate_layout.PlateLayout.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_string</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Serialize and write ``PlateLayout`` instances.</span>
-
-<span class="sd">        Serialize ``PlateLayout`` instance using the stated ``format``.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            format (str):  The output format: Currently only &quot;pickle&quot;.</span>
-<span class="sd">            path (str): Path to output file</span>
-
-<span class="sd">        .. todo:: Write checks for ``format`` and ``path``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s1">&#39;pickle&#39;</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Format is unknown: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">format</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">return_string</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">output</span></div></div>
 </pre></div>
 
     </div>

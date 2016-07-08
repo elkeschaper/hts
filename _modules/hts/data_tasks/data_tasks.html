@@ -142,10 +142,16 @@
     <div class="col-md-12 content">
       
   <h1>Source code for hts.data_tasks.data_tasks</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="c1"># (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@sib.swiss&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="kn">import</span> <span class="n">analysis</span><span class="p">,</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">gaussian_processes</span><span class="p">,</span> <span class="n">qc_detect_data_issues</span><span class="p">,</span> <span class="n">qc_knitr</span><span class="p">,</span> <span class="n">qc_matplotlib</span>
+<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="kn">import</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">dpia_analysis</span><span class="p">,</span> <span class="n">gaussian_processes</span><span class="p">,</span> <span class="n">qc_detect_data_issues</span><span class="p">,</span> <span class="n">qc_knitr</span><span class="p">,</span> <span class="n">qc_matplotlib</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
