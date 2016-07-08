@@ -30,13 +30,24 @@ Now you can import hts in your Python3 project::
 
 
 
-For creating .html or .pdf reports with HTS, install `R <https://www.r-project.org/>`_ and the R package `Knitr <http://yihui.name/knitr/>`_.
-Next, make sure that Rscript is accessible from the command line::
+For creating .html or .pdf reports with HTS, install `R <https://www.r-project.org/>`_. Make sure that Rscript is accessible from the command line::
 
     $ which Rscript
 
 
+Next, within R, install these R packages::
 
+    install.packages("ggplot2");
+    install.packages("grid");
+    install.packages("knitr");
+    install.packages("MASS);
+    install.packages("plyr");
+    install.packages("RColorBrewer");
+    install.packages("scales");
+
+
+
+We use `Knitr <http://yihui.name/knitr/>`_ to create the reports from R snippets.
 
 
 
