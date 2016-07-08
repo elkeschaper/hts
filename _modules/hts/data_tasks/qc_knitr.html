@@ -255,9 +255,11 @@
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i_qc_knitr</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">knit_html</span><span class="p">:</span>
+        <span class="c1"># See http://stackoverflow.com/questions/32183333/what-is-a-neat-command-line-equivalent-to-rstudios-knit-html</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Rscript -e &#39;library(rmarkdown); rmarkdown::render(&quot;{}&quot;, &quot;html_document&quot;)&#39;&quot;&quot;&quot;</span>
         <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_knitr_file</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="c1"># ToDo: Add checks that the .html result file got created.</span>
 
     <span class="k">return</span> <span class="bp">None</span></div>
 
@@ -315,8 +317,7 @@
 <span class="s2"># rm(list = ls(all = TRUE))</span>
 <span class="s2"># gc()</span>
 <span class="s2">source(&quot;{}&quot;)</span>
-<span class="s2">library(reshape2)</span>
-<span class="s2">require(gridExtra)&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">R_HELPER_METHODS</span><span class="p">)</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">R_HELPER_METHODS</span><span class="p">)</span>
     <span class="n">environment</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">wrap_knitr_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="o">=</span><span class="n">environment_commands</span><span class="p">,</span> <span class="n">chunk_name</span><span class="o">=</span><span class="s2">&quot;set_environment&quot;</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                                           <span class="n">evaluate</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
