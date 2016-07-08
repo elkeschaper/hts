@@ -43,11 +43,7 @@ Next, within R, install these R packages::
     install.packages("gridExtra");
     install.packages("knitr");
     install.packages("MASS);
-    install.packages("plyr");
-    install.packages("RColorBrewer");
-    install.packages("reshape2");
     install.packages("rmarkdown");
-    install.packages("scales");
 
 
 
