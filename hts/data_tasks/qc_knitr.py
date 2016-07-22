@@ -111,9 +111,11 @@ def create_report(run, path, methods, force, config_data=None, knit_html=True, r
             fh.write(i_qc_knitr + "\n\n")
 
     if knit_html:
+        # See http://stackoverflow.com/questions/32183333/what-is-a-neat-command-line-equivalent-to-rstudios-knit-html
         command = """Rscript -e 'library(rmarkdown); rmarkdown::render("{}", "html_document")'"""
         command = command.format(path_knitr_file)
         os.system(command)
+        # ToDo: Add checks that the .html result file got created.
 
     return None
 
@@ -171,8 +173,7 @@ output: "{output}"
 # rm(list = ls(all = TRUE))
 # gc()
 source("{}")
-library(reshape2)
-require(gridExtra)""".format(R_HELPER_METHODS)
+""".format(R_HELPER_METHODS)
     environment = "\n" + wrap_knitr_chunk(chunk=environment_commands, chunk_name="set_environment", echo=False,
                                           evaluate=True)
 

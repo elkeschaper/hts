@@ -1,4 +1,4 @@
-library(ggplot2); library(scales); library(grid); library(RColorBrewer); library("plyr"); library(MASS)
+library(ggplot2); library(scales); library(RColorBrewer); library(plyr); library(MASS); library(reshape2); library(gridExtra);
 
 # Pretty, but not perfect in case of red-green blindness:
 #colors = c("darkblue", "blue", "turquoise", "green", "yellow", "red", "darkred")
