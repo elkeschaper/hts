@@ -8,7 +8,7 @@ The who's who of HTS.
 
 People
 ------
-- `Marc Emmenegger <http://www.neuroscience.ethz.ch/research/disorders_nervous_system/aguzzi>`_
+- `Marc Emmenegger <http://www.neuropathologie.usz.ch/ueber-die-klinik/Seiten/team.aspx>`_
 - `Nicolas Guex <http://www.vital-it.ch/about/team.php?role=4>`_
 - `Georg Meisl <http://www-knowles.ch.cam.ac.uk/group.php>`_
 - `Elke Schaper <http://www.inf.ethz.ch/personal/eschaper/>`_
