@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>hts.plate.plate &#8212; HTS 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/hts_logo.png"></span>
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../examples.html">Examples</a></li>
+                <li><a href="http://example.com">Link</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for hts.plate.plate</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) 2015, 2016 Elke Schaper</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :synopsis: The Plate Class.</span>
+
+<span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@isb-sib.ch&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">import</span> <span class="nn">GPy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pylab</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+
+<span class="kn">import</span> <span class="nn">hts.data_tasks.gaussian_processes</span>
+<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">prediction</span>
+<span class="kn">from</span> <span class="nn">hts.plate_data</span> <span class="k">import</span> <span class="n">plate_data</span><span class="p">,</span> <span class="n">data_issue</span><span class="p">,</span> <span class="n">meta_data</span><span class="p">,</span> <span class="n">plate_layout</span><span class="p">,</span> <span class="n">readout</span>
+
+<span class="n">KNOWN_DATA_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="s2">&quot;data_issue&quot;</span><span class="p">,</span> <span class="s2">&quot;config_data&quot;</span><span class="p">]</span>
+<span class="n">LETTERS</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                          <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">)]</span>
+<span class="n">MAX_WIDTH</span> <span class="o">=</span> <span class="mi">48</span>
+<span class="n">MAX_HEIGHT</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">TRANSLATE_HUMANREADABLE_COORDINATE</span> <span class="o">=</span> <span class="p">{(</span><span class="n">LETTERS</span><span class="p">[</span><span class="n">cc</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span> <span class="n">cc</span> <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span>
+                                      <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_HEIGHT</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_WIDTH</span><span class="p">))}</span>
+<span class="n">TRANSLATE_COORDINATE_HUMANREADABLE</span> <span class="o">=</span> <span class="p">{</span><span class="n">cc</span><span class="p">:</span> <span class="p">(</span><span class="n">LETTERS</span><span class="p">[</span><span class="n">cc</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span>
+                                      <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">MAX_HEIGHT</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_WIDTH</span><span class="p">))}</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1">## TODO: Instead of creating a matrix for both coordinates, simply create a list each to safe memory.</span>
+
+<div class="viewcode-block" id="translate_coordinate_humanreadable"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.translate_coordinate_humanreadable">[docs]</a><span class="k">def</span> <span class="nf">translate_coordinate_humanreadable</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">coordinate_human</span> <span class="o">=</span> <span class="n">TRANSLATE_COORDINATE_HUMANREADABLE</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pattern</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordinate_human</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">coordinate_human</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coordinate_human</span></div>
+
+
+<div class="viewcode-block" id="translate_humanreadable_coordinate"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.translate_humanreadable_coordinate">[docs]</a><span class="k">def</span> <span class="nf">translate_humanreadable_coordinate</span><span class="p">(</span><span class="n">humanreadable</span><span class="p">):</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;([a-zA-Z]+)0*(\d+)&#39;</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">humanreadable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;pattern: </span><span class="si">{}</span><span class="s2"> did not match </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">humanreadable</span><span class="p">))</span>
+    <span class="n">humanreadable</span> <span class="o">=</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">TRANSLATE_HUMANREADABLE_COORDINATE</span><span class="p">[</span><span class="n">humanreadable</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Plate"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate">[docs]</a><span class="k">class</span> <span class="nc">Plate</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; ``Plate`` describes all information connected to the readout_dict</span>
+<span class="sd">    of a high throughput screen. This could be either several readouts of a</span>
+<span class="sd">    plate, or the same plate across several plates.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): Name of the plate</span>
+<span class="sd">        width (int): Width of the plate</span>
+<span class="sd">        height (int): Height of the plate</span>
+<span class="sd">        KNOWN_DATA_TYPES[i] (subclass of plate_data.PlateData): The data associated to this Plate, e.g. a plate layout,</span>
+<span class="sd">                                                                or readouts.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Plate.__str__"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create string for Plate instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&lt;not named&gt;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">readout_dict</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&lt;Plate instance&gt;</span><span class="se">\n</span><span class="s2">name: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">read_outs: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Number of read_outs: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">width: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">height: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                                                                      <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                                                                      <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                                                                                      <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">readout_dict</span> <span class="o">=</span> <span class="s2">&quot;&lt;Plate instance&gt;&quot;</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not create string of Plate instance.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">readout_dict</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">for</span> <span class="n">data_type</span> <span class="ow">in</span> <span class="n">KNOWN_DATA_TYPES</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data_type</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">],</span> <span class="n">plate_data</span><span class="o">.</span><span class="n">PlateData</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="s2">&quot;type of </span><span class="si">{}</span><span class="s2"> data is </span><span class="si">{}</span><span class="s2">, not plate_data.PlateData.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">])))</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;height&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;width&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;width&quot;</span><span class="p">)</span>
+
+        <span class="c1"># You are using this construct in many an __init__ . Consider turning into decorator.</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        FORMERLY:</span>
+<span class="sd">        # Make sure all readouts are equal in height and width.</span>
+<span class="sd">        plate_heights = [i.height for i in self.readout.data.values()]</span>
+<span class="sd">        plate_widths = [i.width for i in self.readout.data.values()]</span>
+<span class="sd">        if len(set(plate_heights)) != 1 or len(set(plate_widths)) != 1:</span>
+<span class="sd">            raise Exception(&quot;Plate widths and lengths in the parsed output &quot;</span>
+<span class="sd">                &quot;files are not all equal: plate_heights: {}, plate_widths: {} &quot;</span>
+<span class="sd">                    &quot;&quot;.format(plate_heights, plate_widths))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Plate.create"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create ``Plate`` instance.</span>
+
+<span class="sd">        Create ``Plate`` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path to input file or directory</span>
+<span class="sd">            format (str):  Format of the input file, at current not specified</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s2">&quot;meta_data&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;meta_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">MetaData</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;meta_data&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;plate_layout&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plate_layout</span><span class="o">.</span><span class="n">PlateLayout</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;data_issue&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data_issue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_issue</span><span class="o">.</span><span class="n">DataIssue</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;data_issue&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;readout&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;readout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;readout&quot;</span><span class="p">])</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">return</span> <span class="n">Plate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;pickle&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Format: </span><span class="si">{}</span><span class="s2"> is not implemented in &quot;</span>
+                            <span class="s2">&quot;Plate.create()&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Plate.add_data"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add `data` of `data_type` to `self.config_data`</span>
+
+<span class="sd">        Add `data` of `data_type` to `self.config_data`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;meta_data&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">meta_data</span><span class="o">.</span><span class="n">MetaData</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;data is not of type config_data.MetaData, but </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;plate_layout&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">plate_layout</span><span class="o">.</span><span class="n">PlateLayout</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;data is not of type plate_layout.PlateLayout, but </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;data_issue&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_issue</span><span class="o">.</span><span class="n">DataIssue</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;data is not of type data_issue.DataIssue, but </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;readout&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">readout</span><span class="o">.</span><span class="n">Readout</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;data is not of type readout.Readout, but </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">force</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">),</span> <span class="n">plate_data</span><span class="o">.</span><span class="n">PlateData</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plate.write"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Serialize and write ``Plate`` instances.</span>
+
+<span class="sd">        Serialize ``Plate`` instance using the stated ``format``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            format (str):  The output format: Currently only &quot;pickle&quot;.</span>
+<span class="sd">            path (str): Path to output file</span>
+
+<span class="sd">        .. todo:: Write checks for ``format`` and ``path``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;pickle&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Format is unknown: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_string</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="Plate.filter"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_data_type</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">condition_data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">return_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Get list of values for defined `wells` of the data tagged with `data_tag`.</span>
+<span class="sd">        If `value_type` is set, check if all values conform with `value_type`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            condition_data_type (str): Reference to PlateData instance on which wells are filtered for the condition.</span>
+<span class="sd">            condition_data_tag (str): Data tag for condition_data_type</span>
+<span class="sd">            condition (method): The condition expressed as a method.</span>
+<span class="sd">            value_data_type (str): Reference to PlateData instance from which (for filtered wells) the values are retrieved.</span>
+<span class="sd">            value_data_tag (str): Data tag for value_data_type.</span>
+<span class="sd">            value_type (str): The type of the return values.</span>
+<span class="sd">            return_list (bool): Returns a flattened list of all values</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (list of x), where x are of type `value_type`, if `value_type` is set.</span>
+
+<span class="sd">        ..todo: rename method from filter to get_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">value_plate_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_data_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">condition_data_type</span><span class="p">:</span>
+            <span class="n">condition_plate_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition_data_type</span><span class="p">)</span>
+            <span class="n">wells</span> <span class="o">=</span> <span class="n">condition_plate_data</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="n">condition_data_tag</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">condition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">return_list</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">value_plate_data</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">value_data_tag</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="n">value_type</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">])</span>
+                <span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NAN</span>
+                <span class="k">for</span> <span class="n">well</span> <span class="ow">in</span> <span class="n">wells</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value_plate_data</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="p">[</span><span class="n">well</span><span class="p">],</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">value_data_tag</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="n">value_type</span><span class="p">)</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">well</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">well</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">data</span>
+                <span class="c1"># ToDo: Return matrix of values, with None for wells that do not fulfill the condition, and</span>
+                <span class="c1"># the value otherwise.</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">value_plate_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">value_data_tag</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">return_list</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">data</span>
+
+        <span class="k">return</span> <span class="n">values</span></div>
+
+    <span class="c1">#### Preprocessing functions</span>
+
+<div class="viewcode-block" id="Plate.preprocess"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">methodname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">methodname</span><span class="p">)</span>
+        <span class="n">method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plate.calculate_linearly_normalized_signal"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_linearly_normalized_signal">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_linearly_normalized_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unnormalized_key</span><span class="p">,</span> <span class="n">normalized_0</span><span class="p">,</span> <span class="n">normalized_1</span><span class="p">,</span> <span class="n">normalized_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Linearly normalize the data</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">        normalized__i = \frac{ x_{unnormalized_i} - \hat{x_{low}} } {  \hat{x_{high}} - \hat{x_{low}} }</span>
+
+<span class="sd">        normalized_0 are all wells (according to the plate layout) with mean(wells)==0 after normalization.</span>
+<span class="sd">        normalized_1 are all wells (according to the plate layout) with mean(wells)==1 for normalization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.</span>
+<span class="sd">            normalized_key (str):  The key for self.readout.data where the resulting normalized ``Readout`` instance will be stored.</span>
+<span class="sd">            x_low (list of str):  The list of names of all low fixtures in the plate layout (self.plate_data).</span>
+<span class="sd">            x_high (list of str): The list of names of the high fixture in the plate layout (self.plate_data).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">normalized_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The normalized_key </span><span class="si">{}</span><span class="s2"> is already in self.readout.data. &quot;</span>
+                        <span class="s2">&quot;Skipping recalculation&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">normalized_key</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">data_normalized_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">normalized_0</span><span class="p">,</span>
+                                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span>
+                                        <span class="n">value_data_tag</span><span class="o">=</span><span class="n">unnormalized_key</span><span class="p">)</span>
+
+        <span class="n">data_normalized_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">normalized_1</span><span class="p">,</span>
+                                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span>
+                                        <span class="n">value_data_tag</span><span class="o">=</span><span class="n">unnormalized_key</span><span class="p">)</span>
+
+        <span class="n">normalized_data</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">unnormalized_key</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_normalized_0</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_normalized_1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_normalized_0</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">normalized_key</span><span class="p">:</span> <span class="n">normalized_data</span><span class="p">},</span> <span class="n">tag</span><span class="o">=</span><span class="n">normalized_key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plate.calculate_normalization_by_division"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_normalization_by_division">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_normalization_by_division</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unnormalized_key</span><span class="p">,</span> <span class="n">normalizer_key</span><span class="p">,</span> <span class="n">normalized_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The normalize data set is equal to a division of all data by the mean of a subset of the data.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            unnormalized_key (str):  The key for self.readout.data where the unnormalized ``Readout`` instance is stored.</span>
+<span class="sd">            normalized_key (str):  The key for self.readout.data where the resulting normalized ``Readout`` instance will be stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">normalized_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The normalized_key </span><span class="si">{}</span><span class="s2"> is already in self.readout.data. &quot;</span>
+                        <span class="s2">&quot;Skipping recalculation&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">normalized_key</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">relative_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">unnormalized_key</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">normalizer_key</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">normalized_key</span><span class="p">:</span> <span class="n">relative_data</span><span class="p">},</span> <span class="n">tag</span><span class="o">=</span><span class="n">normalized_key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plate.subtract_readouts"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.subtract_readouts">[docs]</a>    <span class="k">def</span> <span class="nf">subtract_readouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag_readout_minuend</span><span class="p">,</span> <span class="n">data_tag_readout_subtrahend</span><span class="p">,</span> <span class="n">data_tag_readout_difference</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">data_tag_readout_difference</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The data_tag_readout_difference </span><span class="si">{}</span><span class="s2"> is already in self.readout.data. &quot;</span>
+                        <span class="s2">&quot;Skipping recalculation&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag_readout_difference</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout_minuend</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout_subtrahend</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_readout_difference</span><span class="p">:</span> <span class="n">difference</span><span class="p">},</span> <span class="n">tag</span><span class="o">=</span><span class="n">data_tag_readout_difference</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plate.calculate_net_fret"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_net_fret">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_net_fret</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">donor_channel</span><span class="p">,</span> <span class="n">acceptor_channel</span><span class="p">,</span>
+                           <span class="n">fluorophore_donor</span><span class="o">=</span><span class="s2">&quot;fluorophore_donor&quot;</span><span class="p">,</span>
+                           <span class="n">fluorophore_acceptor</span><span class="o">=</span><span class="s2">&quot;fluorophore_acceptor&quot;</span><span class="p">,</span>
+                           <span class="n">buffer</span><span class="o">=</span><span class="s2">&quot;buffer&quot;</span><span class="p">,</span> <span class="n">net_fret_key</span><span class="o">=</span><span class="s2">&quot;net_fret&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate the net FRET signal for a donor acceptor FRET setup.</span>
+
+<span class="sd">        Calculate the net FRET signal for a donor acceptor FRET setup.</span>
+<span class="sd">        Typical donor -&gt; aceptor pairs include</span>
+
+<span class="sd">        * 414nm CFP -&gt; 475nm -&gt; YFP 525nm</span>
+<span class="sd">        * EU -&gt; 615nm -&gt; APC 665nm</span>
+
+<span class="sd">        The following wells are needed, for both channels</span>
+
+<span class="sd">        * `donor` Donor_fluorophor blank</span>
+<span class="sd">        * `acceptor` Acceptor_fluorophor blank</span>
+<span class="sd">        * `buffer` Buffer blank</span>
+
+<span class="sd">        The proportionality factor for donor compensation is then calculation as</span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">        p = \frac{\hat{donor_{acceptor_channel}} - \hat{buffer_{acceptor_channel}}}{\hat{donor_{donor_channel}} - \hat{buffer_{donor_channel}}}</span>
+
+<span class="sd">        Further, the net FRET signal `f` for all wells `x` may be calculated as:</span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">        netfret = x_{acceptor_channel} - \hat{acceptor_{acceptor_channel}} - p \cdot (x_{donor_channel} - \hat{buffer_{donor_channel}})</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            donor_channel (str):  The key for self.readout.data where the donor_channel ``Readout`` instance is stored.</span>
+<span class="sd">            acceptor_channel (str):  The key for self.readout.data where the acceptor_channel ``Readout`` instance is stored.</span>
+<span class="sd">            fluorophore_donor (str):  The name of the donor fluorophore in self.plate_data.</span>
+<span class="sd">            fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_data.</span>
+<span class="sd">            buffer (str):  The name of the buffer in self.plate_data.</span>
+<span class="sd">            net_fret_key (str):  The key for self.readout.data where the resulting net fret ``Readout`` instance will be stored.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">net_fret_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The net_fret_key </span><span class="si">{}</span><span class="s2"> is already in self.readout.data. &quot;</span>
+                        <span class="s2">&quot;Skipping recalculation&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">net_fret_key</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">mean_donor_donor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                                                       <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">fluorophore_donor</span><span class="p">,</span>
+                                                       <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">donor_channel</span><span class="p">))</span>
+        <span class="n">mean_acceptor_donor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">fluorophore_acceptor</span><span class="p">,</span>
+                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">donor_channel</span><span class="p">))</span>
+        <span class="n">mean_buffer_donor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                                                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">buffer</span><span class="p">,</span>
+                                                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">donor_channel</span><span class="p">))</span>
+        <span class="n">mean_donor_acceptor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">fluorophore_donor</span><span class="p">,</span>
+                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">acceptor_channel</span><span class="p">))</span>
+        <span class="n">mean_acceptor_acceptor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">fluorophore_acceptor</span><span class="p">,</span>
+                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">acceptor_channel</span><span class="p">))</span>
+        <span class="n">mean_buffer_acceptor_channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition_data_type</span><span class="o">=</span><span class="s2">&quot;plate_layout&quot;</span><span class="p">,</span> <span class="n">condition_data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">buffer</span><span class="p">,</span>
+                        <span class="n">value_data_type</span><span class="o">=</span><span class="s2">&quot;readout&quot;</span><span class="p">,</span> <span class="n">value_data_tag</span><span class="o">=</span><span class="n">acceptor_channel</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">mean_donor_donor_channel</span><span class="p">,</span> <span class="n">mean_acceptor_donor_channel</span><span class="p">,</span> <span class="n">mean_buffer_donor_channel</span><span class="p">,</span>
+                                   <span class="n">mean_donor_acceptor_channel</span><span class="p">,</span> <span class="n">mean_acceptor_acceptor_channel</span><span class="p">,</span>
+                                   <span class="n">mean_buffer_acceptor_channel</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span>
+                <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Calculation of variable </span><span class="si">{}</span><span class="s2"> resulted in </span><span class="si">{}</span><span class="s2">. Check whether the plate layout is correctly assigned.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">i</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_donor_acceptor_channel</span> <span class="o">-</span> <span class="n">mean_buffer_acceptor_channel</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">mean_donor_donor_channel</span> <span class="o">-</span> <span class="n">mean_buffer_donor_channel</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the net FRET signal for the entire plate</span>
+        <span class="c1"># See TechNote #TNPJ100.04 PROzyme</span>
+        <span class="c1"># http://prozyme.com/pages/tech-notes</span>
+        <span class="n">netfret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">acceptor_channel</span><span class="p">)</span> <span class="o">-</span> <span class="n">mean_acceptor_acceptor_channel</span> <span class="o">-</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">donor_channel</span><span class="p">)</span> <span class="o">-</span> <span class="n">mean_buffer_donor_channel</span><span class="p">)</span>
+
+        <span class="c1"># ToDo: Add calculations for other values, as described by Eq. 5 or Eq. 6 in the Technote.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">net_fret_key</span><span class="p">:</span> <span class="n">netfret</span><span class="p">},</span> <span class="n">tag</span><span class="o">=</span><span class="n">net_fret_key</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Plate.calculate_control_normalized_signal"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_control_normalized_signal">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_control_normalized_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                            <span class="n">data_tag_readout</span><span class="p">,</span>
+                                            <span class="n">negative_control_key</span><span class="p">,</span>
+                                            <span class="n">positive_control_key</span><span class="p">,</span>
+                                            <span class="n">data_tag_normalized_readout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                            <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.</span>
+
+<span class="sd">        Normalize the signal in `data_tag_readout`, normalized by `negative_control_key` and `positive_control_key`.</span>
+
+<span class="sd">        The normalization is calculated as:</span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">        y&#39; = \frac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }</span>
+
+<span class="sd">        For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).</span>
+<span class="sd">        For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the average control values across the plate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.</span>
+<span class="sd">            negative_control_key (str):  The name of the negative control in the plate layout.</span>
+<span class="sd">            positive_control_key (str):  The name of the positive control in the plate layout.</span>
+<span class="sd">            data_tag_normalized_readout (str):  The key for self.readout.data where the normalized readouts will be stored.</span>
+<span class="sd">            local (Bool): If True, use Gaussian processes to locally predict the control distributions. Else, use</span>
+<span class="sd">                          plate-wise control distributions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data_tag_normalized_readout</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_tag_normalized_readout</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">__control_normalized&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="n">all_readouts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">local</span> <span class="o">!=</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Normalize by &quot;global&quot; plate averages of negative and positive controls.</span>
+            <span class="n">nc_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">negative_control_key</span><span class="p">)</span>
+            <span class="n">nc_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">nc_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>
+            <span class="n">data_nc_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">nc_values</span><span class="p">)</span>
+            <span class="n">data_nc_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">nc_values</span><span class="p">)</span>
+
+            <span class="n">pc_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">positive_control_key</span><span class="p">)</span>
+            <span class="n">pc_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">pc_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>
+            <span class="n">data_pc_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pc_values</span><span class="p">)</span>
+            <span class="n">data_pc_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pc_values</span><span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Normalize globally with mean negative control: </span><span class="si">{}</span><span class="s2"> &quot;</span>
+                      <span class="s2">&quot;and mean negative control: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_nc_mean</span><span class="p">,</span> <span class="n">data_pc_mean</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Normalize by &quot;local&quot; predictions of negative and positive control distributions (extracted with Gaussian</span>
+            <span class="c1"># processes.)</span>
+
+            <span class="c1"># Calculate predicted values for mean and std: negative control.</span>
+            <span class="n">m</span><span class="p">,</span> <span class="n">data_nc_mean</span><span class="p">,</span> <span class="n">data_nc_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_gaussian_process</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">,</span>
+                                                                       <span class="n">sample_tag_input</span><span class="o">=</span><span class="n">negative_control_key</span><span class="p">,</span>
+                                                                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Calculate predicted values for mean and std: positive control.</span>
+            <span class="n">m</span><span class="p">,</span> <span class="n">data_pc_mean</span><span class="p">,</span> <span class="n">data_pc_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_gaussian_process</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">,</span>
+                                                                       <span class="n">sample_tag_input</span><span class="o">=</span><span class="n">positive_control_key</span><span class="p">,</span>
+                                                                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the normalised data</span>
+        <span class="n">normalized_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_readouts</span> <span class="o">-</span> <span class="n">data_nc_mean</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">data_pc_mean</span> <span class="o">-</span> <span class="n">data_nc_mean</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_normalized_readout</span><span class="p">:</span> <span class="n">normalized_data</span><span class="p">,</span>
+                                    <span class="c1"># These are scalars, not arrays x arrays. Does this data need saving this way?</span>
+                                    <span class="c1">#                           data_tag_normalized_negative_control: data_nc_mean,</span>
+                                    <span class="c1">#                           data_tag_normalized_positive_control: data_pc_mean,</span>
+                                    <span class="p">},</span>
+                              <span class="n">tag</span><span class="o">=</span><span class="n">data_tag_normalized_readout</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plate.calculate_significance_compared_to_null_distribution"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_significance_compared_to_null_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_significance_compared_to_null_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                                             <span class="n">data_tag_readout</span><span class="p">,</span>
+                                                             <span class="n">sample_tag_null_distribution</span><span class="p">,</span>
+                                                             <span class="n">data_tag_standard_score</span><span class="p">,</span>
+                                                             <span class="n">data_tag_p_value</span><span class="p">,</span>
+                                                             <span class="n">is_higher_value_better</span><span class="p">,</span>
+                                                             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the standard score and p-value for all data (in `data_tag_readout`) compared to the null distribution</span>
+<span class="sd">        defined by all data of `sample_tag_null_distribution` in `data_tag_readout`.</span>
+<span class="sd">        Save as readouts with tags `data_tag_standard_score` and `data_tag_p_value`.</span>
+
+<span class="sd">        Assume that the samples in `sample_tag_null_distribution` follows a Gaussian distribution.</span>
+
+<span class="sd">        WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to</span>
+<span class="sd">        show lower mean values. [Otherwise, we would have to introduce a boolean &quot;pos_control_lower_than_neg_control.&quot;]</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.</span>
+<span class="sd">            sample_tag_null_distribution (str): The sample key (defined in plate layout) defining what sample will make up the null distribution that we compare all other samples to.</span>
+<span class="sd">            data_tag_standard_score (str): The key for self.readout.data where the standard scores will be stored.</span>
+<span class="sd">            data_tag_p_value (str): The key for self.readout.data where the p-values will be stored.</span>
+<span class="sd">            **kwargs:</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data_tag_standard_score</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_tag_standard_score</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">__all__vs__</span><span class="si">{}</span><span class="s2">__standard_score&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">,</span>
+                                                                               <span class="n">sample_tag_null_distribution</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_tag_p_value</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_tag_p_value</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">__all__vs__</span><span class="si">{}</span><span class="s2">__pvalue&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">,</span> <span class="n">sample_tag_null_distribution</span><span class="p">)</span>
+
+        <span class="n">all_readouts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sample_tag_null_distribution</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">sample_tag_null_distribution</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample_tag_null_distribution</span><span class="p">]</span>
+
+        <span class="c1"># Extract null distribution.</span>
+        <span class="n">null_distribution_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span>
+                                                              <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sample_tag_null_distribution</span><span class="p">)</span>
+        <span class="n">null_distribution_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">null_distribution_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>
+        <span class="n">null_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">null_distribution_values</span><span class="p">)</span>
+        <span class="n">null_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">null_distribution_values</span><span class="p">)</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Null distribution of sample </span><span class="si">{}</span><span class="s2"> has mean </span><span class="si">{}</span><span class="s2"> and std: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample_tag_null_distribution</span><span class="p">,</span>
+                                                                                   <span class="n">null_mean</span><span class="p">,</span> <span class="n">null_std</span><span class="p">))</span>
+
+        <span class="c1"># Compute the z-score or standard score</span>
+        <span class="n">standard_score</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_readouts</span> <span class="o">-</span> <span class="n">null_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">null_std</span>
+
+        <span class="c1"># Calculate the p-Value of all data points compared to the null distribution.</span>
+        <span class="c1"># Inspired by:</span>
+        <span class="c1"># http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic</span>
+        <span class="n">p_value</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">null_mean</span><span class="p">,</span> <span class="n">null_std</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">all_readouts</span><span class="p">)</span>
+
+        <span class="c1"># Alternative pvalue calculation:</span>
+        <span class="c1">## p_value for one-sided test. For two-sided test, multiply by 2:</span>
+        <span class="c1"># p_value = scipy.stats.norm.sf(abs(standard_score))</span>
+
+        <span class="c1"># ToDo: Check and understand</span>
+        <span class="k">if</span> <span class="n">is_higher_value_better</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">]:</span>
+            <span class="n">standard_score</span> <span class="o">=</span> <span class="o">-</span> <span class="n">standard_score</span>
+            <span class="n">p_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p_value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_standard_score</span><span class="p">:</span> <span class="n">standard_score</span><span class="p">,</span>
+                                    <span class="n">data_tag_p_value</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
+                                    <span class="p">},</span>
+                              <span class="n">tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Plate.calculate_local_ssmd"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.calculate_local_ssmd">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_local_ssmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag_mean_pos</span><span class="p">,</span> <span class="n">data_tag_mean_neg</span><span class="p">,</span> <span class="n">data_tag_std_pos</span><span class="p">,</span> <span class="n">data_tag_std_neg</span><span class="p">,</span> <span class="n">data_tag_ssmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate local SSMD values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_mean_pos:</span>
+<span class="sd">            data_tag_mean_neg:</span>
+<span class="sd">            data_tag_std_pos:</span>
+<span class="sd">            data_tag_std_neg:</span>
+<span class="sd">            data_tag_ssmd:</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mean_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_mean_pos</span><span class="p">)</span>
+        <span class="n">mean_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_mean_neg</span><span class="p">)</span>
+        <span class="n">std_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_std_pos</span><span class="p">)</span>
+        <span class="n">std_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_std_neg</span><span class="p">)</span>
+
+        <span class="n">ssmd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mean_pos</span> <span class="o">-</span> <span class="n">mean_neg</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">std_pos</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">std_neg</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_ssmd</span><span class="p">:</span> <span class="n">ssmd</span><span class="p">},</span>
+                              <span class="n">tag</span><span class="o">=</span><span class="n">data_tag_ssmd</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plate.classify_by_cutoff"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.classify_by_cutoff">[docs]</a>    <span class="k">def</span> <span class="nf">classify_by_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag_readout</span><span class="p">,</span> <span class="n">data_tag_classified_readout</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">is_higher_value_better</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_twosided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Map a dataset of float values to either binary (`is_twosided==False`) or [-1,0,1] (`is_twosided==True`), depending</span>
+<span class="sd">        on whether values fall below `threshold`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_readout: The key for self.readout.data where the readouts are stored.</span>
+<span class="sd">            data_tag_classified_readout: The key for self.readout.data where the True/False classification values will be stored.</span>
+<span class="sd">            threshold:</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_readouts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_twosided</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">]:</span>
+            <span class="n">is_twosided</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">is_higher_value_better</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">]:</span>
+            <span class="n">is_higher_value_better</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_twosided</span><span class="p">:</span>
+            <span class="n">classified</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">datum</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">all_readouts</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">is_higher_value_better</span><span class="p">:</span>
+            <span class="n">classified</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">True</span> <span class="k">if</span> <span class="n">datum</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">all_readouts</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">classified</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">True</span> <span class="k">if</span> <span class="n">datum</span> <span class="o">&lt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">all_readouts</span><span class="p">]</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data_issue</span><span class="o">.</span><span class="n">DataIssue</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_classified_readout</span><span class="p">:</span> <span class="n">classified</span><span class="p">},</span> <span class="n">name</span><span class="o">=</span><span class="n">data_tag_classified_readout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;data_issue&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plate.randomize_values"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.randomize_values">[docs]</a>    <span class="k">def</span> <span class="nf">randomize_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">data_tag_readout</span><span class="p">,</span>
+                         <span class="n">data_tag_randomized_readout</span><span class="p">,</span>
+                         <span class="n">randomized_samples</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomize the signal in a readout per plate and for a specific sample.</span>
+<span class="sd">        The result of this method has only visualization purposes.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_readout (str):  The key for self.readout.data where the readouts are stored.</span>
+<span class="sd">            data_tag_randomized_readout (str): The key for self.readout.data where the randomized data will be stored.</span>
+<span class="sd">            **kwargs:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_tag_randomized_readout</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_tag_randomized_readout</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">__randomized&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="n">all_readouts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data_tag_readout</span><span class="p">)</span>
+
+        <span class="c1"># Extract wells</span>
+        <span class="n">randomizable_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">randomized_samples</span><span class="p">)</span>
+        <span class="n">randomizable_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">randomizable_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">randomizable_values</span><span class="p">)</span>
+
+        <span class="n">randomized_readouts</span> <span class="o">=</span> <span class="n">all_readouts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">well</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">randomizable_wells</span><span class="p">,</span> <span class="n">randomizable_values</span><span class="p">):</span>
+            <span class="n">randomized_readouts</span><span class="p">[</span><span class="n">well</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">data_tag_randomized_readout</span><span class="p">:</span> <span class="n">randomized_readouts</span><span class="p">,},</span> <span class="n">tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span></div>
+
+
+    <span class="c1">#### Prediction functions</span>
+
+
+<div class="viewcode-block" id="Plate.cross_validate_predictions"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.cross_validate_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">cross_validate_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag_readout</span><span class="p">,</span> <span class="n">sample_tag</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Cross validate sample value predictions for sample type `sample_tag` and readout `data_tag_readout`,</span>
+<span class="sd">        using prediction method `method_name`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_tag_readout (str):  The key for self.readout.data where the ``Readout`` instance is stored.</span>
+<span class="sd">            sample_tag (str):  The sample for which the gaussian process will be modeled according to the</span>
+<span class="sd">                                position in self.plate_layout.data. E.g. for positive controls &quot;pos&quot;</span>
+<span class="sd">            method_name (str): The prediction method. E.g. gp for Gaussian processes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sampled_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">sample_tag</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">sampled_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>  <span class="c1"># value_type=float</span>
+
+        <span class="k">if</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s2">&quot;gp&quot;</span><span class="p">:</span>
+            <span class="n">prediction_method</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">predict_with_gaussian_process</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_data</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">sampled_wells</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prediction</span><span class="o">.</span><span class="n">cross_validate_predictions</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">prediction_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Plate.evaluate_well_value_prediction"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.evaluate_well_value_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_well_value_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_predictions</span><span class="p">,</span> <span class="n">data_tag_readout</span><span class="p">,</span> <span class="n">sample_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate mean squared prediction error.</span>
+
+<span class="sd">       ToDo: Debug. Better: REWRITE!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># y_predicted_mean, y_predicted_var = m.predict(X)</span>
+        <span class="c1"># f_mean, f_var = m._raw_predict(X) # Difference to m.predict(X)</span>
+        <span class="c1"># y_predicted_abs = y_predicted_mean * y_std + y_mean</span>
+        <span class="c1"># y_error = y_norm - y_predicted_mean</span>
+        <span class="c1"># y_error_abs = y - y_predicted_abs</span>
+
+
+        <span class="n">wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>  <span class="c1"># value_type=float</span>
+
+        <span class="c1">#### This needs to be debugged, as data_predictions now come in a different format.</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Needs debugging.&quot;</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">data_predictions</span> <span class="o">-</span> <span class="n">values</span>
+
+        <span class="k">if</span> <span class="n">sample_key</span><span class="p">:</span>
+            <span class="n">specific_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">sample_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">specific_wells</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;sample_key: </span><span class="si">{}</span><span class="s2"> does not define any wells.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample_key</span><span class="p">))</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">diff</span><span class="p">[</span><span class="n">wells</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">well</span><span class="p">)]</span> <span class="k">for</span> <span class="n">well</span> <span class="ow">in</span> <span class="n">specific_wells</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span></div>
+
+
+    <span class="c1">#### Prediction functions - Gaussian processes</span>
+
+<div class="viewcode-block" id="Plate.map_coordinates"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.map_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates_list</span><span class="p">):</span>
+        <span class="c1"># map plate coordinates to &quot;standard&quot; coordinates. E.g. switch axes, turn x-Axis.</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">coordinates_list</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Plate.flatten_data"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.flatten_data">[docs]</a>    <span class="k">def</span> <span class="nf">flatten_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wells</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_wells</span><span class="p">(</span><span class="n">wells</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plate.flatten_wells"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.flatten_wells">[docs]</a>    <span class="k">def</span> <span class="nf">flatten_wells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wells</span><span class="p">):</span>
+        <span class="c1"># Structure of X: Similar to http://gpy.readthedocs.org/en/master/tuto_GP_regression.html</span>
+        <span class="c1"># map plate coordinates to &quot;standard&quot; coordinates. E.g. switch axes, turn x-Axis.</span>
+        <span class="n">sampled_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_coordinates</span><span class="p">(</span><span class="n">wells</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sampled_wells</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Plate.flatten_values"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.flatten_values">[docs]</a>    <span class="k">def</span> <span class="nf">flatten_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="Plate.un_flatten_data"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.un_flatten_data">[docs]</a>    <span class="k">def</span> <span class="nf">un_flatten_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">y</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">:(</span><span class="n">row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="Plate.get_data_for_gaussian_process"><a class="viewcode-back" href="../../../hts.plate.html#hts.plate.plate.Plate.get_data_for_gaussian_process">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_for_gaussian_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_tag_readout</span><span class="p">,</span> <span class="n">sample_tags</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sample_tags</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">sample_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample_tags</span><span class="p">]</span>
+
+        <span class="n">sampled_wells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plate_layout</span><span class="o">.</span><span class="n">get_wells</span><span class="p">(</span><span class="n">data_tag</span><span class="o">=</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sample_tags</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readout</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">sampled_wells</span><span class="p">,</span> <span class="n">data_tag</span><span class="o">=</span><span class="n">data_tag_readout</span><span class="p">)</span>  <span class="c1"># value_type=float</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_data</span><span class="p">(</span><span class="n">wells</span><span class="o">=</span><span class="n">sampled_wells</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></div></div>
+
+
+
+
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

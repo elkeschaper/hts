@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>High-througput screening data transformations &#8212; HTS 0.0.1 documentation</title>
+    <title>Docs &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -74,7 +74,11 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">High-througput screening data transformations</a></li>
+<li><a class="reference internal" href="#">Docs</a><ul>
+<li><a class="reference internal" href="#generate-docs-html-from-rst">Generate docs: html from rst</a></li>
+<li><a class="reference internal" href="#deploy-new-docs">Deploy new docs</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,8 +112,30 @@
   <div class="row">
     <div class="col-md-12 content">
       
-  <div class="section" id="high-througput-screening-data-transformations">
-<span id="data-transformations"></span><h1>High-througput screening data transformations<a class="headerlink" href="#high-througput-screening-data-transformations" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="docs">
+<span id="id1"></span><h1>Docs<a class="headerlink" href="#docs" title="Permalink to this headline">¶</a></h1>
+<p>We use Sphinx to generate our docs.
+The backbone of our docs are .rst files.</p>
+<p>Our docs are on github.io (<a class="reference external" href="http://elkeschaper.github.io/hts/index.html">http://elkeschaper.github.io/hts/index.html</a>)</p>
+<p>Important hint: The code only works within the virtual environment which is installed.
+Start it first by tipping into the command line:</p>
+<p>workon hts</p>
+<div class="section" id="generate-docs-html-from-rst">
+<h2>Generate docs: html from rst<a class="headerlink" href="#generate-docs-html-from-rst" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
+<span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deploy-new-docs">
+<h2>Deploy new docs<a class="headerlink" href="#deploy-new-docs" title="Permalink to this headline">¶</a></h2>
+<p>All files on the #gh-pages branch are automatically pushed to github.io
+To deploy your new .html files to this branch, do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
+<span class="o">./</span><span class="n">deploy</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 

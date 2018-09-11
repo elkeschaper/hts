@@ -2,12 +2,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>hts.protocol package &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head><body>
+  </head>
+  <body>
 
   <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
     <div class="container">
@@ -53,38 +62,7 @@
      href="index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#1.-Load-all-dependencies">1. Load all dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#2.-Read-in-your-high-throughput-screening-data">2. Read in your high throughput screening data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#3.-Perform-Gaussian-process-normalization">3. Perform Gaussian process normalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/write_data__tutorial.html">Tutorial: Write data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Write-your-data">Write your data</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
-</ul>
-</li>
-</ul>
-</ul>
+      aria-labelledby="dLabelGlobalToc"></ul>
 </li>
               
                 <li class="dropdown">
@@ -98,7 +76,7 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">hts.protocol package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-protocol-protocol-module">hts.protocol.protocol module</a></li>
+<li><a class="reference internal" href="#module-hts.protocol.protocol">hts.protocol.protocol module</a></li>
 <li><a class="reference internal" href="#module-hts.protocol">Module contents</a></li>
 </ul>
 </li>
@@ -140,8 +118,146 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-protocol-protocol-module">
-<h2>hts.protocol.protocol module<a class="headerlink" href="#hts-protocol-protocol-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.protocol.protocol">
+<span id="hts-protocol-protocol-module"></span><h2>hts.protocol.protocol module<a class="headerlink" href="#module-hts.protocol.protocol" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Protocol Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.protocol.protocol.Protocol">
+<em class="property">class </em><code class="descclassname">hts.protocol.protocol.</code><code class="descname">Protocol</code><span class="sig-paren">(</span><em>file</em>, <em>name</em>, <em>tasks</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><code class="docutils literal"><span class="pre">Protocol</span></code> describes all information connected to the protocol of a
+high throughput screen.</p>
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.file">
+<code class="descname">file</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.file" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – File name of the protocol file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.name">
+<code class="descname">name</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of the protocol</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.Protocol.tasks">
+<code class="descname">tasks</code><a class="headerlink" href="#hts.protocol.protocol.Protocol.tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of ProtocolTasks</em> – List of Protocol Tasks</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.protocol.protocol.Protocol.create">
+<em class="property">classmethod </em><code class="descname">create</code><span class="sig-paren">(</span><em>path</em>, <em>format=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">Protocol</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">Protocol</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) – Path to input file or directory</li>
+<li><strong>format</strong> (<em>str</em>) – Format of the input file, at current not specified</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.protocol.protocol.Protocol.get_tasks_by_tag">
+<code class="descname">get_tasks_by_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol.get_tasks_by_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol.get_tasks_by_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.protocol.protocol.Protocol.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#Protocol.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.Protocol.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Protocol</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">Protocol</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) – The output format: Currently only “pickle”.</li>
+<li><strong>path</strong> (<em>str</em>) – Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="hts.protocol.protocol.ProtocolTask">
+<em class="property">class </em><code class="descclassname">hts.protocol.protocol.</code><code class="descname">ProtocolTask</code><span class="sig-paren">(</span><em>name</em>, <em>tags</em>, <em>type</em>, <em>method</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#ProtocolTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><code class="docutils literal"><span class="pre">ProtocolTask</span></code> describes all information connected to a task defined in a protocol of a
+high throughput screen.</p>
+<dl class="attribute">
+<dt id="hts.protocol.protocol.ProtocolTask.name">
+<code class="descname">name</code><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of the task</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.ProtocolTask.tags">
+<code class="descname">tags</code><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of str</em> – List of all tags of this Task. Necessarily needs to include exactly one of KNOWN_TASK_TYPES</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.ProtocolTask.type">
+<code class="descname">type</code><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – One of KNOWN_TASK_TYPES</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.ProtocolTask.method">
+<code class="descname">method</code><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.method" title="Permalink to this definition">¶</a></dt>
+<dd><p>(str): Name of a method in type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.protocol.protocol.ProtocolTask.config">
+<code class="descname">config</code><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>(configobj.ConfigObj): configobj.ConfigObj</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="hts.protocol.protocol.ProtocolTask.create">
+<em class="property">classmethod </em><code class="descname">create</code><span class="sig-paren">(</span><em>name</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/protocol/protocol.html#ProtocolTask.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.protocol.protocol.ProtocolTask.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">ProtocolTask</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">ProtocolTask</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) – The arbitrary name of the protocol task</li>
+<li><strong>config</strong> (<em>ConfigObj</em>) – ConfigObj</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-hts.protocol">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hts.protocol" title="Permalink to this headline">¶</a></h2>
@@ -161,7 +277,7 @@
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
     </p>
   </div>
 </footer>

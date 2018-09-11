@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>hts.data_tasks.data_normalization &#8212; HTS 0.0.1 documentation</title>
+    <title>hts.data_tasks.data_tasks &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -105,25 +105,36 @@
   <div class="row">
     <div class="col-md-12 content">
       
-  <h1>Source code for hts.data_tasks.data_normalization</h1><div class="highlight"><pre>
-<span></span><span class="c1"># (C) 2016 Elke Schaper</span>
+  <h1>Source code for hts.data_tasks.data_tasks</h1><div class="highlight"><pre>
+<span></span><span class="c1"># (C) 2015, 2016 Elke Schaper @ Vital-IT, Swiss Institute of Bioinformatics</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :synopsis: ``data_normalization`` implements methods connected to the</span>
-<span class="sd">    readout normalization of a high throughput screening experiment</span>
-
 <span class="sd">    .. moduleauthor:: Elke Schaper &lt;elke.schaper@sib.swiss&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
-<div class="viewcode-block" id="calculate_local_ssmd"><a class="viewcode-back" href="../../../hts.data_tasks.html#hts.data_tasks.data_normalization.calculate_local_ssmd">[docs]</a><span class="k">def</span> <span class="nf">calculate_local_ssmd</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">plate_tag</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">plate</span><span class="o">.</span><span class="n">calculate_local_ssmd</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">data_normalization</span><span class="p">,</span> <span class="n">dpia_analysis</span><span class="p">,</span> <span class="n">gaussian_processes</span><span class="p">,</span> <span class="n">qc_detect_data_issues</span><span class="p">,</span> <span class="n">qc_knitr</span><span class="p">,</span> <span class="n">qc_matplotlib</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="classify_by_cutoff"><a class="viewcode-back" href="../../../hts.data_tasks.html#hts.data_tasks.data_normalization.classify_by_cutoff">[docs]</a><span class="k">def</span> <span class="nf">classify_by_cutoff</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">plate_tag</span><span class="p">,</span> <span class="n">plate</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">plate</span><span class="o">.</span><span class="n">classify_by_cutoff</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+<div class="viewcode-block" id="perform_task"><a class="viewcode-back" href="../../../hts.data_tasks.html#hts.data_tasks.data_tasks.perform_task">[docs]</a><span class="k">def</span> <span class="nf">perform_task</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">task_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name_list</span> <span class="o">=</span> <span class="n">task_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">task_method</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">name_list</span><span class="p">:</span>
+            <span class="n">task_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">task_method</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not find task data_tasks - trying plate wise tasks&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i_plate</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">plates</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">i_plate</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">task_name</span><span class="p">,</span>  <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">return</span> <span class="n">task_method</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </pre></div>
 
     </div>

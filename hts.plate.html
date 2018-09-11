@@ -2,12 +2,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>hts.plate package &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head><body>
+  </head>
+  <body>
 
   <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
     <div class="container">
@@ -53,38 +62,7 @@
      href="index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#1.-Load-all-dependencies">1. Load all dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#2.-Read-in-your-high-throughput-screening-data">2. Read in your high throughput screening data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#3.-Perform-Gaussian-process-normalization">3. Perform Gaussian process normalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/gaussian_process_normalization_tutorial.html#Write-the-normalized-data-to-a-file">Write the normalized data to a file</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/write_data__tutorial.html">Tutorial: Write data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Load-all-dependencies-and-load-your-data">Load all dependencies and load your data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/write_data__tutorial.html#Write-your-data">Write your data</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/data_normalization_tutorial.html">Tutorial: Data normalization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/data_normalization_tutorial.html#Read-in-your-high-throughput-screening-data">Read in your high throughput screening data</a></li>
-</ul>
-</li>
-</ul>
-</ul>
+      aria-labelledby="dLabelGlobalToc"></ul>
 </li>
               
                 <li class="dropdown">
@@ -98,7 +76,7 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">hts.plate package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#hts-plate-plate-module">hts.plate.plate module</a></li>
+<li><a class="reference internal" href="#module-hts.plate.plate">hts.plate.plate module</a></li>
 <li><a class="reference internal" href="#hts-plate-prediction-module">hts.plate.prediction module</a></li>
 <li><a class="reference internal" href="#module-hts.plate">Module contents</a></li>
 </ul>
@@ -141,8 +119,398 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="hts-plate-plate-module">
-<h2>hts.plate.plate module<a class="headerlink" href="#hts-plate-plate-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-hts.plate.plate">
+<span id="hts-plate-plate-module"></span><h2>hts.plate.plate module<a class="headerlink" href="#module-hts.plate.plate" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">The Plate Class.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="hts.plate.plate.Plate">
+<em class="property">class </em><code class="descclassname">hts.plate.plate.</code><code class="descname">Plate</code><span class="sig-paren">(</span><em>data</em>, <em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p><code class="docutils literal"><span class="pre">Plate</span></code> describes all information connected to the readout_dict
+of a high throughput screen. This could be either several readouts of a
+plate, or the same plate across several plates.</p>
+<dl class="attribute">
+<dt id="hts.plate.plate.Plate.name">
+<code class="descname">name</code><a class="headerlink" href="#hts.plate.plate.Plate.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate.plate.Plate.width">
+<code class="descname">width</code><a class="headerlink" href="#hts.plate.plate.Plate.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – Width of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="hts.plate.plate.Plate.height">
+<code class="descname">height</code><a class="headerlink" href="#hts.plate.plate.Plate.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – Height of the plate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">KNOWN_DATA_TYPES[i]</code></dt>
+<dd><p><em>subclass of plate_data.PlateData</em> – The data associated to this Plate, e.g. a plate layout,
+or readouts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create string for Plate instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.add_data">
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>data_type</em>, <em>data</em>, <em>force=False</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <cite>data</cite> of <cite>data_type</cite> to <cite>self.config_data</cite></p>
+<p>Add <cite>data</cite> of <cite>data_type</cite> to <cite>self.config_data</cite></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_control_normalized_signal">
+<code class="descname">calculate_control_normalized_signal</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>negative_control_key</em>, <em>positive_control_key</em>, <em>data_tag_normalized_readout=None</em>, <em>local=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_control_normalized_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_control_normalized_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the signal in <cite>data_tag_readout</cite>, normalized by <cite>negative_control_key</cite> and <cite>positive_control_key</cite>.</p>
+<blockquote>
+<div><p>Normalize the signal in <cite>data_tag_readout</cite>, normalized by <cite>negative_control_key</cite> and <cite>positive_control_key</cite>.</p>
+<p>The normalization is calculated as:
+.. math:</p>
+<p>y’ =</p>
+</div></blockquote>
+<p>rac{y - mu_{nc}}{| mu_{nc} - mu_{pc}| }</p>
+<blockquote>
+<div><p>For local==True, $mu_{nc}$ and $mu_{pc}$ are predicted locally to the well (using Gaussian processes).
+For local==False, $mu_{nc}$ and $mu_{pc}$ are estimated by the average control values across the plate.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">data_tag_readout (str):  The key for self.readout.data where the readouts are stored.
+negative_control_key (str):  The name of the negative control in the plate layout.
+positive_control_key (str):  The name of the positive control in the plate layout.
+data_tag_normalized_readout (str):  The key for self.readout.data where the normalized readouts will be stored.
+local (Bool): If True, use Gaussian processes to locally predict the control distributions. Else, use</p>
+<blockquote class="last">
+<div>plate-wise control distributions.</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_linearly_normalized_signal">
+<code class="descname">calculate_linearly_normalized_signal</code><span class="sig-paren">(</span><em>unnormalized_key</em>, <em>normalized_0</em>, <em>normalized_1</em>, <em>normalized_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_linearly_normalized_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_linearly_normalized_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linearly normalize the data</p>
+<blockquote>
+<div>normalized__i =</div></blockquote>
+<p>rac{ x_{unnormalized_i} - hat{x_{low}} } {  hat{x_{high}} - hat{x_{low}} }</p>
+<blockquote>
+<div><p>normalized_0 are all wells (according to the plate layout) with mean(wells)==0 after normalization.
+normalized_1 are all wells (according to the plate layout) with mean(wells)==1 for normalization.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>unnormalized_key (str):  The key for self.readout.data where the unnormalized <code class="docutils literal"><span class="pre">Readout</span></code> instance is stored.
+normalized_key (str):  The key for self.readout.data where the resulting normalized <code class="docutils literal"><span class="pre">Readout</span></code> instance will be stored.
+x_low (list of str):  The list of names of all low fixtures in the plate layout (self.plate_data).
+x_high (list of str): The list of names of the high fixture in the plate layout (self.plate_data).</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_local_ssmd">
+<code class="descname">calculate_local_ssmd</code><span class="sig-paren">(</span><em>data_tag_mean_pos</em>, <em>data_tag_mean_neg</em>, <em>data_tag_std_pos</em>, <em>data_tag_std_neg</em>, <em>data_tag_ssmd</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_local_ssmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_local_ssmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate local SSMD values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_tag_mean_pos</strong> – </li>
+<li><strong>data_tag_mean_neg</strong> – </li>
+<li><strong>data_tag_std_pos</strong> – </li>
+<li><strong>data_tag_std_neg</strong> – </li>
+<li><strong>data_tag_ssmd</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_net_fret">
+<code class="descname">calculate_net_fret</code><span class="sig-paren">(</span><em>donor_channel</em>, <em>acceptor_channel</em>, <em>fluorophore_donor='fluorophore_donor'</em>, <em>fluorophore_acceptor='fluorophore_acceptor'</em>, <em>buffer='buffer'</em>, <em>net_fret_key='net_fret'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_net_fret"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_net_fret" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the net FRET signal for a donor acceptor FRET setup.</p>
+<blockquote>
+<div><p>Calculate the net FRET signal for a donor acceptor FRET setup.
+Typical donor -&gt; aceptor pairs include</p>
+<ul class="simple">
+<li>414nm CFP -&gt; 475nm -&gt; YFP 525nm</li>
+<li>EU -&gt; 615nm -&gt; APC 665nm</li>
+</ul>
+<p>The following wells are needed, for both channels</p>
+<ul class="simple">
+<li><cite>donor</cite> Donor_fluorophor blank</li>
+<li><cite>acceptor</cite> Acceptor_fluorophor blank</li>
+<li><cite>buffer</cite> Buffer blank</li>
+</ul>
+<p>The proportionality factor for donor compensation is then calculation as
+.. math:</p>
+<p>p =</p>
+</div></blockquote>
+<p>rac{hat{donor_{acceptor_channel}} - hat{buffer_{acceptor_channel}}}{hat{donor_{donor_channel}} - hat{buffer_{donor_channel}}}</p>
+<blockquote>
+<div><p>Further, the net FRET signal <cite>f</cite> for all wells <cite>x</cite> may be calculated as:
+.. math:</p>
+<p>netfret = x_{acceptor_channel} - hat{acceptor_{acceptor_channel}} - p cdot (x_{donor_channel} - hat{buffer_{donor_channel}})</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>donor_channel (str):  The key for self.readout.data where the donor_channel <code class="docutils literal"><span class="pre">Readout</span></code> instance is stored.
+acceptor_channel (str):  The key for self.readout.data where the acceptor_channel <code class="docutils literal"><span class="pre">Readout</span></code> instance is stored.
+fluorophore_donor (str):  The name of the donor fluorophore in self.plate_data.
+fluorophore_acceptor (str):  The name of the acceptor fluorophore in self.plate_data.
+buffer (str):  The name of the buffer in self.plate_data.
+net_fret_key (str):  The key for self.readout.data where the resulting net fret <code class="docutils literal"><span class="pre">Readout</span></code> instance will be stored.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_normalization_by_division">
+<code class="descname">calculate_normalization_by_division</code><span class="sig-paren">(</span><em>unnormalized_key</em>, <em>normalizer_key</em>, <em>normalized_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_normalization_by_division"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_normalization_by_division" title="Permalink to this definition">¶</a></dt>
+<dd><p>The normalize data set is equal to a division of all data by the mean of a subset of the data.
+:param unnormalized_key: The key for self.readout.data where the unnormalized <code class="docutils literal"><span class="pre">Readout</span></code> instance is stored.
+:type unnormalized_key: str
+:param normalized_key: The key for self.readout.data where the resulting normalized <code class="docutils literal"><span class="pre">Readout</span></code> instance will be stored.
+:type normalized_key: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.calculate_significance_compared_to_null_distribution">
+<code class="descname">calculate_significance_compared_to_null_distribution</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>sample_tag_null_distribution</em>, <em>data_tag_standard_score</em>, <em>data_tag_p_value</em>, <em>is_higher_value_better</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.calculate_significance_compared_to_null_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.calculate_significance_compared_to_null_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the standard score and p-value for all data (in <cite>data_tag_readout</cite>) compared to the null distribution
+defined by all data of <cite>sample_tag_null_distribution</cite> in <cite>data_tag_readout</cite>.
+Save as readouts with tags <cite>data_tag_standard_score</cite> and <cite>data_tag_p_value</cite>.</p>
+<p>Assume that the samples in <cite>sample_tag_null_distribution</cite> follows a Gaussian distribution.</p>
+<p>WARNING! For pvalue calculation, we assume that the control, which has lower mean values, is also supposed to
+show lower mean values. [Otherwise, we would have to introduce a boolean “pos_control_lower_than_neg_control.”]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_tag_readout</strong> (<em>str</em>) – The key for self.readout.data where the readouts are stored.</li>
+<li><strong>sample_tag_null_distribution</strong> (<em>str</em>) – The sample key (defined in plate layout) defining what sample will make up the null distribution that we compare all other samples to.</li>
+<li><strong>data_tag_standard_score</strong> (<em>str</em>) – The key for self.readout.data where the standard scores will be stored.</li>
+<li><strong>data_tag_p_value</strong> (<em>str</em>) – The key for self.readout.data where the p-values will be stored.</li>
+<li><strong>**kwargs</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.classify_by_cutoff">
+<code class="descname">classify_by_cutoff</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>data_tag_classified_readout</em>, <em>threshold</em>, <em>is_higher_value_better=True</em>, <em>is_twosided=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.classify_by_cutoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.classify_by_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map a dataset of float values to either binary (<cite>is_twosided==False</cite>) or [-1,0,1] (<cite>is_twosided==True</cite>), depending
+on whether values fall below <cite>threshold</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_tag_readout</strong> – The key for self.readout.data where the readouts are stored.</li>
+<li><strong>data_tag_classified_readout</strong> – The key for self.readout.data where the True/False classification values will be stored.</li>
+<li><strong>threshold</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>format</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">Plate</span></code> instance.</p>
+<p>Create <code class="docutils literal"><span class="pre">Plate</span></code> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) – Path to input file or directory</li>
+<li><strong>format</strong> (<em>str</em>) – Format of the input file, at current not specified</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.cross_validate_predictions">
+<code class="descname">cross_validate_predictions</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>sample_tag</em>, <em>method_name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.cross_validate_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.cross_validate_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cross validate sample value predictions for sample type <cite>sample_tag</cite> and readout <cite>data_tag_readout</cite>,
+using prediction method <cite>method_name</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_tag_readout</strong> (<em>str</em>) – The key for self.readout.data where the <code class="docutils literal"><span class="pre">Readout</span></code> instance is stored.</li>
+<li><strong>sample_tag</strong> (<em>str</em>) – The sample for which the gaussian process will be modeled according to the
+position in self.plate_layout.data. E.g. for positive controls “pos”</li>
+<li><strong>method_name</strong> (<em>str</em>) – The prediction method. E.g. gp for Gaussian processes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.evaluate_well_value_prediction">
+<code class="descname">evaluate_well_value_prediction</code><span class="sig-paren">(</span><em>data_predictions</em>, <em>data_tag_readout</em>, <em>sample_key=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.evaluate_well_value_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.evaluate_well_value_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Calculate mean squared prediction error.</div></blockquote>
+<p>ToDo: Debug. Better: REWRITE!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>value_data_type</em>, <em>value_data_tag</em>, <em>value_type=None</em>, <em>condition_data_type=None</em>, <em>condition_data_tag=None</em>, <em>condition=None</em>, <em>return_list=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of values for defined <cite>wells</cite> of the data tagged with <cite>data_tag</cite>.
+If <cite>value_type</cite> is set, check if all values conform with <cite>value_type</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>condition_data_type</strong> (<em>str</em>) – Reference to PlateData instance on which wells are filtered for the condition.</li>
+<li><strong>condition_data_tag</strong> (<em>str</em>) – Data tag for condition_data_type</li>
+<li><strong>condition</strong> (<a class="reference internal" href="hts.protocol.html#hts.protocol.protocol.ProtocolTask.method" title="hts.protocol.protocol.ProtocolTask.method"><em>method</em></a>) – The condition expressed as a method.</li>
+<li><strong>value_data_type</strong> (<em>str</em>) – Reference to PlateData instance from which (for filtered wells) the values are retrieved.</li>
+<li><strong>value_data_tag</strong> (<em>str</em>) – Data tag for value_data_type.</li>
+<li><strong>value_type</strong> (<em>str</em>) – The type of the return values.</li>
+<li><strong>return_list</strong> (<em>bool</em>) – Returns a flattened list of all values</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(list of x), where x are of type <cite>value_type</cite>, if <cite>value_type</cite> is set.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>..todo: rename method from filter to get_data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.flatten_data">
+<code class="descname">flatten_data</code><span class="sig-paren">(</span><em>wells</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.flatten_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.flatten_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.flatten_values">
+<code class="descname">flatten_values</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.flatten_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.flatten_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.flatten_wells">
+<code class="descname">flatten_wells</code><span class="sig-paren">(</span><em>wells</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.flatten_wells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.flatten_wells" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.get_data_for_gaussian_process">
+<code class="descname">get_data_for_gaussian_process</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>sample_tags</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.get_data_for_gaussian_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.get_data_for_gaussian_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.map_coordinates">
+<code class="descname">map_coordinates</code><span class="sig-paren">(</span><em>coordinates_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.map_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.map_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.preprocess">
+<code class="descname">preprocess</code><span class="sig-paren">(</span><em>methodname</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.randomize_values">
+<code class="descname">randomize_values</code><span class="sig-paren">(</span><em>data_tag_readout</em>, <em>data_tag_randomized_readout</em>, <em>randomized_samples='s'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.randomize_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.randomize_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomize the signal in a readout per plate and for a specific sample.
+The result of this method has only visualization purposes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_tag_readout</strong> (<em>str</em>) – The key for self.readout.data where the readouts are stored.</li>
+<li><strong>data_tag_randomized_readout</strong> (<em>str</em>) – The key for self.readout.data where the randomized data will be stored.</li>
+<li><strong>**kwargs</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.subtract_readouts">
+<code class="descname">subtract_readouts</code><span class="sig-paren">(</span><em>data_tag_readout_minuend</em>, <em>data_tag_readout_subtrahend</em>, <em>data_tag_readout_difference</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.subtract_readouts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.subtract_readouts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.un_flatten_data">
+<code class="descname">un_flatten_data</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.un_flatten_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.un_flatten_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="hts.plate.plate.Plate.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>format</em>, <em>path=None</em>, <em>return_string=None</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#Plate.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.Plate.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and write <code class="docutils literal"><span class="pre">Plate</span></code> instances.</p>
+<p>Serialize <code class="docutils literal"><span class="pre">Plate</span></code> instance using the stated <code class="docutils literal"><span class="pre">format</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) – The output format: Currently only “pickle”.</li>
+<li><strong>path</strong> (<em>str</em>) – Path to output file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write checks for <code class="docutils literal"><span class="pre">format</span></code> and <code class="docutils literal"><span class="pre">path</span></code>.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="hts.plate.plate.translate_coordinate_humanreadable">
+<code class="descclassname">hts.plate.plate.</code><code class="descname">translate_coordinate_humanreadable</code><span class="sig-paren">(</span><em>coordinate</em>, <em>pattern=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#translate_coordinate_humanreadable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.translate_coordinate_humanreadable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="hts.plate.plate.translate_humanreadable_coordinate">
+<code class="descclassname">hts.plate.plate.</code><code class="descname">translate_humanreadable_coordinate</code><span class="sig-paren">(</span><em>humanreadable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hts/plate/plate.html#translate_humanreadable_coordinate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hts.plate.plate.translate_humanreadable_coordinate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="hts-plate-prediction-module">
 <h2>hts.plate.prediction module<a class="headerlink" href="#hts-plate-prediction-module" title="Permalink to this headline">¶</a></h2>
@@ -165,7 +533,7 @@
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
     </p>
   </div>
 </footer>
