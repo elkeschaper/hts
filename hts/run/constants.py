@@ -1,5 +1,3 @@
-
-
 AUTHOR = "Vital-IT, Swiss Institute of Bioinformatics"
 R_HELPER_METHODS = "helper_methods.R"
 
