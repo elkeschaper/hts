@@ -71,7 +71,7 @@ parse_args() {
 
 	# Source directory & target branch.
 	deploy_directory=${HTS_GIT_DEPLOY_DIR:-_build/html}
-	deploy_branch=${HTS_GIT_DEPLOY_BRANCH:-docs-html}
+	deploy_branch=${HTS_GIT_DEPLOY_BRANCH:-gh-pages}
 
 	#if no user identity is already set in the current git environment, use this:
 	default_username=${GIT_DEPLOY_USERNAME:-deploy.sh}
