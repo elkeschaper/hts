@@ -1,42 +1,28 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>hts.plate_data.readout_io &mdash; HTS 0.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <title>hts.plate_data.readout_io &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="HTS 0.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
     <div class="container">
@@ -47,7 +33,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="../../../index.html"><img src="../../../_static/hts_logo.png">
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/hts_logo.png"></span>
            </a>
         <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
       </div>
@@ -69,7 +55,7 @@
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/load_data__tutorial.html">Tutorial: Load data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
@@ -80,9 +66,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../notebooks/quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
 </ul>
 </li>
@@ -154,12 +140,12 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1">################################## READ SCREEN DATA  #########################</span>
 
 
-<div class="viewcode-block" id="read_envision_csv"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.readout_io.read_envision_csv">[docs]</a><span class="k">def</span> <span class="nf">read_envision_csv</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="read_envision_csv"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.readout_io.read_envision_csv">[docs]</a><span class="k">def</span> <span class="nf">read_envision_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read screen data file in [] format.</span>
 
 <span class="sd">    The envision .csv file structure is not described publicly.</span>
@@ -361,7 +347,7 @@
     <span class="n">pat_info</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Plate&#39;</span><span class="p">,</span> <span class="s1">&#39;Repeat&#39;</span><span class="p">,</span> <span class="s1">&#39;Barcode&#39;</span><span class="p">,</span> <span class="s1">&#39;Measured height&#39;</span><span class="p">]</span>
     <span class="n">pat_background</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Plate&#39;</span><span class="p">,</span> <span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="s1">&#39;Result&#39;</span><span class="p">]</span>
 
-    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Now parsing file: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">file</span><span class="p">))</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Now parsing file: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
 
     <span class="c1"># Our possible parser states:</span>
     <span class="c1">#</span>
@@ -381,12 +367,12 @@
     <span class="c1"># 5: search for Exported with EnVision Workstation version number</span>
 
     <span class="n">state</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">data_plate</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">data_plate</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">data_plate_count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">channel_wise_reads</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">channel_wise_info</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">plate_info</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s2">&quot;ISO-8859-1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s2">&quot;ISO-8859-1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
         <span class="c1">#dialect = csv.Sniffer().sniff(csvfile.read(1024))</span>
         <span class="c1">#sample_text = &#39;&#39;.join(csvfile.readline() for x in range(3))</span>
         <span class="c1">#dialect = csv.Sniffer().sniff(sample_text)</span>
@@ -439,13 +425,13 @@
                         <span class="n">read</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
                     <span class="n">data_plate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">line_length</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_plate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                        <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot; The lines in the plate differ in length. line_length: {}. line: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line_length</span><span class="p">,</span> <span class="n">data_plate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot; The lines in the plate differ in length. line_length: </span><span class="si">{}</span><span class="s2">. line: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line_length</span><span class="p">,</span> <span class="n">data_plate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
                     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; * (2.4-&gt;2.4) Store another plate plate line.&quot;</span><span class="p">)</span>
                     <span class="n">state</span> <span class="o">=</span> <span class="mf">2.4</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">channel_wise_reads</span><span class="p">[</span><span class="n">data_plate_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_plate</span>
                     <span class="n">channel_wise_info</span><span class="p">[</span><span class="n">data_plate_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_background_info</span>
-                    <span class="n">data_plate</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="n">data_plate</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; * (2.4-&gt;2) Plate plate complete.&quot;</span><span class="p">)</span>
                     <span class="n">state</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -453,7 +439,7 @@
         <span class="n">channel_wise_reads</span><span class="p">[</span><span class="n">data_plate_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_plate</span>
         <span class="n">channel_wise_info</span><span class="p">[</span><span class="n">data_plate_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_background_info</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; * (2.4-&gt;None) Overall plate plate complete.&quot;</span><span class="p">)</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Currently: Replace all &quot;&quot; with 0</span>
     <span class="n">channel_wise_reads</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):[[</span><span class="s2">&quot;0&quot;</span> <span class="k">if</span> <span class="n">l</span><span class="o">==</span><span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">channel_wise_reads</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -463,7 +449,7 @@
 
 
 
-<div class="viewcode-block" id="read_insulin_csv"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.readout_io.read_insulin_csv">[docs]</a><span class="k">def</span> <span class="nf">read_insulin_csv</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
+<div class="viewcode-block" id="read_insulin_csv"><a class="viewcode-back" href="../../../hts.plate_data.html#hts.plate_data.readout_io.read_insulin_csv">[docs]</a><span class="k">def</span> <span class="nf">read_insulin_csv</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read screen data file in [] format. Afterwards, map to plate layout.</span>
 
 <span class="sd">    The  .csv file structure is not described publicly.</span>
@@ -516,7 +502,7 @@
     <span class="n">hour_re</span> <span class="o">=</span> <span class="s2">&quot;(\d+) h&quot;</span>
     <span class="n">min_re</span> <span class="o">=</span> <span class="s2">&quot;(\d+) min&quot;</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
         <span class="c1">#dialect = csv.Sniffer().sniff(csvfile.read(1024))</span>
         <span class="c1">#sample_text = &#39;&#39;.join(csvfile.readline() for x in range(3))</span>
         <span class="c1">#dialect = csv.Sniffer().sniff(sample_text)</span>
@@ -590,7 +576,7 @@
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
     </p>
   </div>
 </footer>

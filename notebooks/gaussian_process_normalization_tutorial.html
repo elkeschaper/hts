@@ -1,34 +1,22 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Tutorial: Gaussian process normalization &mdash; HTS 0.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <title>Tutorial: Gaussian process normalization &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="HTS 0.0.1 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tutorial: Create a Quality control report" href="quality_control_reporting__tutorial.html" />
     <link rel="prev" title="Tutorial: Load data" href="load_data__tutorial.html" />
 <meta charset='utf-8'>
@@ -36,8 +24,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
     <div class="container">
@@ -48,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="../index.html"><img src="../_static/hts_logo.png">
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/hts_logo.png"></span>
            </a>
         <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
       </div>
@@ -70,7 +57,7 @@
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="load_data__tutorial.html">Tutorial: Load data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Gaussian process normalization</a><ul>
@@ -81,9 +68,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quality_control_reporting__tutorial.html">Tutorial: Create a Quality control report</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quality_control_reporting__tutorial.html#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
 </ul>
 </li>
@@ -131,7 +118,7 @@
               
                 
   <li>
-    <a href="load_data__tutorial.html" title="Previous Chapter: Tutorial: Load data"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Tutorial: Loa...</span>
+    <a href="load_data__tutorial.html" title="Previous Chapter: Tutorial: Load data"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Tutorial: Load data</span>
     </a>
   </li>
   <li>
@@ -169,13 +156,15 @@
 
 /* remove conflicting styling from Sphinx themes */
 div.nbinput,
-div.nbinput > div,
-div.nbinput div[class^=highlight],
-div.nbinput div[class^=highlight] pre,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
 div.nboutput,
-div.nboutput > div,
-div.nboutput div[class^=highlight],
-div.nboutput div[class^=highlight] pre {
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
     background: none;
     border: none;
     padding: 0 0;
@@ -184,7 +173,7 @@ div.nboutput div[class^=highlight] pre {
 }
 
 /* avoid gaps between output lines */
-div.nboutput div[class^=highlight] pre {
+div.nboutput div[class*=highlight] pre {
     line-height: normal;
 }
 
@@ -195,6 +184,13 @@ div.nboutput {
     display: flex;
     align-items: flex-start;
     margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
 }
 
 /* input container */
@@ -208,38 +204,58 @@ div.nblast {
 }
 
 /* input prompt */
-div.nbinput > :first-child pre {
+div.nbinput div.prompt pre {
     color: #303F9F;
 }
 
 /* output prompt */
-div.nboutput > :first-child pre {
+div.nboutput div.prompt pre {
     color: #D84315;
 }
 
 /* all prompts */
-div.nbinput > :first-child[class^=highlight],
-div.nboutput > :first-child[class^=highlight],
-div.nboutput > :first-child {
-    min-width: 11ex;
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 9ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
     flex: 0;
 }
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
 
 /* input/output area */
-div.nbinput > :nth-child(2)[class^=highlight],
-div.nboutput > :nth-child(2),
-div.nboutput > :nth-child(2)[class^=highlight] {
+div.nbinput div.input_area,
+div.nboutput div.output_area {
     padding: 0.4em;
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
 
 /* input area */
-div.nbinput > :nth-child(2)[class^=highlight] {
+div.nbinput div.input_area {
     border: 1px solid #cfcfcf;
     border-radius: 2px;
     background: #f7f7f7;
@@ -256,7 +272,7 @@ div.nboutput div.math p {
 }
 
 /* standard error */
-div.nboutput  > :nth-child(2).stderr {
+div.nboutput div.output_area.stderr {
     background: #fdd;
 }
 
@@ -294,29 +310,33 @@ div.nboutput  > :nth-child(2).stderr {
 .ansi-white-intense-fg { color: #A1A6B2; }
 .ansi-white-intense-bg { background-color: #A1A6B2; }
 
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
 .ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
 </style>
 <div class="section" id="Tutorial:-Gaussian-process-normalization">
 <h1>Tutorial: Gaussian process normalization<a class="headerlink" href="#Tutorial:-Gaussian-process-normalization" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="1.-Load-all-dependencies">
 <h2>1. Load all dependencies<a class="headerlink" href="#1.-Load-all-dependencies" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [10]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [1]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># %matplotlib inline is only necessary in inline mode</span>
-<span class="o">%</span><span class="k">matplotlib</span> inline
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span># %matplotlib inline is only necessary in inline mode
+%matplotlib inline
+import logging
+import os
 
-<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">qc_matplotlib</span>
-<span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
-<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
+from hts.data_tasks import qc_matplotlib
+from hts.run.run import Run
+from hts.paths import TUTORIAL_DATA_NORMALIZATION_PATH
 
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-<span class="n">config_path</span> <span class="o">=</span> <span class="n">TUTORIAL_DATA_NORMALIZATION_PATH</span>
+logging.basicConfig(level=logging.ERROR)
+config_path = TUTORIAL_DATA_NORMALIZATION_PATH
 
 </pre></div>
 </div>
@@ -325,50 +345,50 @@ div.nboutput  > :nth-child(2).stderr {
 </div>
 <div class="section" id="2.-Read-in-your-high-throughput-screening-data">
 <h2>2. Read in your high throughput screening data<a class="headerlink" href="#2.-Read-in-your-high-throughput-screening-data" title="Permalink to this headline">¶</a></h2>
-<p>Let&#8217;s read in some data defined in a config file:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [11]:
+<p>Let’s read in some data defined in a config file:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [2]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Find the configuration file for this tutorial here: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config_path</span><span class="p">))</span>
-<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>print(&quot;Find the configuration file for this tutorial here: {}&quot;.format(config_path))
+run = Run.create(path=config_path, origin=&quot;config&quot;)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <div class="highlight"><pre>
 Find the configuration file for this tutorial here: /Users/elkeschaper/Python_projects/HTS/test_data/Runs/run_config_tutorial_1.txt
 </pre></div></div>
 </div>
-<p>We create a <code class="docutils literal"><span class="pre">Run</span></code> instance from the original raw data. A <code class="docutils literal"><span class="pre">Run</span></code> can
+<p>We create a <code class="docutils literal notranslate"><span class="pre">Run</span></code> instance from the original raw data. A <code class="docutils literal notranslate"><span class="pre">Run</span></code> can
 hold all information on readouts, plate layouts, and meta data on the
-samples. A <code class="docutils literal"><span class="pre">Run</span></code> instance provides all functionality to deal with the
+samples. A <code class="docutils literal notranslate"><span class="pre">Run</span></code> instance provides all functionality to deal with the
 data, such as for input/output, quality control and analysis reporting,
-and hit selection. For more information on <code class="docutils literal"><span class="pre">Run</span></code> instances, and create
+and hit selection. For more information on <code class="docutils literal notranslate"><span class="pre">Run</span></code> instances, and create
 statements, look here <a class="reference external" href="data_io">Data IO</a> and <a class="reference external" href="run">link to RUN</a>.
 [TODO: In Run, add schema of Run/Plate/PlateData]</p>
 <p>Look here to see how to <a class="reference external" href="run_config">create a run config file</a> and to
 <a class="reference external" href="data_io">read in your own data</a>.</p>
-<p>Let&#8217;s have a look at the current data set:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [12]:
+<p>Let’s have a look at the current data set:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [3]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>print(run)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <div class="highlight"><pre>
 &lt;Run instance&gt;
 Path to run config file: /Users/elkeschaper/Python_projects/HTS/test_data/Runs/run_config_tutorial_1.txt
@@ -386,32 +406,32 @@ height: 16
 kernels, decides on the best Gaussian process model per plate with the
 Bayesian Information Criterion, and produces a report of the results
 [ToDo: Link to report].</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [13]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [4]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">run</span><span class="o">.</span><span class="n">do_task</span><span class="p">(</span><span class="s2">&quot;gp&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>run.do_task(&quot;gp&quot;)
 </pre></div>
 </div>
 </div>
-<div class="nboutput container">
-<div class="container">
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="stderr container">
+<div class="stderr output_area docutils container">
 <div class="highlight"><pre>
 WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate wise tasks
 WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate wise tasks
 WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate wise tasks
 </pre></div></div>
 </div>
-<div class="nboutput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>Out[13]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Out[4]:
 </pre></div>
 </div>
-<div class="highlight-none"><div class="highlight"><pre>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
 <span></span>{&#39;siRNA: Calculate local SSMD from Gaussian process neg_0 and pos_0 predictions.&#39;: None,
  &#39;siRNA: Calculate standard score (z-score) and pvalue of signal compared to negative control for best gp normalized data.&#39;: None,
  &#39;siRNA: Calculate standard score (z-score) and pvalue of signal compared to sample for best gp normalized data.&#39;: None,
@@ -424,52 +444,52 @@ WARNING:hts.data_tasks.data_tasks:Could not find task data_tasks - trying plate 
 </div>
 </div>
 <p>Now, this was a little fast. What happened? All steps were defined in
-the <code class="docutils literal"><span class="pre">Protocol</span> <span class="pre">config</span></code> file defined in the <code class="docutils literal"><span class="pre">Run</span> <span class="pre">config</span></code> file:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [14]:
+the <code class="docutils literal notranslate"><span class="pre">Protocol</span> <span class="pre">config</span></code> file defined in the <code class="docutils literal notranslate"><span class="pre">Run</span> <span class="pre">config</span></code> file:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [5]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>print(run.protocol)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;bound method Run.protocol of &lt;hts.run.run.Run object at 0x10eced908&gt;&gt;
+&lt;bound method Run.protocol of &lt;hts.run.run.Run object at 0x110f44f60&gt;&gt;
 </pre></div></div>
 </div>
 <p>Look here to see how to <a class="reference external" href="protocol_config">create a protocol config
-file</a>. For now, let&#8217;s go step by step:</p>
+file</a>. For now, let’s go step by step:</p>
 <div class="section" id="Plot-the-raw-data">
 <h3>Plot the raw data<a class="headerlink" href="#Plot-the-raw-data" title="Permalink to this headline">¶</a></h3>
-<p>m Let&#8217;s have a look look at the raw data. It&#8217;s named &#8220;signal&#8221;:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [15]:
+<p>m Let’s have a look look at the raw data. It’s named “signal”:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [6]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>qc_matplotlib.heat_map_multiple(run, &quot;signal&quot;)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <img alt="../_images/notebooks_gaussian_process_normalization_tutorial_11_0.png" src="../_images/notebooks_gaussian_process_normalization_tutorial_11_0.png" />
 </div>
 </div>
 </div>
 <div class="section" id="The-RBF-Kernel">
 <h3>The RBF Kernel<a class="headerlink" href="#The-RBF-Kernel" title="Permalink to this headline">¶</a></h3>
-<p>In our <code class="docutils literal"><span class="pre">Protocol</span> <span class="pre">config</span></code>, we see the following task:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Tutorial</span> <span class="n">data</span><span class="p">:</span> <span class="n">Train</span> <span class="n">a</span> <span class="n">Gaussian</span> <span class="n">process</span> <span class="n">on</span> <span class="n">sample</span> <span class="n">data</span><span class="p">]</span>
+<p>In our <code class="docutils literal notranslate"><span class="pre">Protocol</span> <span class="pre">config</span></code>, we see the following task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Tutorial</span> <span class="n">data</span><span class="p">:</span> <span class="n">Train</span> <span class="n">a</span> <span class="n">Gaussian</span> <span class="n">process</span> <span class="n">on</span> <span class="n">sample</span> <span class="n">data</span><span class="p">]</span>
 <span class="n">tags</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">,</span> <span class="n">gp</span>  <span class="c1"># Choose arbitrary tags for your task</span>
 <span class="n">method</span> <span class="o">=</span> <span class="n">gaussian_processes</span><span class="o">.</span><span class="n">add_gaussian_processes</span>
 <span class="n">data_tag_readout</span> <span class="o">=</span> <span class="n">net_fret</span> <span class="c1"># What readout should we train the GP on?</span>
@@ -486,15 +506,15 @@ file</a>. For now, let&#8217;s go step by step:</p>
                 <span class="n">fix</span> <span class="o">=</span> <span class="mi">1</span>
 </pre></div>
 </div>
-<p>Here, for each plate, we added a Gaussian process named &#8220;rbf&#8221;. We
+<p>Here, for each plate, we added a Gaussian process named “rbf”. We
 defined what data the Gaussian process should be trained on:
-<code class="docutils literal"><span class="pre">sample_tags</span> <span class="pre">=</span> <span class="pre">2</span></code> For every Gaussian process, we can define an
+<code class="docutils literal notranslate"><span class="pre">sample_tags</span> <span class="pre">=</span> <span class="pre">2</span></code> For every Gaussian process, we can define an
 arbitrarily constituted kernel. In this case, we chose only a very
 simple kernel: The RBF kernel. All kernels implemented in GPy for at
 least two-dimensional data can be used. Look at the <a class="reference external" href="http://gpytest2.readthedocs.io/en/latest/GPy.kern.html">Overview of all GPy
 kernels</a></p>
-<p>Further down in <code class="docutils literal"><span class="pre">Protocol</span> <span class="pre">config</span></code>, we see this task:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Tutorial</span> <span class="n">data</span><span class="p">:</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">trained</span> <span class="n">Gaussian</span> <span class="n">process</span> <span class="k">for</span> <span class="n">prediction</span><span class="o">/</span><span class="n">smoothing</span><span class="o">.</span><span class="p">]</span>
+<p>Further down in <code class="docutils literal notranslate"><span class="pre">Protocol</span> <span class="pre">config</span></code>, we see this task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Tutorial</span> <span class="n">data</span><span class="p">:</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">trained</span> <span class="n">Gaussian</span> <span class="n">process</span> <span class="k">for</span> <span class="n">prediction</span><span class="o">/</span><span class="n">smoothing</span><span class="o">.</span><span class="p">]</span>
     <span class="n">tags</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">,</span> <span class="n">gp</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">gaussian_processes</span><span class="o">.</span><span class="n">do_gaussian_process_prediction</span>
     <span class="n">data_tag_readout</span> <span class="o">=</span> <span class="n">net_fret</span> <span class="c1"># ToDo: Is this needed?</span>
@@ -503,39 +523,39 @@ kernels</a></p>
     <span class="n">sample_tags</span> <span class="o">=</span> <span class="n">s</span><span class="p">,</span> <span class="c1"># ToDo: What is this good for?</span>
 </pre></div>
 </div>
-<p>Now, let&#8217;s plot some of the predictions:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [16]:
+<p>Now, let’s plot some of the predictions:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [7]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;best__s__predicted_mean&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>qc_matplotlib.heat_map_multiple(run, &quot;best__s__predicted_mean&quot;)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <img alt="../_images/notebooks_gaussian_process_normalization_tutorial_13_0.png" src="../_images/notebooks_gaussian_process_normalization_tutorial_13_0.png" />
 </div>
 </div>
-<p>Let&#8217;s plot the trained Gaussian process in high resolution:</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [17]:
+<p>Let’s plot the trained Gaussian process in high resolution:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [8]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">qc_matplotlib</span><span class="o">.</span><span class="n">heat_map_multiple_gaussian_process_model</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">kernel_tag</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>qc_matplotlib.heat_map_multiple_gaussian_process_model(run, kernel_tag=&quot;rbf&quot;)
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="container">
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="container">
+<div class="output_area docutils container">
 <img alt="../_images/notebooks_gaussian_process_normalization_tutorial_15_0.png" src="../_images/notebooks_gaussian_process_normalization_tutorial_15_0.png" />
 </div>
 </div>
@@ -543,13 +563,13 @@ kernels</a></p>
 </div>
 <div class="section" id="Write-the-normalized-data-to-a-file">
 <h2>Write the normalized data to a file<a class="headerlink" href="#Write-the-normalized-data-to-a-file" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
-<span></span>In [18]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [9]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">run</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>run.write(format=&quot;csv&quot;)
 </pre></div>
 </div>
 </div>
@@ -569,7 +589,7 @@ kernels</a></p>
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
     </p>
   </div>
 </footer>

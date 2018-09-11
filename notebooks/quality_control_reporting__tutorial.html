@@ -1,34 +1,22 @@
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Tutorial: Create a Quality control report &mdash; HTS 0.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <title>Tutorial: Create a Quality control report &#8212; HTS 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="HTS 0.0.1 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tutorial: Write data" href="write_data__tutorial.html" />
     <link rel="prev" title="Tutorial: Gaussian process normalization" href="gaussian_process_normalization_tutorial.html" />
 <meta charset='utf-8'>
@@ -36,8 +24,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
     <div class="container">
@@ -48,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="../index.html"><img src="../_static/hts_logo.png">
+        <a class="navbar-brand" href="../index.html"><span><img src="../_static/hts_logo.png"></span>
            </a>
         <span class="navbar-text navbar-version pull-left"><b>0.0</b></span>
       </div>
@@ -70,7 +57,7 @@
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="load_data__tutorial.html">Tutorial: Load data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_data__tutorial.html#Create-a-run-config-file.">Create a <code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">config</span></code> file.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gaussian_process_normalization_tutorial.html">Tutorial: Gaussian process normalization</a><ul>
@@ -81,9 +68,9 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Create a Quality control report</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
 </ul>
 </li>
@@ -112,9 +99,9 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Tutorial: Create a Quality control report</a><ul>
-<li><a class="reference internal" href="#Create-a-protocol_config-file.">Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.</a></li>
-<li><a class="reference internal" href="#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .</a></li>
-<li><a class="reference internal" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.</a></li>
+<li><a class="reference internal" href="#Create-a-protocol_config-file.">Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.</a></li>
+<li><a class="reference internal" href="#Add-Quality-control-instructions-to-the-protocol_config-.">Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .</a></li>
+<li><a class="reference internal" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.</a></li>
 <li><a class="reference internal" href="#Create-the-Quality-control-report:-Example">Create the Quality control report: Example</a></li>
 </ul>
 </li>
@@ -131,7 +118,7 @@
     </a>
   </li>
   <li>
-    <a href="write_data__tutorial.html" title="Next Chapter: Tutorial: Write data"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tutorial: Wri... &raquo;</span>
+    <a href="write_data__tutorial.html" title="Next Chapter: Tutorial: Write data"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tutorial: Write data &raquo;</span>
     </a>
   </li>
               
@@ -165,13 +152,15 @@
 
 /* remove conflicting styling from Sphinx themes */
 div.nbinput,
-div.nbinput > div,
-div.nbinput div[class^=highlight],
-div.nbinput div[class^=highlight] pre,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
 div.nboutput,
-div.nboutput > div,
-div.nboutput div[class^=highlight],
-div.nboutput div[class^=highlight] pre {
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
     background: none;
     border: none;
     padding: 0 0;
@@ -180,7 +169,7 @@ div.nboutput div[class^=highlight] pre {
 }
 
 /* avoid gaps between output lines */
-div.nboutput div[class^=highlight] pre {
+div.nboutput div[class*=highlight] pre {
     line-height: normal;
 }
 
@@ -191,6 +180,13 @@ div.nboutput {
     display: flex;
     align-items: flex-start;
     margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
 }
 
 /* input container */
@@ -204,38 +200,58 @@ div.nblast {
 }
 
 /* input prompt */
-div.nbinput > :first-child pre {
+div.nbinput div.prompt pre {
     color: #303F9F;
 }
 
 /* output prompt */
-div.nboutput > :first-child pre {
+div.nboutput div.prompt pre {
     color: #D84315;
 }
 
 /* all prompts */
-div.nbinput > :first-child[class^=highlight],
-div.nboutput > :first-child[class^=highlight],
-div.nboutput > :first-child {
-    min-width: 11ex;
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 9ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
     flex: 0;
 }
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
 
 /* input/output area */
-div.nbinput > :nth-child(2)[class^=highlight],
-div.nboutput > :nth-child(2),
-div.nboutput > :nth-child(2)[class^=highlight] {
+div.nbinput div.input_area,
+div.nboutput div.output_area {
     padding: 0.4em;
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
 
 /* input area */
-div.nbinput > :nth-child(2)[class^=highlight] {
+div.nbinput div.input_area {
     border: 1px solid #cfcfcf;
     border-radius: 2px;
     background: #f7f7f7;
@@ -252,7 +268,7 @@ div.nboutput div.math p {
 }
 
 /* standard error */
-div.nboutput  > :nth-child(2).stderr {
+div.nboutput div.output_area.stderr {
     background: #fdd;
 }
 
@@ -290,24 +306,28 @@ div.nboutput  > :nth-child(2).stderr {
 .ansi-white-intense-fg { color: #A1A6B2; }
 .ansi-white-intense-bg { background-color: #A1A6B2; }
 
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
 .ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
 </style>
 <div class="section" id="Tutorial:-Create-a-Quality-control-report">
 <h1>Tutorial: Create a Quality control report<a class="headerlink" href="#Tutorial:-Create-a-Quality-control-report" title="Permalink to this headline">¶</a></h1>
-<p><code class="docutils literal"><span class="pre">HTS</span></code> automatically generates Quality control reports, with a large
+<p><code class="docutils literal notranslate"><span class="pre">HTS</span></code> automatically generates Quality control reports, with a large
 number of diverse quality control statistics and plots currently
 implemented.</p>
-<p>For reporting <code class="docutils literal"><span class="pre">HTS</span></code> uses <a class="reference external" href="http://yihui.name/knitr/">the R library
+<p>For reporting <code class="docutils literal notranslate"><span class="pre">HTS</span></code> uses <a class="reference external" href="http://yihui.name/knitr/">the R library
 Knitr</a>. Knitr allows for output as .html
 and .pdf (default: .html).</p>
-<p>To comply with <code class="docutils literal"><span class="pre">reproducible</span> <span class="pre">research</span></code> standards, code, data and
+<p>To comply with <code class="docutils literal notranslate"><span class="pre">reproducible</span> <span class="pre">research</span></code> standards, code, data and
 reports are all provided in one result folder.</p>
 <p>Follow this tutorial to learn how to create a versatile Quality control
-report for your data with <code class="docutils literal"><span class="pre">HTS</span></code>:</p>
+report for your data with <code class="docutils literal notranslate"><span class="pre">HTS</span></code>:</p>
 <div class="section" id="Create-a-protocol_config-file.">
-<h2>Create a <code class="docutils literal"><span class="pre">protocol_config</span></code> file.<a class="headerlink" href="#Create-a-protocol_config-file." title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">protocoll</span> <span class="pre">config</span></code> defines standardized procedures that are run on
-all of your <code class="docutils literal"><span class="pre">run_config</span></code> files. It is based on
+<h2>Create a <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> file.<a class="headerlink" href="#Create-a-protocol_config-file." title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">protocoll</span> <span class="pre">config</span></code> defines standardized procedures that are run on
+all of your <code class="docutils literal notranslate"><span class="pre">run_config</span></code> files. It is based on
 <a class="reference external" href="https://configobj.readthedocs.io/">configobj</a> (see
 <a class="reference external" href="https://configobj.readthedocs.io/en/latest/configobj.html#the-config-file-format">specifications</a>).</p>
 <p>Follow the <a class="reference internal" href="../config.html"><span class="doc">protocol_config</span></a> tutorial, or download
@@ -316,9 +336,9 @@ template</a>, or simply create
 an empty textfile for your protocol.</p>
 </div>
 <div class="section" id="Add-Quality-control-instructions-to-the-protocol_config-.">
-<h2>Add Quality control instructions to the <code class="docutils literal"><span class="pre">protocol_config</span></code> .<a class="headerlink" href="#Add-Quality-control-instructions-to-the-protocol_config-." title="Permalink to this headline">¶</a></h2>
+<h2>Add Quality control instructions to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> .<a class="headerlink" href="#Add-Quality-control-instructions-to-the-protocol_config-." title="Permalink to this headline">¶</a></h2>
 <p>In this simple example, only two quality control plots are defined:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">My</span> <span class="n">personalized</span> <span class="n">Quality</span> <span class="n">control</span> <span class="n">report</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">My</span> <span class="n">personalized</span> <span class="n">Quality</span> <span class="n">control</span> <span class="n">report</span><span class="p">]</span>
     <span class="n">tags</span> <span class="o">=</span> <span class="n">qc</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">qc_knitr</span><span class="o">.</span><span class="n">create_report</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">my</span> <span class="n">favorite</span> <span class="n">Quality</span> <span class="n">control</span> <span class="n">report</span>
@@ -342,8 +362,8 @@ an empty textfile for your protocol.</p>
 </pre></div>
 </div>
 <p>Every quality control plot consists of at least a <strong>unique</strong> name and
-the <code class="docutils literal"><span class="pre">method</span></code> definition. An explanatory <code class="docutils literal"><span class="pre">text</span></code> may be defined.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mf">2.</span> <span class="n">My</span> <span class="n">readout</span><span class="p">]]</span>
+the <code class="docutils literal notranslate"><span class="pre">method</span></code> definition. An explanatory <code class="docutils literal notranslate"><span class="pre">text</span></code> may be defined.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mf">2.</span> <span class="n">My</span> <span class="n">readout</span><span class="p">]]</span>
     <span class="n">method</span> <span class="o">=</span> <span class="n">heat_map</span>
     <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;You may add an explanatory text here.&quot;</span>
 </pre></div>
@@ -351,14 +371,14 @@ the <code class="docutils literal"><span class="pre">method</span></code> defini
 <p>See a [list of all currently implemented Quality controls
 <a class="reference external" href="hts/hts.data_tasks.html#module-hts.data_tasks.qc_knitr">here</a>.</p>
 <p>All options used in knitr chunks may be set:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[[[</span><span class="n">knitr_options</span><span class="p">]]]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[[</span><span class="n">knitr_options</span><span class="p">]]]</span>
     <span class="n">options</span> <span class="o">=</span> <span class="s2">&quot;fig.height=7&quot;</span>
 </pre></div>
 </div>
 <p>Also, the quality control may be run on a filtered set of the data only:
 For example, to do the quality control only on positive control 0
 (pos_0) and on samples, you may add:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[[[[</span><span class="n">sample_type</span><span class="p">]]]]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[[[</span><span class="n">sample_type</span><span class="p">]]]]</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">s</span>
     <span class="n">is_negated</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">[[[[</span><span class="n">sample</span><span class="p">]]]]</span>
@@ -368,11 +388,11 @@ For example, to do the quality control only on positive control 0
 </div>
 </div>
 <div class="section" id="Connect-your-high-throughput-screening-data-set-to-the-protocol_config.">
-<h2>Connect your high-throughput screening data set to the <code class="docutils literal"><span class="pre">protocol_config</span></code>.<a class="headerlink" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config." title="Permalink to this headline">¶</a></h2>
+<h2>Connect your high-throughput screening data set to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code>.<a class="headerlink" href="#Connect-your-high-throughput-screening-data-set-to-the-protocol_config." title="Permalink to this headline">¶</a></h2>
 <p>Create <a class="reference internal" href="load_data__tutorial.html"><span class="doc">a run config</span></a> for your data.</p>
-<p>First, connect the <code class="docutils literal"><span class="pre">run_config</span></code> to the <code class="docutils literal"><span class="pre">protocol_config</span></code> that
+<p>First, connect the <code class="docutils literal notranslate"><span class="pre">run_config</span></code> to the <code class="docutils literal notranslate"><span class="pre">protocol_config</span></code> that
 contains the QC instructions by adding these lines:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Connect the run config data to the protocol config:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect the run config data to the protocol config:</span>
 <span class="p">[</span><span class="n">protocol</span><span class="p">]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">local</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">protocol</span><span class="o">.</span><span class="n">csv</span>
     <span class="nb">format</span> <span class="o">=</span> <span class="n">config</span>
@@ -380,54 +400,54 @@ contains the QC instructions by adding these lines:</p>
 </div>
 <p>Then, define where the Quality control reports are saved for this data
 set, by adding:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">My</span> <span class="n">personalized</span> <span class="n">Quality</span> <span class="n">control</span> <span class="n">report</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">My</span> <span class="n">personalized</span> <span class="n">Quality</span> <span class="n">control</span> <span class="n">report</span><span class="p">]</span>
     <span class="n">qc_result_path</span> <span class="o">=</span> <span class="n">QC</span><span class="o">/</span><span class="mi">20160418</span><span class="n">_siRNA_BeiValeria</span><span class="o">/</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span>* The name of the quality control tags in `procol_config` and `run_config` (Here: *My personalized Quality control report*) need to match.
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>* The name of the quality control tags in `procol_config` and `run_config` (Here: *My personalized Quality control report*) need to match.
 </pre></div>
 </div>
 </div>
 <div class="section" id="Create-the-Quality-control-report:-Example">
 <h2>Create the Quality control report: Example<a class="headerlink" href="#Create-the-Quality-control-report:-Example" title="Permalink to this headline">¶</a></h2>
 <p>We will use a prepared test data set.</p>
-<div class="nbinput container">
-<div class="highlight-none"><div class="highlight"><pre>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [3]:
 </pre></div>
 </div>
-<div class="highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># %matplotlib inline is only necessary in inline mode</span>
-<span class="o">%</span><span class="k">matplotlib</span> inline
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span># %matplotlib inline is only necessary in inline mode
+%matplotlib inline
+import logging
+import os
 
-<span class="kn">from</span> <span class="nn">hts.data_tasks</span> <span class="k">import</span> <span class="n">qc_matplotlib</span>
-<span class="kn">from</span> <span class="nn">hts.run.run</span> <span class="k">import</span> <span class="n">Run</span>
-<span class="kn">from</span> <span class="nn">hts.paths</span> <span class="k">import</span> <span class="n">TUTORIAL_QC_PATH</span>
+from hts.data_tasks import qc_matplotlib
+from hts.run.run import Run
+from hts.paths import TUTORIAL_QC_PATH
 
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-<span class="n">config_path</span> <span class="o">=</span> <span class="n">TUTORIAL_QC_PATH</span>
+logging.basicConfig(level=logging.ERROR)
+config_path = TUTORIAL_QC_PATH
 
-<span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+run = Run.create(path=config_path, origin=&quot;config&quot;)
 
-<span class="n">run</span><span class="o">.</span><span class="n">qc</span><span class="p">()</span>
+run.qc()
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast container">
-<div class="highlight-none"><div class="highlight"><pre>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>Out[3]:
 </pre></div>
 </div>
-<div class="highlight-none"><div class="highlight"><pre>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
 <span></span>{}
 </pre></div>
 </div>
 </div>
-<p><code class="docutils literal"><span class="pre">run.qc()</span></code> invokes all protocol tasks tagged with <code class="docutils literal"><span class="pre">qc</span></code>. You can add
+<p><code class="docutils literal notranslate"><span class="pre">run.qc()</span></code> invokes all protocol tasks tagged with <code class="docutils literal notranslate"><span class="pre">qc</span></code>. You can add
 an arbitrary number of tasks to the procol file, tag them and invoke
-them with <code class="docutils literal"><span class="pre">run.do_task(tag=&quot;my_tag&quot;)</span></code>.</p>
+them with <code class="docutils literal notranslate"><span class="pre">run.do_task(tag=&quot;my_tag&quot;)</span></code>.</p>
 </div>
 </div>
 
@@ -444,7 +464,7 @@ them with <code class="docutils literal"><span class="pre">run.do_task(tag=&quot
     </p>
     <p>
         &copy; Copyright 2016, Elke Schaper for Vital-IT, SIB.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
     </p>
   </div>
 </footer>

@@ -1,3 +1,0 @@
-git add _sources/*.txt *.html objects.inv searchindex.js
-git commit -m 'Documentation: "$@"'
-git push origin gh-pages
