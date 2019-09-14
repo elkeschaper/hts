@@ -1,9 +1,10 @@
 import os
-import pytest
 
-from hts.run.run import Run
+import pytest
+from hts.paths import DATA_DIRECTORY
 from hts.plate_data.plate_layout import PlateLayout
 from hts.protocol.protocol import Protocol
+from hts.run.run import Run
 
 # Test file names
 TEST_FOLDER_LUMINESCENCE_CSV = "luminescence_cell_viability_for_QC"
@@ -23,13 +24,13 @@ notfixed = pytest.mark.notfixed
 def path_run():
     """Return the path to the test data files.
     """
-    return os.path.join(os.path.abspath('.'), '../', 'test_data', 'Runs')
+    return os.path.join(DATA_DIRECTORY, 'Runs')
 
 @pytest.fixture
 def path_raw_data():
     """Return the path to the test data files.
     """
-    return os.path.join(os.path.abspath('.'), '../', 'test_data', 'Raw_data')
+    return os.path.join(DATA_DIRECTORY, 'Raw_data')
 
 
 

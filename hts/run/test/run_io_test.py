@@ -2,6 +2,7 @@ import collections
 import os
 import pytest
 
+from hts.paths import DATA_DIRECTORY
 from hts.run import run, run_io
 
 # Test file names
@@ -17,14 +18,14 @@ notfixed = pytest.mark.notfixed
 def path_run():
     """Return the path to the test data files.
     """
-    return os.path.join(os.path.abspath('.'), '../', 'test_data', 'Runs')
+    return os.path.join(DATA_DIRECTORY,  'Runs')
 
 
 @pytest.fixture
 def path_raw():
     """Return the path to the test data files.
     """
-    return os.path.join(os.path.abspath('.'), '../', 'test_data', 'Raw_data')
+    return os.path.join(DATA_DIRECTORY,  'Raw_data')
 
 
 @pytest.mark.no_external_software_required
