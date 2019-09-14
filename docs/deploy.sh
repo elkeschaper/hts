@@ -128,6 +128,9 @@ main() {
 		enable_expanded_output
 	fi
 
+	# touch .nojekyll
+	touch $deploy_directory/.nojekyll
+
 	# check if deploy_branch exists locally
 	if git show-ref --verify --quiet "refs/heads/$deploy_branch"
 	then incremental_deploy
