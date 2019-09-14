@@ -221,6 +221,17 @@ def serialize_as_pandas(run_data, readouts=None, meta_data=None, well_name_patte
         for i_row, i_col in i_plate.plate_layout.get_wells(data_tag="layout_general_type", condition=filter_condition):
             h_coordinate = plate.translate_coordinate_humanreadable((i_row, i_col))
             # Here, we decide what data is saved:
+            """
+            print ("SAMPLE =",SAMPLE)
+            print ("SAMPLE_TYPE",SAMPLE_TYPE)
+            print ("WELL_COLUMN_HUMAN", WELL_COLUMN_HUMAN)
+            print ("WELL_COLUMN_MACHINE", WELL_COLUMN_MACHINE)
+            print ("WELL_ROW_MACHINE", WELL_ROW_MACHINE)
+            print ("WELL_ROW_HUMAN", WELL_ROW_HUMAN)
+            print ("WELL_HUMAN", WELL_HUMAN)
+            print ("PLATE_HUMAN", PLATE_HUMAN)
+            print ("PLATE_MACHINE", PLATE_MACHINE)
+            """
             all_data[SAMPLE].append(plate_layout[i_row][i_col])
             all_data[SAMPLE_TYPE].append(plate_layout_general[i_row][i_col])
             all_data[WELL_COLUMN_HUMAN].append(h_coordinate[2])
@@ -266,9 +277,15 @@ def add_meta_data(run_data, meta_data_kwargs, meta_data_well_name_pattern=None, 
     # Delete columns on demand.
     if type(meta_data_exclude_columns) == list:
         for excluded_column in meta_data_exclude_columns:
+            print (excluded_column)
             meta_data.drop(excluded_column, axis=1, inplace=True)
-
-    for i in [WELL_HUMAN, PLATE_HUMAN]:
+    print ( [WELL_HUMAN, PLATE_HUMAN])
+    for i in [WELL_HUMAN,PLATE_HUMAN]:
+        print ("\n")
+        print (i)
+        #
+        print(read_data[i])
+        print(meta_data[i])
         if len(set(read_data[i]) & set(meta_data[i])) == 0:
             raise Exception("Different {} format: hts data {} and meta_data {}".format(i,
                                                                                        set(read_data[i]),
@@ -292,4 +309,3 @@ def rename_pd_columns(data_frame, rename_dict):
         LOG.warning("Did not rename pandas dataframe columns - no dict was provided.")
 
     return data_frame
-

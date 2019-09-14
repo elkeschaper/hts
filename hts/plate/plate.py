@@ -544,11 +544,17 @@ class Plate:
         # Calculate the p-Value of all data points compared to the null distribution.
         # Inspired by:
         # http://stackoverflow.com/questions/17559897/python-p-value-from-t-statistic
-        p_value = scipy.stats.norm(null_mean, null_std).cdf(all_readouts)
+        #p_value = scipy.stats.norm(null_mean, null_std).cdf(all_readouts)
 
         # Alternative pvalue calculation:
         ## p_value for one-sided test. For two-sided test, multiply by 2:
-        # p_value = scipy.stats.norm.sf(abs(standard_score))
+        p_value = 2*scipy.stats.norm.sf(abs(standard_score))
+        #print('p_value', p_value)
+        #print ('\n')
+        #print('all_readouts', all_readouts)
+        #print ('\n')
+        #print('null_distribution_values', null_distribution_values)
+        #print ('\n')
 
         # ToDo: Check and understand
         if is_higher_value_better in [True, "true", "True", "TRUE"]:
@@ -588,7 +594,7 @@ class Plate:
                               tag=data_tag_ssmd)
 
 
-    def classify_by_cutoff(self, data_tag_readout, data_tag_classified_readout, threshold, is_higher_value_better=True, is_twosided=False, **kwargs):
+    def classify_by_cutoff(self, data_tag_readout, data_tag_classified_readout, threshold, is_higher_value_better=True, is_twosided=True, **kwargs):
         """
         Map a dataset of float values to either binary (`is_twosided==False`) or [-1,0,1] (`is_twosided==True`), depending
         on whether values fall below `threshold`
@@ -747,8 +753,3 @@ class Plate:
 
         x, y = self.flatten_data(wells=sampled_wells, values=values)
         return x, y
-
-
-
-
-

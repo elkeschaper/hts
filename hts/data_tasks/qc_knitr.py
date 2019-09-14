@@ -647,6 +647,43 @@ print(d_qc_score[with(d_qc_score, order(pos, plate_name)), ])'''
     return description, calculation
 
 
+def histogram():
+    description = '''
+Overlaid histograms to visualise the overlap of value densities per sample type.'''
+    
+    calculation = '''
+
+# Get the range of densities to adjust the ratio of plots in each facet
+# Use values returned by hist(), as ggplot returns those only at print time
+
+# Get densities separately for each plate and sample type, and append them to get overall min and max
+n_bins <- 30
+densities <- vector("numeric")
+plates <- as.vector(unique(d$plate_name))
+sample_types <- as.vector(unique(d$sample))
+for (i in 1:length(plates)) {
+    d_p <- subset(d, plate_name==plates[i])
+    d_p_y <- subset(d, plate_name==plates[i], select="y")
+    breaks_p <- seq(min(d_p_y), max(d_p_y), l=n_bins+1)
+    for (j in 1:length(sample_types)) {
+        d_s <- as.vector(subset(d, sample==sample_types[j] & plate_name==plates[i], select="y"))
+        h_s <- hist(d_s[,1], breaks=breaks_p, plot=FALSE)
+        densities <- append(densities, h_s$density)
+        }
+    }
+ratio.values <- (max(d$y)-min(d$y))/(max(densities)-min(densities))
+ratio.display <- 2/3
+
+p = ggplot(d, aes(y, ..density.., fill=sample)) + geom_histogram(alpha=.5, position="identity")
+p = p + facet_wrap( ~plate_name, ncol=2, scales="fixed", shrink = FALSE)
+p = p + scale_colour_manual(values=cbbPalette) + xlab("net FRET")
+# This is where we would set the ratio of plots
+#p = p + coord_fixed(ratio=(ratio.values / ratio.display))
+p + beautifier()'''
+
+    return description, calculation
+
+
 def smoothed_histogram():
     description = '''
 Smoothed histogram to visualise the overlap of value densities per sample type.'''

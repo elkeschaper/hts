@@ -578,9 +578,17 @@ class Run:
             **kwargs: kwargs passed on to `run_io.add_meta_data`
 
         """
+        print("blablabla")
+        #print (self.config_data["meta_data"])
+        print (len(self.config_data["meta_data"]))
+        #print (self.config_data["meta_data"].values())
+        print (tag)
         if tag == None:
             if len(self.config_data["meta_data"]) == 1:
+                print ("yes")
+
                 config_data = next (iter (self.config_data["meta_data"].values()))
+                print(config_data)
             else:
                 raise Exception("There is more than one set of meta_data: {}. Define which one to add.".format(self.config_data["meta_data"].keys()))
         else:
