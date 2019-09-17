@@ -1,0 +1,16 @@
+fluorophore_acceptor,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,fluorophore_donor_acceptor
+fluorophore_donor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,buffer
+fluorophore_acceptor,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,fluorophore_donor_acceptor
+fluorophore_donor,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,buffer
+fluorophore_acceptor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,fluorophore_donor_acceptor
+fluorophore_donor,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,buffer
+fluorophore_acceptor,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,fluorophore_donor_acceptor
+fluorophore_donor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,buffer
+fluorophore_acceptor,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,fluorophore_donor_acceptor
+fluorophore_donor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,buffer
+fluorophore_acceptor,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,s,neg_0,s,s,s,pos_0,s,s,fluorophore_donor_acceptor
+fluorophore_donor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,buffer
+fluorophore_acceptor,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,fluorophore_donor_acceptor
+fluorophore_donor,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,buffer
+fluorophore_acceptor,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,fluorophore_donor_acceptor
+fluorophore_donor,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,ignore,buffer

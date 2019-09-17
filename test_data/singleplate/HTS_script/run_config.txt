@@ -1,0 +1,65 @@
+experimenter = Valeria Eckhardt
+experimenter_mail = Valeria.Eckhardt@usz.ch
+send_mail_upon_qc = False
+plate_names = P1
+base_path = /Users/merveavar/PrionX_HTS
+
+### Data
+[plate_layout]
+    path =  Plate_layout/MDD_platelayout.csv
+    format = csv
+
+[readout]
+    [[fret]]
+        path = Readout/PrPc_Fret
+        filenames = P1.csv
+        format = envision_csv
+    [[realtimeglo]]
+        path = Readout/RT-Glo
+        filenames = RT-P1.csv
+        format = envision_csv
+
+[meta_data]
+    [[sirna]]
+        format = csv
+        exclude_columns = source_well,source_row,source_column,destination_row,destination_column
+        well_name_pattern = "{}{}"
+        [[[data_kwargs]]]
+            delimiter = ","
+            filepath_or_buffer = Picklist/Picklist_1.csv
+        [[[rename_columns]]]
+            source_plate = source_plate_name
+            destination_well = well_name
+            destination_plate = plate_name
+
+### What to do with the data
+[protocol]
+    path = HTS_script/protocol_config.txt
+    format = config
+
+[Quality control report]
+    path = Analysis_result/QC
+
+[Summary analysis report]
+    path = Analysis_result/Summary
+
+[RealtimeGLO report]
+    path = Analysis_result/RealtimeGLO
+
+[Gaussian process normalization report]
+    path = Analysis_result/Gaussian_process_normalization
+
+[Normalization report]
+    path = Analysis_result/Normalization_summary
+
+
+[siRNA: Gaussian process normalization neg_0]
+[siRNA: Gaussian process normalization pos_0]
+[siRNA: Gaussian process normalization s]
+
+
+[write]
+#    pickle_path = Pickles/2017.06.09_PrPc_screen.pickle
+    data_frame_all_path = Analysis_result/PrPc_screen_data_frame_all.csv
+    data_frame_samples_path = Analysis_result/PrPc_screen_data_frame_samples.csv
+    aggregated_path = Analysis_result/PrPc_screen_aggregated.csv

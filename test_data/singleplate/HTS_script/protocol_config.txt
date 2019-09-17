@@ -1,0 +1,745 @@
+name = siRNA_hit
+
+#### Net-FRET calculations
+[siRNA: Calculate the net Fret signal.]
+    tags = preprocessing,
+    method = calculate_net_fret
+    donor_channel = fret_2
+    acceptor_channel = fret_1
+    net_fret_key = net_fret
+
+[siRNA: Calculate standard score (z-score) and p value of signal compared to negative control]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret
+    sample_tag_null_distribution = neg_0
+    data_tag_standard_score = signal__vs__neg__standard_score
+    data_tag_p_value = signal__vs__neg__p_value
+    is_higher_value_better = False
+
+[siRNA: Calculate standard score (z-score) and p value of up-regulated signal compared to negative control]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret
+    sample_tag_null_distribution = neg_0
+    data_tag_standard_score = signal_up_vs__neg__standard_score
+    data_tag_p_value = signal_up_vs__neg__p_value
+    is_higher_value_better = True
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to positive control]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret
+    sample_tag_null_distribution = pos_0
+    data_tag_standard_score = signal__vs__pos__standard_score
+    data_tag_p_value = signal__vs__pos__p_value
+    is_higher_value_better = False
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to all samples]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret
+    sample_tag_null_distribution = s
+    data_tag_standard_score = signal__vs__s__standard_score
+    data_tag_p_value = signal__vs__s__p_value
+    is_higher_value_better = False
+
+[siRNA: Randomize standard score (readout vs sample distribution) for all samples.]
+    tags = preprocessing,
+    method = randomize_values
+    data_tag_readout = signal__vs__s__standard_score
+    data_tag_randomized_readout = signal__vs__s__standard_score__randomized
+
+
+#### Normalizing Net-FRET by positive and negative control.
+[siRNA: Perform global normalisation of the net-fret signal]
+    tags = preprocessing,
+    method = calculate_control_normalized_signal
+    data_tag_readout = net_fret
+    # negative and positive control are inverted here, as we wish to set the positive control to 0, and the negative control to 1.
+    negative_control_key = pos_0
+    positive_control_key = neg_0
+    local = False
+    data_tag_normalized_readout = net_fret__n__pos_neg
+
+[siRNA: Calculate standard score (z-score) and pvalue of net-fret normalized by pos and neg controls compared to all samples]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__n__pos_neg
+    sample_tag_null_distribution = s
+    data_tag_standard_score = net_fret__n__pos_neg__vs__s__standard_score
+    data_tag_p_value = net_fret__n__pos_neg__vs__s__p_value
+    is_higher_value_better = False
+
+
+#### RT-GLO calculations
+[siRNA: For RT-Glo, calculate standard score (z-score) and pvalue of signal compared to all samples.]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = realtimeglo_1
+    sample_tag_null_distribution = s,
+    data_tag_standard_score = rtglo_signal__vs__s__standard_score
+    data_tag_p_value = rtglo_signal__vs__s__p_value
+    is_higher_value_better = False
+
+[siRNA: For RT-Glo, classify.]
+    tags = preprocessing,
+    method = classify_by_cutoff
+    data_tag_readout = rtglo_signal__vs__s__standard_score
+    data_tag_classified_readout = rtglo_signal__vs__s__standard_score_classified
+    threshold = 3
+    is_twosided = True
+
+
+#### Normalizing Net-FRET by RT-GLO
+# We do not do background correction in this case, as the RT-Glo luminescence background is ~1-2% compared to the cell signal.
+# Really, we should calculate (netfret(i)-netfret(blanks))/(rtglo(i)-rtglo(blanks))
+[siRNA: With RT-Glo, correct the net-FRET data.]
+    tags = preprocessing,
+    method = calculate_normalization_by_division
+    unnormalized_key = net_fret
+    normalizer_key = realtimeglo_1
+    normalized_key = net_fret__div__rtglo
+
+[siRNA: For RT-Glo corrected net_fret, calculate standard score (z-score) and pvalue of signal compared to all samples.]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__div__rtglo
+    sample_tag_null_distribution = s,
+    data_tag_standard_score = net_fret__div__rtglo_signal__vs__s__standard_score
+    data_tag_p_value = net_fret__div__rtglo_signal__vs__s__p_value
+    is_higher_value_better = False
+
+[siRNA: For RT-Glo corrected net_fret, calculate standard score (z-score) and pvalue of signal compared to negative controls.]
+    tags = preprocessing,
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__div__rtglo
+    sample_tag_null_distribution = s,
+    data_tag_standard_score = net_fret__div__rtglo_signal__vs__neg__standard_score
+    data_tag_p_value = net_fret__div__rtglo_signal__vs__neg__p_value
+    is_higher_value_better = False
+
+
+
+
+[Quality control report]
+    tags = qc,
+    method = qc_knitr.create_report
+    title = QC report
+    resultfile_tag = qc_report
+    [[Plate layout]]
+        method = plate_layout
+        text = "Distribution of samples, controls, buffer and FRET reagents. There are two types of positive controls (knockout, siRNA targeted knockdown), with knockouts only in Column 1."
+    [[1. Net-FRET: siRNA controls]]
+        method = heat_map
+        text = "siRNA controls (pos: PrP target siRNA, neg: non-target siRNA)"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample]]]]
+                values = neg_0, pos_0
+                is_negated = False
+    [[1. Net-FRET: siRNA samples]]
+        method = heat_map
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[1. Full-plate measurements in frequency channel 1]]
+        method = heat_map
+        [[[filter]]]
+            y = fret_1
+    [[1. Full-plate measurements in frequency channel 2]]
+        method = heat_map
+        [[[filter]]]
+            y = fret_2
+        [[[verbosity]]]
+            echo = False
+    [[1: Full-plate Net-FRET signal]]
+        method = heat_map
+        text = "The Net-FRET signal is the channel 2 signal, normalized by both channel 1 readouts and FRET-reagent channel 1 & 2 readouts."
+        [[[filter]]]
+            y = net_fret
+    [[2.a Control and sample distributions]]
+        method = smoothed_histogram
+        text = "Distributions are shown for raw net-FRET data. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=10"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = neg, pos, s
+                is_negated = False
+    [[2.b Control and sample distributions]]
+        method = histogram
+        text = "Distributions are shown for raw net-FRET data. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+        options = "fig.height=8, fig.width=10"
+        [[[filter]]]
+        y = net_fret
+        [[[[sample_type]]]]
+        values = s, pos, neg
+        is_negated = False
+
+    [[2.c Control and sample distributions (excl KO)]]
+        method = smoothed_histogram
+        text = "Distributions are shown for raw net-FRET data. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=10"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+    [[2.d Control and sample distributions (excl KO)]]
+        method = histogram
+        text = "Distributions are shown for raw net-FRET data. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=8, fig.width=10"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+            values = s, pos, neg
+            is_negated = False
+        [[[[sample]]]]
+            values = pos_1
+            is_negated = True
+    [[2.e z prime-factor]]
+        method = z_prime_factor
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = pos, neg
+                is_negated = False
+    [[2.f SSMD]]
+        method = ssmd
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = pos, neg
+                is_negated = False
+    [[2.g Checking for row or columns effects on the plate (sample only)]]
+        method = chessboard_pattern
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[3.a) Full-plate realtime-glo heatmap]]
+        method = heat_map
+        [[[filter]]]
+            y = realtimeglo_1
+    [[3.b) realtime-glo heatmap (sample only)]]
+        method = heat_map
+        [[[filter]]]
+            y = realtimeglo_1
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[3.c) realtime-glo heatmap (siRNA controls)]]
+        method = heat_map
+        [[[filter]]]
+            y = realtimeglo_1
+            [[[[sample]]]]
+                values = pos_0, neg_0
+                is_negated = False
+
+
+
+[siRNA: Train Gaussian process s]
+    tags = analysis, gp
+    method = gaussian_processes.add_gaussian_processes
+    data_tag_readout = net_fret
+    sample_tags = s
+    [[rbf]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 3
+                [[[[[variance]]]]]
+                    fix = 1
+    [[rbf2]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 5
+                [[[[[variance]]]]]
+                    fix = 1
+    [[rbf_unconstrained]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+    [[stdperiodic_row]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[StdPeriodic]]]
+            kernel_type=StdPeriodic
+            [[[[info]]]]
+                ARD1 = True  # Sets period to multiple dimensions.
+            [[[[constraints]]]]
+                [[[[[period]]]]]
+                    fix = 400,2
+
+
+[siRNA: Train Gaussian process neg_0]
+    tags = analysis, gp
+    method = gaussian_processes.add_gaussian_processes
+    data_tag_readout = net_fret
+    sample_tags = neg_0
+    [[rbf]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 3
+                [[[[[variance]]]]]
+                    fix = 1
+
+
+[siRNA: Train Gaussian process pos_0]
+    tags = analysis, gp
+    method = gaussian_processes.add_gaussian_processes
+    data_tag_readout = net_fret
+    sample_tags = pos_0
+    [[rbf]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 3
+                [[[[[variance]]]]]
+                    fix = 1
+
+[siRNA: Predict plate wise data with all Gaussian processes and select the GP with lowest BIC.]
+    tags = analysis, gp
+    method = gaussian_processes.do_gaussian_process_prediction
+    data_tag_readout = net_fret
+    best_mean_tag = best__s__predicted_mean
+    best_sd_tag = best__s__predicted_sd
+    sample_tags = s,
+
+[siRNA: Sample normalization: Subtract Gaussian process posterior mean from data to calculate the biological signal.]
+    tags = analysis, gp
+    method = subtract_readouts
+    data_tag_readout_minuend = net_fret
+    data_tag_readout_subtrahend = best__s__predicted_mean
+    data_tag_readout_difference = net_fret__normalized_by__best_gp
+
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to sample for best gp normalized data.]
+    tags = analysis, gp
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__normalized_by__best_gp
+    sample_tag_null_distribution = s
+    data_tag_standard_score = best_gp_normalized_signal__vs__s__standard_score
+    data_tag_p_value = best_gp_normalized_signal__vs__s__p_value
+    is_higher_value_better = False
+
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to negative control for best gp normalized data.]
+    tags = analysis, gp
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__normalized_by__best_gp
+    sample_tag_null_distribution = neg_0
+    data_tag_standard_score = best_gp_normalized_signal__vs__neg__standard_score
+    data_tag_p_value = best_gp_normalized_signal__vs__neg__p_value
+    is_higher_value_better = False
+
+#### Repeat the GP normalization for RT-Glo pre-normalized data
+[siRNA: Train Gaussian process RT-Glo normalized]
+    tags = analysis, gp
+    method = gaussian_processes.add_gaussian_processes
+    data_tag_readout = net_fret__div__rtglo
+    sample_tags = s
+    [[rbf]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 3
+                [[[[[variance]]]]]
+                    fix = 1
+    [[rbf2]]
+        is_per_plate = True
+        is_zigzag = False
+        [[[RBF]]]
+            kernel_type=RBF
+            [[[[constraints]]]]
+                [[[[[lengthscale]]]]]
+                    fix = 5
+                [[[[[variance]]]]]
+                    fix = 1
+
+[siRNA: Predict plate wise data with all Gaussian processes and select the GP with lowest BIC (RT-Glo).]
+    tags = analysis, gp
+    method = gaussian_processes.do_gaussian_process_prediction
+    data_tag_readout = net_fret__div__rtglo
+    best_mean_tag = rt_glo__best__s__predicted_mean
+    best_sd_tag = rt_glo__best__s__predicted_sd
+    sample_tags = s,
+
+[siRNA: Sample normalization: Subtract RT-Glo + Gaussian process posterior mean from data to calculate the biological signal.]
+    tags = analysis, gp
+    method = subtract_readouts
+    data_tag_readout_minuend = net_fret__div__rtglo
+    data_tag_readout_subtrahend = rt_glo__best__s__predicted_mean
+    data_tag_readout_difference = net_fret__normalized_by__rt_glo__best_gp
+
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to sample for RT-Glo + best gp normalized data.]
+    tags = analysis, gp
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__normalized_by__rt_glo__best_gp
+    sample_tag_null_distribution = s
+    data_tag_standard_score = rt_glo__best_gp_normalized_signal__vs__s__standard_score
+    data_tag_p_value = rt_glo__best_gp_normalized_signal__vs__s__p_value
+    is_higher_value_better = False
+
+
+[siRNA: Calculate standard score (z-score) and pvalue of signal compared to negative control for RT-Glo + best gp normalized data.]
+    tags = analysis, gp
+    method = calculate_significance_compared_to_null_distribution
+    data_tag_readout = net_fret__normalized_by__rt_glo__best_gp
+    sample_tag_null_distribution = neg_0
+    data_tag_standard_score = rt_glo__best_gp_normalized_signal__vs__neg__standard_score
+    data_tag_p_value = rt_glo__best_gp_normalized_signal__vs__neg__p_value
+    is_higher_value_better = False
+
+
+
+[siRNA: Calculate local SSMD from Gaussian process neg_0 and pos_0 predictions.]
+    tags = analysis, gp
+    method = data_normalization.calculate_local_ssmd
+    data_tag_mean_pos = net_fret__neg_0__rbf__predicted_mean
+    data_tag_mean_neg = net_fret__pos_0__rbf__predicted_mean
+    data_tag_std_pos = net_fret__neg_0__rbf__predicted_sd
+    data_tag_std_neg = net_fret__pos_0__rbf__predicted_sd
+    data_tag_ssmd = net_fret__predicted_local_ssmd
+
+
+[siRNA: For local SSMD, classify. Needs fixing.]
+    tags = analysis, broken
+    method = data_normalization.classify_by_cutoff
+    data_tag_readout = net_fret__predicted_local_ssmd
+    data_tag_classified_readout = net_fret__predicted_local_ssmd_classified
+    threshold = -2
+    is_twosided = False
+
+
+[Summary analysis report]
+    tags = analysis, report
+    method = qc_knitr.create_report
+    title = Summary hit selection analysis report
+    resultfile_tag = summary_hit_selection_analysis
+    [[Plate layout]]
+        method = plate_layout
+    [[1. Net FRET Sample]]
+        method = heat_map
+        text = "Duplicates are spread across neighboring plates to different well positions. For hit selection, results for duplicates is aggregated. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[2.a) Regression: Replicate correlation]]
+        method = replicate_correlation
+        text = "Shown is the linear regression of the raw net-FRET signal of duplicates. **[Data tag: net_fret]**"
+        [[[options]]]
+            replicate_defining_column = meta_SEQUENCE
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[2.b) Robust regression: Replicate correlation]]
+        method = replicate_correlation_robust
+        text = "Shown is the robust linear regression of the raw net-FRET signal of duplicates. **[Data tag: net_fret]**"
+        [[[options]]]
+            replicate_defining_column = meta_SEQUENCE
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[2.c) Robust regression: Replicate correlation (RT-Glo normalization)]]
+        method = replicate_correlation_robust
+        text = "Shown is the robust linear regression of duplicates for the net-FRET signal divided by RT-GLO signal. **[Data tag: net_fret__div__rtglo]**"
+        [[[options]]]
+            replicate_defining_column = meta_SEQUENCE
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__div__rtglo
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[2.d) Robust regression: Replicate correlation (Gaussian process normalization)]]
+        method = replicate_correlation_robust
+        text = "Shown is the robust linear regression of duplicates for the Gaussian process normalized net-FRET signal. **[Data tag: net_fret__normalized_by__best_gp]**"
+        [[[options]]]
+            replicate_defining_column = meta_SEQUENCE
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__normalized_by__best_gp
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[3.a) Standard score of net-FRET data compared to the sample distribution.]]
+        method = heat_map
+        text = "For each plate, how extreme is a signal compared to all other siRNAs? As the endocytome is not a random selection of genes, but a focus set, this may be the most informative comparison. **[Data tag: signal__vs__s__standard_score]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = signal__vs__s__standard_score
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[3.b) Standard score of net-FRET data compared to the negative control distribution.]]
+        method = heat_map
+        text = "For each plate, how extreme is a signal compared to the negative control? If we can assume the negative control to act consistently across plates, this is a viable alternative/enhancing measure besides the comparison of a sample to all other samples.  **[Data tag: signal__vs__neg__standard_score]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = signal__vs__neg__standard_score
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[3.c) Randomized signal vs sample standard score.]]
+        method = heat_map
+        text = "To get an intuitive feeling for random data distributions, here we show the standard score with randomized sample wells per plate. This data is only has illustrative purposes, and is not used in the remainder. **[Data tag: signal__vs__s__standard_score__randomized]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = signal__vs__s__standard_score__randomized
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[4.a1) Net-FRET signal normalized by best fit Gaussian process prediction.]]
+        method = heat_map
+        text = "We used the best fit Gaussian process prediction to normalize all net-FRET data. Shown is the normalized signal. **[Data tag: net_fret__normalized_by__best_gp]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__normalized_by__best_gp
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[4.a2) For reference: Raw net-FRET signal]]
+        method = heat_map
+        text = "To compare the normalized Net-FRET data, shown is again the raw net-FRET signal. **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s
+                is_negated = False
+    [[4.b1) Net-FRET: significance]]
+        method = heat_map_log10_mark_conditionally
+        text = "In comparison, the position of hits on each plate for net-FRET data, not taking into account duplicates.  **[Data tag: signal__vs__s__p_value]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[options]]]
+            condition = y<=-2
+            color = black
+        [[[filter]]]
+            y = signal__vs__s__p_value
+        [[[[sample_type]]]]
+            values = s
+            is_negated = False
+    [[4.b2) Net-FRET signal normalized by best fit Gaussian process: significance]]
+        method = heat_map_log10_mark_conditionally
+        text = "The position of hits on each plate for Gaussian process normalised data, not taking into account duplicates. **[Data tag: best_gp_normalized_signal__vs__s__p_value]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[options]]]
+            condition = y<=-2
+            color = black
+        [[[filter]]]
+            y = best_gp_normalized_signal__vs__s__p_value
+        [[[[sample_type]]]]
+            values = s
+            is_negated = False
+    [[4.b3) Net-FRET signal normalized by RT-Glo readout: significance]]
+        method = heat_map_log10_mark_conditionally
+        text = "In comparison, the position of hits on each plate for RT-Glo normalized data, not taking into account duplicates.  **[Data tag: net_fret__div__rtglo_signal__vs__s__p_value]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[options]]]
+            condition = y<=-2
+            color = black
+        [[[filter]]]
+            y = net_fret__div__rtglo_signal__vs__s__p_value
+        [[[[sample_type]]]]
+            values = s
+            is_negated = False
+
+
+
+[Gaussian process normalization report]
+    tags = analysis, report
+    method = qc_knitr.create_report
+    title = Gaussian process data normalization report
+    resultfile_tag = gaussian_process
+    [[1. Net FRET signal]]
+        method = heat_map
+        text = "For reference, the raw Net-FRET signal for samples and siRNA controls is shown. Gaussian processes can be used to model control distributions and/or sample distributions (w advantages and disadvantages for both approaches). This book provides an excellent introduction to Gaussian processes: http://www.gaussianprocess.org/gpml/ ."
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+    [[2.a) Gaussian process prediction: net_fret__s__rbf__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process with and constrained RBF kernel (l=3, v=1) on the sample data. **[Data tag: net_fret__s__rbf__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__s__rbf__predicted_mean
+    [[2.b) Gaussian process prediction: net_fret__s__rbf_unconstrained__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process with and unconstrained RBF kernel on the sample data. **[Data tag: net_fret__s__rbf_unconstrained__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__s__rbf_unconstrained__predicted_mean
+    [[2.c) Gaussian process prediction: net_fret__s__rbf2__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process with a constrained RBF kernel (l=5, v=1) on the sample data. **[Data tag: net_fret__s__rbf_unconstrained__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__s__rbf2__predicted_mean
+    [[2.d) Gaussian process prediction: net_fret__s__rbf2__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process with a constrained StdPeriodic kernel on the sample data. **[Data tag: net_fret__s__stdperiodic_row__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__s__stdperiodic_row__predicted_mean
+    [[3.a) Best fit Gaussian process prediction]]
+        method = heat_map
+        text = "For each plate, we chose the Gaussian process with the best fit (chosen by lowest BIC, see https://en.wikipedia.org/wiki/Bayesian_information_criterion ) to model the data. **[Data tag: best__s__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = best__s__predicted_mean
+    [[3.b) Net-FRET signal normalized by best fit Gaussian process prediction: net_fret__normalized_by__best_gp]]
+        method = heat_map
+        text = "For reference, we used the best fit Gaussian process prediction to normalize all net-FRET data. More plots/results in the Summary analysis report. **[Data tag: net_fret__normalized_by__best_gp]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__normalized_by__best_gp
+    [[4.a) Gaussian process prediction for negative control data: net_fret__neg_0__rbf__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process w constrained RBF kernel (l=3, v=1) to fit the negative control data (Due to strong heterogeneity in the neg control data, this is currently not used.). **[Data tag: net_fret__neg_0__rbf__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__neg_0__rbf__predicted_mean
+    [[4.b) Gaussian process prediction for positive control data: net_fret__pos_0__rbf__predicted_mean]]
+        method = heat_map
+        text = "For each plate, we trained a Gaussian process w constrained RBF kernel (l=3, v=1) to fit the positive control data (Due to strong heterogeneity in the pos control data, this is currently not used.). **[Data tag: net_fret__pos_0__rbf__predicted_mean]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__pos_0__rbf__predicted_mean
+
+[RealtimeGLO report]
+    tags = analysis, report
+    method = qc_knitr.create_report
+    title = Realtime-GLO report
+    resultfile_tag = realtime_glo_report
+    [[1. Full-plate RT-Glo]]
+        method = heat_map
+        text = "Realtime-GLO reagents were added to measure a proxy to the number of viable cells per well (added 24hrs post siRNA transfection; leading to detectable luminescence for up to 72hrs onwards according to the manufacturer). Please find more info here: http://ch.promega.com/products/cell-health-and-metabolism/cell-viability-assays/realtime-glo-monitor-cell-viability-in-real-time/realtime_glo-mt-cell-viability-assay/ . **[Data tag: realtimeglo_1]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = realtimeglo_1
+    [[2. RT-Glo Standard score]]
+        method = heat_map
+        text = "We compute the distribution of RT-Glo signal for all siRNA samples (excluding controls), and -- assuming normality of this distribution -- calculate p-values and standard scores for all measurements with respect to this distribution. Potentially, these can be used to define thresholds for extreme low/high cell viability, and may be used in the analysis of the net-FRET data. A very good explanation of the standard score is on wikipedia: https://en.wikipedia.org/wiki/Standard_score .  **[Data tag: rtglo_signal__vs__s__standard_score]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = rtglo_signal__vs__s__standard_score
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+    [[3. Net-FRET signal]]
+        method = heat_map
+        text = "For reference, the Net-FRET signal for samples and siRNA controls is shown.  **[Data tag: net_fret]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+    [[4. Net-FRET signal normalized by RT-Glo readout]]
+        method = heat_map
+        text = "The Net-FRET signal normalized by the RT-Glo (by division. No background correction is currently applied, as the RT-Glo luminescence background is ~1-2% compared to the cell signal.).  **[Data tag: net_fret__div__rtglo]**"
+        [[[knitr_options]]]
+            options = "fig.height=7"
+        [[[filter]]]
+            y = net_fret__div__rtglo
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+    [[5. RT-Glo Control and sample distributions]]
+        method = smoothed_histogram
+        text = "Distributions are shown for RT-Glo data. **[Data tag: realtimeglo_1]**"
+        [[[knitr_options]]]
+            options = "fig.height=10"
+        [[[filter]]]
+            y = realtimeglo_1
+            [[[[sample_type]]]]
+                values = s, pos, neg
+                is_negated = False
+            [[[[sample]]]]
+                values = pos_1
+                is_negated = True
+
+
+

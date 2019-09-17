@@ -1,0 +1,214 @@
+Plate information 
+Plate,Repeat,Barcode,Measured height,Chamber temperature at start,Chamber temperature at end,Humidity at start,Humidity at end,Ambient temperature at start,Ambient temperature at end,Group,Label,ScanX,ScanY,Measinfo,Kinetics,Measurement date,
+1,1,,14.9,26.92,26.56,21.4,21.5,24.68,24.7,1,Lilly FRET(1),0,0,De=1st Ex=Top Em=Top Wdw=1,0,3/15/2018 10:07:43,
+
+Background information
+Plate,Label,Result,Signal,Flashes/Time,Meastime,MeasInfo,
+1,Lilly FRET,0,205,20,00:00:00.000,De=1st Ex=Top Em=Top Wdw=1,
+1,Lilly FRET,0,100,5,00:00:00.000,De=2nd Ex=Top Em=Top Wdw=1,
+
+Results for Lilly FRET(1) - channel 1 window 1 (Counts)
+,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
+A,183,35180,26864,32141,25699,32759,31253,37485,31549,35804,27949,32795,27301,32395,29834,36726,32081,38842,32913,35672,30611,35660,30433,16436
+B,13961,34596,38110,35749,35569,36067,36198,36114,36858,36875,35006,34668,35218,37883,34851,37422,36173,36357,35488,35896,33027,35500,34367,90
+C,135,34855,30241,21124,30773,31320,37098,36503,36261,31931,32270,19558,32816,34357,32458,36545,37063,40330,39875,21697,37975,36969,35351,15267
+D,13182,34654,33248,31487,34871,37965,37451,35117,21439,32886,34759,33104,35214,34300,34531,34860,21202,34724,36344,32377,35097,35253,34818,96
+E,147,34667,30995,31311,31330,35134,34235,35175,34951,34171,34050,32227,31085,29847,32543,36336,34303,39227,37923,38566,36296,35926,36989,15258
+F,13047,34654,35398,31738,36558,20731,35546,35515,33704,35959,34149,34667,36428,20604,36365,36810,36000,34464,30957,35603,35631,21219,36550,80
+G,143,34070,21415,34415,32240,32990,38022,38978,36077,35777,21175,32165,30318,31325,33663,35079,37952,41734,22288,40720,36846,37803,38375,16343
+H,13630,34162,32381,34729,39491,34788,36329,35166,36278,37028,38769,36749,35810,34965,34981,37174,37027,36391,36648,36868,34376,35357,37270,78
+I,156,35511,34870,33831,30422,33270,35199,22069,38494,33058,33318,31180,32032,29665,34573,21088,37625,39393,38669,38809,36104,37405,38209,15567
+J,13098,35483,37445,35055,37326,33186,30884,32059,38619,37298,34838,34798,33649,34215,37639,35151,35822,35312,37593,37043,36121,35061,35863,85
+K,162,32439,30272,30364,19581,30285,36408,36707,36042,35396,32265,34474,19134,31238,30656,34191,35898,39001,38266,39279,21293,36472,35196,15411
+L,12884,35618,36480,37316,34977,33219,35037,35556,36396,35160,34827,34409,36039,34124,35915,34107,36023,34312,33411,35868,35041,35615,36568,60
+M,149,20089,28393,32233,27084,30143,33224,33429,35840,20791,31846,31025,28315,31642,30974,32689,36611,21298,38535,35089,32484,35862,36962,15465
+N,13435,34280,33162,35345,33838,33050,20318,32957,31790,33572,33515,30306,32467,34294,20164,30705,33794,32500,33545,33061,33925,32222,21402,66
+O,156,33324,32997,34243,29906,32401,36625,38935,38306,35033,34131,33773,30161,30429,33350,30665,35633,37283,35530,35379,35933,38247,37359,16072
+P,13653,29618,35897,30380,35322,28187,35164,28214,34492,27375,34849,28298,34872,29469,35510,28520,35520,28422,36081,28434,36292,29591,37310,84
+
+Plate information 
+Plate,Repeat,Barcode,Measured height,Chamber temperature at start,Chamber temperature at end,Humidity at start,Humidity at end,Ambient temperature at start,Ambient temperature at end,Group,Label,ScanX,ScanY,Measinfo,Kinetics,Measurement date,
+1,1,,14.9,26.92,26.56,21.4,21.5,24.68,24.7,1,Lilly FRET(1),0,0,De=2nd Ex=Top Em=Top Wdw=1,0,3/15/2018 10:07:43,
+
+Background information
+Plate,Label,Result,Signal,Flashes/Time,Meastime,MeasInfo,
+1,Lilly FRET,0,205,20,00:00:00.000,De=1st Ex=Top Em=Top Wdw=1,
+1,Lilly FRET,0,100,5,00:00:00.000,De=2nd Ex=Top Em=Top Wdw=1,
+
+Results for Lilly FRET(1) - channel 2 window 1 (Counts)
+,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
+A,70,463998,464496,462204,462742,461333,463992,461137,466514,460694,462169,459036,462786,455251,463793,460971,460401,456355,459798,462731,460148,458917,460825,463740
+B,469249,458737,458543,455899,458522,461790,455548,459006,458233,460031,468053,446390,454090,456587,455024,456977,456061,455556,456246,455399,457374,454805,456233,91
+C,118,455807,456025,457738,456002,456167,453690,455666,454795,456218,457375,453055,450976,453205,452071,452766,453471,453270,450981,455020,452048,450419,450875,456406
+D,459666,452781,446305,452906,449420,452448,452172,452127,464264,450077,454066,450446,451288,450119,447755,451695,454430,451290,450469,452195,449516,450687,449017,64
+E,110,455825,452898,452611,453158,450680,451082,452311,454453,451735,450397,448559,447695,451198,447517,448455,447848,449247,449133,452191,453815,447505,448327,454030
+F,459524,450113,449713,448759,448308,451113,448809,452287,452417,448414,446767,445276,446390,449914,448690,448493,448713,448612,448145,450264,444423,446902,447976,77
+G,104,462621,462920,460848,462190,462423,460973,462569,462143,464409,463865,458196,459181,458987,458258,460481,458580,457507,459441,454227,457749,459009,456632,461298
+H,465924,457491,459727,459476,459278,458956,457896,458797,464778,456472,457582,457557,463890,457466,456866,457551,457797,457630,452861,461207,457205,456888,456758,90
+I,104,457639,456854,456945,458155,456601,456038,461459,461285,457343,456023,455227,460616,455388,454039,457503,453837,450885,453874,454925,454127,449889,452296,456568
+J,462439,453756,452136,453300,455974,452950,453371,453195,454204,454201,454094,452161,451664,454519,452520,451626,451357,452101,451977,451889,452996,453050,451808,71
+K,92,452466,454417,454803,454180,453649,450551,450501,452938,454408,450625,450296,454325,449864,450572,447964,449777,445283,448317,447469,451570,449420,447466,452965
+L,463409,449564,451942,450720,450523,447377,449810,450312,449791,453678,448951,446952,447610,449817,444190,448475,449404,448480,447297,446928,446438,447327,447178,70
+M,97,461097,460863,458909,456144,459944,457786,456232,457428,459910,455962,454927,456307,454664,455056,454444,454768,454455,453656,454087,454958,453188,452881,456703
+N,462861,457551,454165,456800,457895,456443,461462,458810,457495,456760,456041,454943,453110,453638,455800,454761,454909,454401,450737,452556,452183,452507,455015,77
+O,796,461408,461494,464440,463675,462666,463275,461417,469330,462852,460792,456485,459331,460827,458905,458525,457595,456965,457217,455659,456286,454929,456044,459867
+P,468436,459847,460713,462335,461147,463452,465041,464487,462411,461399,457724,458124,457936,457828,457465,457092,459082,458457,457868,459752,456377,456928,455446,64
+
+
+Basic assay information 
+Assay ID: ,,,,16133
+Assay Started: ,,,,3/15/2018 10:02:46
+Assay Finished: ,,,,3/15/2018 10:07:51
+Assay Exported: ,,,,3/22/2018 18:13:49
+Protocol ID: ,,,,100202
+Protocol Name: ,,,,Lilly FRET_384
+Serial#: ,,,,1040204
+
+
+
+Protocol information
+Protocol:
+Protocol name,,,,Lilly FRET_384
+Number of assay repeats,,,,1
+Start assay repeat each,,,,N/A
+Number of plate repeats,,,,1
+Start plate repeat each,,,,N/A
+Is label meas. height used,,,,Yes
+Height of measurement,,,,Defined in label
+Is gripper height used,,,,No
+Mode of measurement,,,,By Columns  bi-directional
+Rotated plate,,,,No
+Soft move,,,,No
+Protocol notes,,,, 
+
+Plate type:
+Name of the plate type,,,,384 OptiPlate
+Number of rows,,,,16
+Number of columns,,,,24
+Number of the wells in the plate,,,,384
+Height of the plate,,,,14.35 mm
+
+Coordinates of corners:
+384 OptiPlate + Lilly FRET
+12.1 mm x------------------------------------------------------- x 115.6 mm
+9 mm                                                               9 mm
+
+12.1 mm x------------------------------------------------------- x 115.6 mm
+76.5 mm                                                            76.5 mm
+
+Platemap:
+Plate,,,,1
+Group,,,,1
+
+,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
+A,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+B,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+C,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+D,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+E,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+F,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+G,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+H,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+I,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+J,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+K,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+L,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+M,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+N,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+O,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+P,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- ,- 
+
+ - - Undefined
+
+Calculations:
+No calculations.
+
+Auto export parameters:
+Export format,,,,Plate2
+Include basic assay information,,,,Yes
+Place assay information at,,,,End of file
+Include basic plate information,,,,Yes
+Place plate information at,,,,Beginning of plate
+Include protocol information,,,,Yes
+Protocol info level,,,,Large
+Include error and warning information,,,,Yes
+Include background information,,,,Yes
+Add plate number to the file name,,,,Yes
+Each plate to separate file,,,,No
+Field separator to use,,,,System
+File name format,,,,<DefaultDataFolder>\<Date>\<ProtocolName>_<AssayID>.mht
+
+Operations:
+Plate 1
+  Group 1
+    Measurement
+      Label,,,,Lilly FRET(1)
+
+Labels:
+Lilly FRET,,,,6000025
+Light source,,,,Laser
+Top mirror,,,,LANCE/DELFIA Bias
+Bottom mirror,,,,N/A
+Exc. filter,,,,N/A
+Using of excitation filter,,,,Top
+Ems. filter,,,,APC 665
+Using of emission filter,,,,Top
+2nd ems. filter,,,,Europium 615
+Using of 2nd emission filter,,,,Top
+Measurement height,,,,7.3 mm
+Cycle,,,,16600
+Delay,,,,30
+Number of flashes,,,,20
+Number of flashes for 2nd detector,,,,5
+Number of sequence windows,,,,1
+Total time of windows,,,,500
+Excitation light,,,,100%
+Reference excitation light,,,,100%
+Reference AD gain,,,,4
+Reference signal,,,,323509
+Last edited,,,,6/13/2014 09:17:06
+Last edited by,,,,EnVision
+Factory preset,,,,No
+
+Filters:
+APC 665,,,,205
+Filter type,,,,Emission
+Description,,,,M665 CWL=665nm BW=7 5nm Tmin=75%
+Used with,,,,Luminescence DELFIA - Time-resolved Fluorescence Fluorescence Intensity LANCE - Time-resolved Fluorescence
+Last edited,,,,10/16/2008 14:06:15
+Last edited by,,,,Installation
+Factory preset,,,,Yes
+
+Europium 615,,,,203
+Filter type,,,,Emission
+Description,,,,M615 CWL=615nm BW=8 5nm Tmin=80%
+Used with,,,,Luminescence DELFIA - Time-resolved Fluorescence Fluorescence Intensity LANCE - Time-resolved FluorescenceLuminescence DELFIA - Time-resolved Fluorescence Fluorescence Intensity LANCE - Time-resolved Fluorescence
+Last edited,,,,10/16/2008 14:06:15
+Last edited by,,,,Installation
+Factory preset,,,,Yes
+
+Mirror modules:
+LANCE/DELFIA Bias,,,,445
+Used by,,,,Top
+Dual,,,,No
+Bias,,,,Yes
+Description,,,,D400
+Used with,,,,Luminescence DELFIA - Time-resolved Fluorescence Fluorescence Intensity LANCE - Time-resolved Fluorescence
+Last edited,,,,10/16/2008 14:06:15
+Last edited by,,,,Installation
+Factory preset,,,,Yes
+
+Instrument:
+Serial number,,,,1040204
+Nickname,,,,EnVision
+
+Normalization:
+
+
+
+Notifications for plate 1  repeat 1:
+WARNING: Plate height defined in the plate editor does not match the actual plate height. Measured height is 14.90 mm. Plate editor height is 14.35 mm. The results may be affected.
+
+
+
+Exported with EnVision Workstation version X.XX Build X
